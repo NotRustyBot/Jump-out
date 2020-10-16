@@ -70,4 +70,5 @@ function sendControls() {
     view.setFloat32(ptr,controlVector.y);
 
     connection.send(buffer);
+    console.log(buffer);
 }
