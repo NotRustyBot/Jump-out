@@ -23,7 +23,7 @@ const fps = 1;
 setInterval(update, 1000 / fps);
 
 function update() {
-
+    sendControls();
 }
 
 let controlVector = { x: 0, y: 0 };
