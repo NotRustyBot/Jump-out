@@ -60,14 +60,14 @@ window.addEventListener("keyup", function (e) {
 });
 
 function sendControls() {
-    var ptr = 0;
+    var index = 0;
     const buffer = new ArrayBuffer(9);
     const view = new DataView(buffer);
-    view.setUint8(ptr,1);
-    ptr+=1;
-    view.setFloat32(ptr,controlVector.x);
-    ptr+=4;
-    view.setFloat32(ptr,controlVector.y);
+    view.setUint8(index,1);
+    index+=1;
+    view.setFloat32(index,controlVector.x);
+    index+=4;
+    view.setFloat32(index,controlVector.y);
 
     connection.send(buffer);
     console.log(buffer);
