@@ -5,6 +5,14 @@ connection.onopen = onConnectionOpen;
 connection.onmessage = onConnectionMessage;
 connection.onclose = onConnectionClose;
 
+let struct = {};
+struct.x = 0;
+struct.y = 0;
+struct.velx = 0;
+struct.vely = 0;
+struct.rotation = 0;
+
+
 function onConnectionClose(e) {
     console.log("Connection closed. Code: " + e.code + " Reason: " + e.reason);
 }
@@ -15,7 +23,33 @@ function onConnectionOpen() {
 function onConnectionMessage(messageRaw) {
     var ms = messageRaw.data;
     console.log(ms);
-    //parseMessage(ms);
+    parseMessage(ms);
+}
+
+// 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
+function parseMessage(message){
+    const view = new DataView(message);
+    let index = {i:0};
+    getPlayerFromMessage(view,index)
+    let controlX = view.getFloat32(index.i);
+    index.i += 4;
+    let controlY = view.getFloat32(index.i);
+    index.i += 4;
+    console.log("controlX: " + controlX + " Y:" + controlY + "struct on the next line");
+    console.log(struct);
+}
+
+function getPlayerFromMessage(view, index){
+    struct.x = view.getFloat32(index.i);
+    index.i += 4;
+    struct.y = view.getFloat32(index.i);
+    index.i += 4;
+    struct.velx = view.getFloat32(index.i);
+    index.i += 4;
+    struct.vely = view.getFloat32(index.i);
+    index.i += 4;
+    struct.rotation = view.getFloat32(index.i);
+    index.i += 4;
 }
 
 const fps = 1;
