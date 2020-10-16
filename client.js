@@ -1,5 +1,11 @@
-console.log("Connecting...");
-connection = new WebSocket("wss://jumpout.ws.coal.games/");
+if (window.location.hostname.length == 0) {
+    connection = new WebSocket("ws://localhost:20003/");
+    console.log("Connecting to local...");
+}else{
+    connection = new WebSocket("wss://jumpout.ws.coal.games/");
+    console.log("Connecting to server...");
+}
+
 connection.binaryType = "arraybuffer";
 connection.onopen = onConnectionOpen;
 connection.onmessage = onConnectionMessage;
