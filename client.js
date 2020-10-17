@@ -1,5 +1,6 @@
 if (window.location.hostname.length == 0) {
-    connection = new WebSocket("ws://localhost:20003/");
+    //connection = new WebSocket("ws://localhost:20003/");
+    connection = new WebSocket("wss://jumpout.ws.coal.games/");
     console.log("Connecting to local...");
 }else{
     connection = new WebSocket("wss://jumpout.ws.coal.games/");
@@ -11,12 +12,9 @@ connection.onopen = onConnectionOpen;
 connection.onmessage = onConnectionMessage;
 connection.onclose = onConnectionClose;
 
-let struct = {};
-struct.x = 0;
-struct.y = 0;
-struct.velx = 0;
-struct.vely = 0;
-struct.rotation = 0;
+
+var localPlayer = new Player();
+localPlayer.init();
 
 
 function onConnectionClose(e) {
@@ -28,7 +26,7 @@ function onConnectionOpen() {
 
 function onConnectionMessage(messageRaw) {
     var ms = messageRaw.data;
-    console.log(ms);
+    //console.log(ms);
     parseMessage(ms);
 }
 
@@ -36,29 +34,32 @@ function onConnectionMessage(messageRaw) {
 function parseMessage(message){
     const view = new DataView(message);
     let index = {i:0};
-    getPlayerFromMessage(view,index)
+    parsePlayer(view,index,localPlayer);
     let controlX = view.getFloat32(index.i);
     index.i += 4;
     let controlY = view.getFloat32(index.i);
     index.i += 4;
     console.log("controlX: " + controlX + " Y:" + controlY + "struct on the next line");
-    console.log(struct);
+    console.log(localPlayer);
+    document.getElementById("player").style.left =  localPlayer.ship.position.x + "px";
+    document.getElementById("player").style.top =  localPlayer.ship.position.y + "px";
+    document.getElementById("player").style.transform =  "rotate("+localPlayer.ship.rotation + "rad)";
 }
 
-function getPlayerFromMessage(view, index){
-    struct.x = view.getFloat32(index.i);
+function parsePlayer(view, index, player){
+    player.ship.position.x = view.getFloat32(index.i);
     index.i += 4;
-    struct.y = view.getFloat32(index.i);
+    player.ship.position.y = view.getFloat32(index.i);
     index.i += 4;
-    struct.velx = view.getFloat32(index.i);
+    player.ship.velocity.x = view.getFloat32(index.i);
     index.i += 4;
-    struct.vely = view.getFloat32(index.i);
+    player.ship.velocity.y = view.getFloat32(index.i);
     index.i += 4;
-    struct.rotation = view.getFloat32(index.i);
+    player.ship.rotation = view.getFloat32(index.i);
     index.i += 4;
 }
 
-const fps = 1;
+const fps = 30;
 
 setInterval(update, 1000 / fps);
 
@@ -110,5 +111,6 @@ function sendControls() {
     view.setFloat32(index,controlVector.y);
 
     connection.send(buffer);
-    console.log(buffer);
+    //console.log(buffer);
 }
+
