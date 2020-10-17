@@ -1,16 +1,61 @@
-if (window.location.hostname.length == 0) {
-    //connection = new WebSocket("ws://localhost:20003/");
-    connection = new WebSocket("wss://jumpout.ws.coal.games/");
-    console.log("Connecting to local...");
-}else{
-    connection = new WebSocket("wss://jumpout.ws.coal.games/");
-    console.log("Connecting to server...");
+
+var connection;
+let app = new PIXI.Application({
+    antialias: true
+});
+let loader = PIXI.Loader.shared;
+document.body.appendChild(app.renderer.view);
+
+app.renderer.view.width = window.innerWidth;
+app.renderer.view.height = window.innerHeight;
+app.renderer.resize(window.innerWidth, window.innerHeight);
+app.renderer.backgroundColor = 0xFFE793;
+
+window.addEventListener("resize", function () {
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+});
+
+loader
+    .add("player0", "images/player0.png");
+loader.onProgress.add(loadingProgress);
+loader.load(start);
+
+var playerSprite;
+var loaded=false;
+var connected=false;
+var running=false;
+
+function start() {
+    playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
+    document.getElementById("loadingBarContainer").style.display = "none";
+    playerSprite.scale.set(0.5);
+    playerSprite.anchor.set(0.5);
+    app.stage.addChild(playerSprite);
+    loaded = true;
+    app.ticker.add(graphicsUpdate);
+    connect();
+}
+function loadingProgress(e) {
+    document.getElementById("loadingBar").style.width = e.progress+"%";
+    console.log("loading", e.progress);
 }
 
-connection.binaryType = "arraybuffer";
-connection.onopen = onConnectionOpen;
-connection.onmessage = onConnectionMessage;
-connection.onclose = onConnectionClose;
+function connect(){
+    if (window.location.hostname.length == 0) {
+        //connection = new WebSocket("ws://localhost:20003/");
+        connection = new WebSocket("wss://jumpout.ws.coal.games/");
+        console.log("Connecting to local...");
+    } else {
+        connection = new WebSocket("wss://jumpout.ws.coal.games/");
+        console.log("Connecting to server...");
+    }
+    connection.binaryType = "arraybuffer";
+    connection.onopen = onConnectionOpen;
+    connection.onmessage = onConnectionMessage;
+    connection.onclose = onConnectionClose;
+}
+
+
 
 
 var localPlayer = new Player();
@@ -22,6 +67,9 @@ function onConnectionClose(e) {
 }
 function onConnectionOpen() {
     console.log("Connection opened");
+    connected = true;
+    //TEMP:
+    running = true;
 }
 
 function onConnectionMessage(messageRaw) {
@@ -31,22 +79,22 @@ function onConnectionMessage(messageRaw) {
 }
 
 // 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
-function parseMessage(message){
+function parseMessage(message) {
     const view = new DataView(message);
-    let index = {i:0};
-    parsePlayer(view,index,localPlayer);
+    let index = { i: 0 };
+    parsePlayer(view, index, localPlayer);
     let controlX = view.getFloat32(index.i);
     index.i += 4;
     let controlY = view.getFloat32(index.i);
     index.i += 4;
-    console.log("controlX: " + controlX + " Y:" + controlY + "struct on the next line");
-    console.log(localPlayer);
-    document.getElementById("player").style.left =  localPlayer.ship.position.x + "px";
-    document.getElementById("player").style.top =  localPlayer.ship.position.y + "px";
-    document.getElementById("player").style.transform =  "rotate("+localPlayer.ship.rotation + "rad)";
+    //console.log("controlX: " + controlX + " Y:" + controlY + "struct on the next line");
+    //console.log(localPlayer);
+    playerSprite.x = localPlayer.ship.position.x;
+    playerSprite.y = localPlayer.ship.position.y;
+    playerSprite.rotation = localPlayer.ship.rotation;
 }
 
-function parsePlayer(view, index, player){
+function parsePlayer(view, index, player) {
     player.ship.position.x = view.getFloat32(index.i);
     index.i += 4;
     player.ship.position.y = view.getFloat32(index.i);
@@ -64,7 +112,18 @@ const fps = 30;
 setInterval(update, 1000 / fps);
 
 function update() {
+    if(running){
     sendControls();
+    }
+}
+
+
+
+function graphicsUpdate(deltaTimeMs){
+    let deltaTime = deltaTimeMs/1000;
+    playerSprite.x += localPlayer.ship.velocity.x*deltaTime*20;
+    playerSprite.y += localPlayer.ship.velocity.y*deltaTime*20;
+    console.log(localPlayer.ship.velocity);
 }
 
 let controlVector = { x: 0, y: 0 };
@@ -104,11 +163,11 @@ function sendControls() {
     var index = 0;
     const buffer = new ArrayBuffer(9);
     const view = new DataView(buffer);
-    view.setUint8(index,1);
-    index+=1;
-    view.setFloat32(index,controlVector.x);
-    index+=4;
-    view.setFloat32(index,controlVector.y);
+    view.setUint8(index, 1);
+    index += 1;
+    view.setFloat32(index, controlVector.x);
+    index += 4;
+    view.setFloat32(index, controlVector.y);
 
     connection.send(buffer);
     //console.log(buffer);
