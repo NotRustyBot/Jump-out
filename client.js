@@ -248,7 +248,8 @@ app.stage.addChild(fpsText);
 
 function graphicsUpdate(deltaTimeFactor) {
     let deltaTime = app.ticker.deltaMS / 1000;
-    fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n Fuel" + localPlayer.afterBurnerFuel.toFixed(f);
+    let fuel = localPlayer.afterBurnerFuel || 0;
+    fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n Fuel" + fuel.toFixed(f);
     localPlayer.ship.position.x += localPlayer.ship.velocity.x * deltaTime;
     localPlayer.ship.position.y += localPlayer.ship.velocity.y * deltaTime;
     playerSprite.x = localPlayer.ship.position.x;
