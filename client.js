@@ -184,25 +184,27 @@ function parseMessage(message) {
     let index = { i: 0 };
     let messageType = view.getUint8(index.i);
     index.i += 1;
+    let countPlayers;
     switch (messageType) {
         case MESSAGE_TYPE.position:
             parsePlayer(view, index);
             //console.log(localPlayer.ship.stats);
-            let playersCount = view.getUint16(index.i);
+            countPlayers = view.getUint16(index.i);
             index.i += 2;
-            for (let i = 0; i < playersCount; i++){
+            for (let i = 0; i < countPlayers; i++){
                 let id = view.getUint16(index.i);
                 index.i += 2;
-                pl = Player.players.findIndex(id);
+                pl = Player.findID(id);
                 parseStats(view,index,pl)
+                console.log(pl);
             }
             break;
         case MESSAGE_TYPE.allStats:
             parseStats(view, index, localPlayer);
             console.log(localPlayer.ship.stats);
-            let playersCount = view.getUint16(index.i);
+            countPlayers = view.getUint16(index.i);
             index.i += 2;
-            for (let i = 0; i < playersCount; i++){
+            for (let i = 0; i < countPlayers; i++){
                 pl = new Player();
                 pl.init();
                 parseStats(view,index,pl)
