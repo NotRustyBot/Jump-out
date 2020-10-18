@@ -8,7 +8,7 @@ document.body.appendChild(app.renderer.view);
 app.renderer.view.width = window.innerWidth;
 app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
-app.renderer.backgroundColor = 0x1E1E1E;
+app.renderer.backgroundColor = 0x000000;
 
 
 
@@ -19,6 +19,10 @@ window.addEventListener("resize", function () {
 loader
     .add("player0", "images/player0.png")
     .add("kour", "images/kour.png")
+    .add("kour2", "images/kour2.png")
+    .add("kour3", "images/kour3.png")
+    .add("kour4", "images/kour4.png")
+    .add("kour5", "images/kour5.png")
     .add("spark", "images/spark.png")
     .add("player1", "images/player2.png")
     ;
@@ -30,9 +34,7 @@ var loaded = false;
 var connected = false;
 var running = false;
 
-let particleContainer = new PIXI.ParticleContainer();
-particleContainer.maxSize = 10000;
-//particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
+
 var particleSystem, particleSystem2;
 function start() {
     playerSprite = new PIXI.Sprite(loader.resources.player1.texture);
@@ -42,27 +44,42 @@ function start() {
     }, 1000);
     playerSprite.scale.set(0.5);
     playerSprite.anchor.set(0.5);
-    app.stage.addChild(particleContainer);
-    app.stage.addChild(playerSprite);
+    
 
-    particleSystem = new ParticleSystem();
-    particleSystem2 = new ParticleSystem({
-        texture: loader.resources.kour.texture,
+    particleSystem = new ParticleSystem({
+        texture: loader.resources.spark.texture,
         maxParticles: 100,
         emitRate: 1,
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
         randomVelocity: 50,
-        scale: new Ramp(1, 10),
-        alpha: new Ramp(0.01, 0),
-        velocity: new Ramp(400, 0),
-        color: new ColorRamp(0xFFFFFF, 0x000000),
+        scale: new Ramp(1, 1),
+        alpha: new Ramp(1, 0),
+        velocity: new Ramp(600, 0),
+        color: new ColorRamp(0xFFFFFF, 0x1199FF),
+        lifetime: new Ramp(0.1, 0.5)
+    });
+    particleSystem2 = new ParticleSystem({
+        texture: loader.resources.kour5.texture,
+        maxParticles: 100,
+        emitRate: 1,
+        inheritVelocity: 0,
+        inheritRotation: -50,
+        rotateToVelocity: true,
+        randomVelocity: 20,
+        scale: new Ramp(0.5, 5),
+        alpha: new Ramp(0.015, 0),
+        velocity: new Ramp(500, 0),
+        color: new ColorRamp(0xFFFFFF, 0xFDFDFD),
         lifetime: new Ramp(1, 3)
     });
 
+    app.stage.addChild(playerSprite);
+
     app.ticker.add(graphicsUpdate);
     loaded = true;
+    console.log("LOADED");
     connect();
 }
 function loadingProgress(e) {
@@ -92,11 +109,12 @@ localPlayer.init();
 
 function updateParticles(deltaTime) {
     if (running) {
-        if (localPlayer.ship.afterBurnerActive==1) {
+        if (localPlayer.ship.afterBurnerActive == 1) {
             if (localPlayer.ship.control.y == 1) particleSystem2.settings.emitRate = 1;
             particleSystem.settings.color.max = 0xff6200;
         }
-        else{ particleSystem.settings.color.max = 0x1199FF;
+        else {
+            particleSystem.settings.color.max = 0x1199FF;
             particleSystem2.settings.emitRate = 0;
         }
         if (localPlayer.ship.control.y == 0) particleSystem.settings.emitRate = 0;
@@ -185,7 +203,7 @@ function update() {
     if (running) {
         sendControls();
 
-        console.log(localPlayer.ship.afterBurnerFuel);
+        //console.log(localPlayer.ship.afterBurnerFuel);
     }
 }
 

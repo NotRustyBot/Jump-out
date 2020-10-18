@@ -167,9 +167,7 @@ function Particle(pos, vel, rot, lifetime, texture) {
         this.sprite.x = this.position.x;
         this.sprite.y = this.position.y;
         this.sprite.rotation = this.rotation;
-        if (this.age >= this.lifetime) {
-            this.sprite.destroy();
-        }
+        //console.log("DT:"+deltaTime,this.age);
     }
 }
 
@@ -181,6 +179,11 @@ function ParticleSystem(settings) {
         velocity: new Vector.zero(),
         rotation: 0
     }
+    this.container = new PIXI.ParticleContainer(10000, { scale: true, position: true, rotation: true, tint: true, });
+    //this.container = new PIXI.Container();
+    //TODO: WHY BROKEN UPDATE WITH PARTICLECONTAINER?????????
+    //this.container.blendMode = PIXI.BLEND_MODES.SCREEN;
+    app.stage.addChild(this.container);
     if (settings != null) this.settings = settings;
     else {
         this.settings = {
@@ -199,6 +202,10 @@ function ParticleSystem(settings) {
         }
     }
     this.update = function (deltaTime) {
+        /*let testSprite = new PIXI.Sprite(this.settings.texture);
+        this.container.addChild(testSprite);
+        testSprite.destroy();*/
+        //this.container.containerUpdateTransform();
         if (this.settings.emitRate > 0) {
             for (let i = 0; i < this.settings.emitRate; i++) {
 
@@ -217,7 +224,7 @@ function ParticleSystem(settings) {
                     1, this.settings.lifetime.evaluate(Math.random()), this.settings.texture);
                 if (this.settings.rotateToVelocity) newP.rotation = newP.velocityAngle;
                 this.particles.push(newP);
-                particleContainer.addChild(newP.sprite);
+                this.container.addChild(newP.sprite);
             }
 
         }
@@ -227,11 +234,17 @@ function ParticleSystem(settings) {
                 particle.velocity = Vector.fromAngle(particle.velocityAngle).mult(this.settings.velocity.evaluate(particle.ageRatio));
 
                 particle.sprite.scale.set(this.settings.scale.evaluate(particle.ageRatio));
+
                 particle.sprite.alpha = this.settings.alpha.evaluate(particle.ageRatio);
+                particle.sprite.tint = this.settings.color.evaluate(particle.ageRatio);
                 particle.update(deltaTime);
-                particle.sprite.tint = (this.settings.color.evaluate(particle.ageRatio));
             }
-            else if (particle.ageRatio >= 1) this.particles.splice(i, 1);
+            else if (particle.ageRatio >= 1) {
+                //this.container.removeChild(particle.sprite);
+                particle.sprite.destroy();
+                this.particles.splice(i, 1);
+                i--;
+            }
         }
     }
     this.setEmitter = function (position, velocity, rotation) {
@@ -252,16 +265,19 @@ function ColorRamp(min, max) {
     this.min = min;
     this.max = max;
     this.evaluate = function (value) {
+        if (value == 0) return min;
+        else {
 
-        var ah = this.min,
-            ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
-            bh = this.max,
-            br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
-            rr = ar + value * (br - ar),
-            rg = ag + value * (bg - ag),
-            rb = ab + value * (bb - ab);
+            var ah = this.min,
+                ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
+                bh = this.max,
+                br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
+                rr = ar + value * (br - ar),
+                rg = ag + value * (bg - ag),
+                rb = ab + value * (bb - ab);
 
-        return ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0)/*.toString(16).slice(1)*/;
+            return ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0)/*.toString(16).slice(1)*/;
+        }
     }
 }
 
