@@ -192,28 +192,36 @@ function parseMessage(message) {
             countPlayers = view.getUint16(index.i);
             index.i += 2;
             for (let i = 0; i < countPlayers; i++){
-                let id = view.getUint16(index.i);
-                index.i += 2;
-                pl = Player.findID(id);
+                pl = Player.findID(view.getUint32(index.i));
+                index.i += 4;
                 parseStats(view,index,pl)
+                console.log("update hrace")
                 console.log(pl);
             }
             break;
         case MESSAGE_TYPE.allStats:
+            localPlayer.id = view.getUint32(index.i);
+            index.i += 4;
             parseStats(view, index, localPlayer);
             console.log(localPlayer.ship.stats);
             countPlayers = view.getUint16(index.i);
             index.i += 2;
             for (let i = 0; i < countPlayers; i++){
-                pl = new Player();
+                pl = new Player(view.getUint32(index.i));
+                index.i += 4;
                 pl.init();
                 parseStats(view,index,pl)
+                console.log("novy hrac pridan")
+                console.log(pl)
             }
             break;
         case MESSAGE_TYPE.stats:
-            pl = new Player();
+            pl = new Player(view.getUint32(index.i));
+            index.i += 4;
             pl.init();
             parseStats(view, index, pl);
+            console.log("novy hrac pridan")
+            console.log(pl)
             break;
     }
 
