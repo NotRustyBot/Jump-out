@@ -177,7 +177,6 @@ function onConnectionMessage(messageRaw) {
     parseMessage(ms);
 }
 
-// 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
 function parseMessage(message) {
     const view = new DataView(message);
     let index = { i: 0 };
@@ -188,8 +187,15 @@ function parseMessage(message) {
             parsePlayer(view, index);
             break;
         case 2:
-            parseStats(view, index);
+            parseStats(view, index, localPlayer);
             console.log(localPlayer.ship.stats);
+            let playersCount = view.getUint16(index.i);
+            index.i += 2;
+            for (let i = 0; i < playersCount; i++){
+                pl = new Player();
+                pl.init();
+                parseStats(view,index,pl)
+            }
             break;
     }
 
@@ -226,9 +232,7 @@ function parsePlayer(view, index) {
     index.i += 4;
 }
 
-function parseStats(view, index) {
-    let player = localPlayer;
-
+function parseStats(view, index, player) {
     player.ship.stats.name = view.getUint8(index.i);
     index.i += 1;
     player.ship.stats.speed = view.getFloat32(index.i);
