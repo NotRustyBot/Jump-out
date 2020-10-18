@@ -35,21 +35,21 @@ var connected = false;
 var running = false;
 
 
-var particleSystem, particleSystem2;
+var particleSystem, particleSystem2, particleSystem3;
 function start() {
-    playerSprite = new PIXI.Sprite(loader.resources.player1.texture);
+    playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
     document.getElementById("loadingBarContainer").style.opacity = "0";
     setTimeout(() => {
         document.getElementById("loadingBarContainer").style.display = "none";
     }, 1000);
     playerSprite.scale.set(0.5);
     playerSprite.anchor.set(0.5);
-    
+
 
     particleSystem = new ParticleSystem({
         texture: loader.resources.spark.texture,
-        maxParticles: 100,
-        emitRate: 1,
+        maxParticles: 10000,
+        emitRate: 200,
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
@@ -62,17 +62,32 @@ function start() {
     });
     particleSystem2 = new ParticleSystem({
         texture: loader.resources.kour5.texture,
-        maxParticles: 100,
-        emitRate: 1,
+        maxParticles: 10000,
+        emitRate: 15,
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
         randomVelocity: 20,
         scale: new Ramp(0.5, 5),
-        alpha: new Ramp(0.015, 0),
+        alpha: new Ramp(0.05, 0),
         velocity: new Ramp(500, 0),
         color: new ColorRamp(0xFFFFFF, 0xFDFDFD),
         lifetime: new Ramp(1, 3)
+    });
+    particleSystem3 = new ParticleSystem({
+        enabled:true,
+        texture: loader.resources.kour3.texture,
+        maxParticles: 10000,
+        emitRate: 300,
+        inheritVelocity: 0,
+        inheritRotation: -50,
+        rotateToVelocity: true,
+        randomVelocity: 0,
+        scale: new Ramp(0.15, 0),
+        alpha: new Ramp(0.3, 0),
+        velocity: new Ramp(0, 0),
+        color: new ColorRamp(0x1199FF, 0xFEFEFE),
+        lifetime: new Ramp(3, 3)
     });
 
     app.stage.addChild(playerSprite);
@@ -109,22 +124,37 @@ localPlayer.init();
 
 function updateParticles(deltaTime) {
     if (running) {
-        if (localPlayer.ship.afterBurnerActive == 1) {
-            if (localPlayer.ship.control.y == 1) particleSystem2.settings.emitRate = 1;
-            particleSystem.settings.color.max = 0xff6200;
+        if (localPlayer.ship.control.y == 1) {
+            particleSystem.settings.enabled = true;
+            particleSystem3.settings.enabled = true;
+
         }
         else {
-            particleSystem.settings.color.max = 0x1199FF;
-            particleSystem2.settings.emitRate = 0;
+            particleSystem.settings.enabled = false;
+            particleSystem3.settings.enabled = false;
+
         }
-        if (localPlayer.ship.control.y == 0) particleSystem.settings.emitRate = 0;
-        else particleSystem.settings.emitRate = 10;
-        particleSystem.setEmitter(localPlayer.ship.position, localPlayer.ship.velocity, localPlayer.ship.rotation);
+        if (localPlayer.ship.afterBurnerActive == 1 && localPlayer.ship.control.y == 1) {
+            particleSystem2.settings.enabled = true;
+            particleSystem.settings.color.max = 0xff8800;
+            particleSystem.settings.color.min = 0xFFEEAA;
+            //particleSystem.settings.emitRate = 300;
+        }
+        else {
+            particleSystem2.settings.enabled = false;
+            particleSystem.settings.color.max = 0x1199FF;
+            particleSystem.settings.color.min = 0xFFFFFF;
+            //particleSystem.settings.emitRate = 150;
+        }
+        particleSystem3.updateEmitter((localPlayer.ship));
+        particleSystem3.update(deltaTime);
+        particleSystem.updateEmitter(localPlayer.ship);
         particleSystem.update(deltaTime);
 
 
-        particleSystem2.setEmitter(localPlayer.ship.position, localPlayer.ship.velocity, localPlayer.ship.rotation);
+        particleSystem2.updateEmitter((localPlayer.ship));
         particleSystem2.update(deltaTime);
+
 
 
 
@@ -236,8 +266,10 @@ app.stage.addChild(fpsText);
 function graphicsUpdate(deltaTimeFactor) {
     let deltaTime = app.ticker.deltaMS / 1000;
     fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2);
-    playerSprite.x += localPlayer.ship.velocity.x * deltaTime;
-    playerSprite.y += localPlayer.ship.velocity.y * deltaTime;
+    localPlayer.ship.position.x += localPlayer.ship.velocity.x * deltaTime;
+    localPlayer.ship.position.y += localPlayer.ship.velocity.y * deltaTime;
+    playerSprite.x = localPlayer.ship.position.x;
+    playerSprite.y = localPlayer.ship.position.y;
     //console.log(localPlayer.ship.velocity);
     updateParticles(deltaTime);
 }
