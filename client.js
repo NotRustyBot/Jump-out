@@ -36,7 +36,10 @@ particleContainer.maxSize=10000;
 var particleSystem;
 function start() {
     playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
-    document.getElementById("loadingBarContainer").style.display = "none";
+    document.getElementById("loadingBarContainer").style.opacity = "0";
+    setTimeout(() => {
+        document.getElementById("loadingBarContainer").style.display = "none";
+    }, 1000);
     playerSprite.scale.set(0.5);
     playerSprite.anchor.set(0.5);
     app.stage.addChild(particleContainer);
