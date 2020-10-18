@@ -184,7 +184,7 @@ function ParticleSystem(settings) {
     if (settings != null) this.settings = settings;
     else {
         this.settings = {
-            texture: PIXI.Loader.shared.resources.spark.texture,
+            texture: loader.resources.spark.texture,
             maxParticles: 100,
             emitRate: 1,
             inheritVelocity: 0,
@@ -253,9 +253,9 @@ function ColorRamp(min, max) {
     this.max = max;
     this.evaluate = function (value) {
 
-        var ah = min,
+        var ah = this.min,
             ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
-            bh = max,
+            bh = this.max,
             br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
             rr = ar + value * (br - ar),
             rg = ag + value * (bg - ag),
@@ -265,18 +265,6 @@ function ColorRamp(min, max) {
     }
 }
 
-function lerpColor(a, b, amount) {
-
-    var ah = parseInt(a.replace(/#/g, ''), 16),
-        ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
-        bh = parseInt(b.replace(/#/g, ''), 16),
-        br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
-        rr = ar + amount * (br - ar),
-        rg = ag + amount * (bg - ag),
-        rb = ab + amount * (bb - ab);
-
-    return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0).toString(16).slice(1);
-}
 
 
 //#endregion

@@ -19,8 +19,8 @@ window.addEventListener("resize", function () {
 loader
     .add("player0", "images/player0.png")
     .add("kour", "images/kour.png")
-    .add("spark","images/spark.png")
-    .add("player1","images/player2.png")
+    .add("spark", "images/spark.png")
+    .add("player1", "images/player2.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -31,7 +31,7 @@ var connected = false;
 var running = false;
 
 let particleContainer = new PIXI.ParticleContainer();
-particleContainer.maxSize=10000;
+particleContainer.maxSize = 10000;
 //particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
 var particleSystem, particleSystem2;
 function start() {
@@ -55,7 +55,7 @@ function start() {
         rotateToVelocity: true,
         randomVelocity: 50,
         scale: new Ramp(1, 10),
-        alpha: new Ramp(0.02, 0),
+        alpha: new Ramp(0.01, 0),
         velocity: new Ramp(400, 0),
         color: new ColorRamp(0xFFFFFF, 0x000000),
         lifetime: new Ramp(1, 3)
@@ -92,19 +92,24 @@ localPlayer.init();
 
 function updateParticles(deltaTime) {
     if (running) {
-        if(localPlayer.ship.control.y == 0) particleSystem.settings.emitRate = 0;
+        if (localPlayer.ship.afterBurnerActive==1) {
+            if (localPlayer.ship.control.y == 1) particleSystem2.settings.emitRate = 1;
+            particleSystem.settings.color.max = 0xff6200;
+        }
+        else{ particleSystem.settings.color.max = 0x1199FF;
+            particleSystem2.settings.emitRate = 0;
+        }
+        if (localPlayer.ship.control.y == 0) particleSystem.settings.emitRate = 0;
         else particleSystem.settings.emitRate = 10;
         particleSystem.setEmitter(localPlayer.ship.position, localPlayer.ship.velocity, localPlayer.ship.rotation);
         particleSystem.update(deltaTime);
 
 
-        if(localPlayer.ship.control.y == 0) particleSystem2.settings.emitRate = 0;
-        else particleSystem2.settings.emitRate = 1;
         particleSystem2.setEmitter(localPlayer.ship.position, localPlayer.ship.velocity, localPlayer.ship.rotation);
         particleSystem2.update(deltaTime);
 
-        
-        
+
+
     }
 }
 
@@ -164,7 +169,7 @@ function parsePlayer(view, index) {
     index.i += 4;
     player.ship.control.y = view.getFloat32(index.i);
     index.i += 4;
-    player.ship.afterBurnerActive = view.setUint8(index.i);
+    player.ship.afterBurnerActive = view.getUint8(index.i);
     index.i += 1;
     player.ship.afterBurnerFuel = view.getFloat32(index.i); //??
     index.i += 4;
@@ -185,13 +190,13 @@ function update() {
 }
 
 var fpsText = new PIXI.Text();
-fpsText.style.fill=0xFFFFFF;
-fpsText.style.fontFamily="Overpass Mono";
+fpsText.style.fill = 0xFFFFFF;
+fpsText.style.fontFamily = "Overpass Mono";
 app.stage.addChild(fpsText);
 
 function graphicsUpdate(deltaTimeFactor) {
     let deltaTime = app.ticker.deltaMS / 1000;
-    fpsText.text = "    FPS: "+app.ticker.FPS.toFixed(2)+ "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " +deltaTimeFactor.toFixed(2);
+    fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2);
     playerSprite.x += localPlayer.ship.velocity.x * deltaTime;
     playerSprite.y += localPlayer.ship.velocity.y * deltaTime;
     //console.log(localPlayer.ship.velocity);
