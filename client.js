@@ -122,8 +122,8 @@ function parseMessage(message) {
 }
 
 function parsePlayer(view, index) {
-    let id = view.getUint8(index.i);
-    index.i += 1;
+    let id = view.getInt16(index.i);
+    index.i += 2;
     //let player = Player.findID(id);
     let player = localPlayer;
 
