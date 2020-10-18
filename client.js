@@ -177,7 +177,7 @@ function onConnectionMessage(messageRaw) {
     parseMessage(ms);
 }
 
-const MESSAGE_TYPE = {position: 1, allStats: 2, stats: 3};
+const MESSAGE_TYPE = {position: 1, allStats: 2, newStats: 3};
 
 function parseMessage(message) {
     const view = new DataView(message);
@@ -187,6 +187,15 @@ function parseMessage(message) {
     switch (messageType) {
         case MESSAGE_TYPE.position:
             parsePlayer(view, index);
+            //console.log(localPlayer.ship.stats);
+            let playersCount = view.getUint16(index.i);
+            index.i += 2;
+            for (let i = 0; i < playersCount; i++){
+                let id = view.getUint16(index.i);
+                index.i += 2;
+                pl = Player.players.findIndex(id);
+                parseStats(view,index,pl)
+            }
             break;
         case MESSAGE_TYPE.allStats:
             parseStats(view, index, localPlayer);
@@ -198,6 +207,11 @@ function parseMessage(message) {
                 pl.init();
                 parseStats(view,index,pl)
             }
+            break;
+        case MESSAGE_TYPE.stats:
+            pl = new Player();
+            pl.init();
+            parseStats(view, index, pl);
             break;
     }
 
