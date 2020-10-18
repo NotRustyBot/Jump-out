@@ -177,7 +177,7 @@ function onConnectionMessage(messageRaw) {
     parseMessage(ms);
 }
 
-const MESSAGE_TYPE = {position: 1, allStats: 2, newStats: 3};
+const MESSAGE_TYPE = {position: 1, allStats: 2, stats: 3};
 
 function parseMessage(message) {
     const view = new DataView(message);
@@ -185,6 +185,7 @@ function parseMessage(message) {
     let messageType = view.getUint8(index.i);
     index.i += 1;
     let countPlayers;
+    if(messageType != MESSAGE_TYPE.position)console.log(messageType);
     switch (messageType) {
         case MESSAGE_TYPE.position:
             parsePlayer(view, index);
@@ -210,9 +211,9 @@ function parseMessage(message) {
                 pl = new Player(view.getUint32(index.i));
                 index.i += 4;
                 pl.init();
-                parseStats(view,index,pl)
-                console.log("novy hrac pridan")
-                console.log(pl)
+                parseStats(view,index,pl);
+                console.log("novy hrac pridan");
+                console.log(pl);
             }
             break;
         case MESSAGE_TYPE.stats:
@@ -220,8 +221,8 @@ function parseMessage(message) {
             index.i += 4;
             pl.init();
             parseStats(view, index, pl);
-            console.log("novy hrac pridan")
-            console.log(pl)
+            console.log("novy hrac pridan");
+            console.log(pl);
             break;
     }
 
