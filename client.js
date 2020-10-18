@@ -139,9 +139,11 @@ function parsePlayer(view, index) {
     index.i += 4;
     player.ship.control.x = view.getFloat32(index.i);
     index.i += 4;
+    player.ship.control.y = view.getFloat32(index.i);
+    index.i += 4;
     player.ship.afterBurnerActive = view.setUint8(index.i);
     index.i += 1;
-    player.ship.afterBurnerCapacity = view.getFloat32(index.i); //??
+    player.ship.afterBurnerFuel = view.getFloat32(index.i); //??
     index.i += 4;
 
 
@@ -155,7 +157,7 @@ function update() {
     if (running) {
         sendControls();
 
-        console.log(localPlayer.ship.afterBurnerCapacity);
+        console.log(localPlayer.ship.afterBurnerFuel);
     }
 }
 
