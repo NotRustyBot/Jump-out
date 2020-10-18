@@ -21,6 +21,7 @@ loader
     .add("player0", "images/player0.png")
     .add("kour", "images/kour.png")
     .add("spark","images/spark.png")
+    .add("player1","images/player2.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -35,7 +36,7 @@ particleContainer.maxSize=10000;
 //particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
 var particleSystem;
 function start() {
-    playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
+    playerSprite = new PIXI.Sprite(loader.resources.player1.texture);
     document.getElementById("loadingBarContainer").style.opacity = "0";
     setTimeout(() => {
         document.getElementById("loadingBarContainer").style.display = "none";
@@ -157,11 +158,13 @@ function update() {
 }
 
 var fpsText = new PIXI.Text();
+fpsText.style.fill=0xFFFFFF;
+fpsText.style.fontFamily="Overpass Mono";
 app.stage.addChild(fpsText);
 
 function graphicsUpdate(deltaTimeFactor) {
     let deltaTime = app.ticker.deltaMS / 1000;
-    fpsText.text = app.ticker.FPS + " FPS\n" + app.ticker.minFPS + " Min FPS\n" + app.ticker.maxFPS + " Max FPS\n" + deltaTimeFactor + " Factor\n";
+    fpsText.text = "    FPS: "+app.ticker.FPS.toFixed(2)+ "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " +deltaTimeFactor.toFixed(2);
     playerSprite.x += localPlayer.ship.velocity.x * deltaTime;
     playerSprite.y += localPlayer.ship.velocity.y * deltaTime;
     //console.log(localPlayer.ship.velocity);
