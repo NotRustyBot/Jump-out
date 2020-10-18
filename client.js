@@ -189,6 +189,7 @@ function parseMessage(message) {
             break;
         case 2:
             parseStats(view, index);
+            console.log(localPlayer.ship.stats);
             break;
     }
 
