@@ -23,7 +23,9 @@ loader
     .add("kour3", "images/kour3.png")
     .add("kour4", "images/kour4.png")
     .add("kour5", "images/kour5.png")
+    .add("kour7", "images/kour7.png")
     .add("spark", "images/spark.png")
+    .add("circle", "images/circle.png")
     .add("player1", "images/player2.png")
     ;
 loader.onProgress.add(loadingProgress);
@@ -53,6 +55,7 @@ function start() {
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
+        randomRotation:false,
         randomVelocity: 50,
         scale: new Ramp(1, 1),
         alpha: new Ramp(1, 0),
@@ -61,12 +64,13 @@ function start() {
         lifetime: new Ramp(0.1, 0.5)
     });
     particleSystem2 = new ParticleSystem({
-        texture: loader.resources.kour5.texture,
+        texture: loader.resources.kour7.texture,
         maxParticles: 10000,
         emitRate: 15,
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
+        randomRotation:true,
         randomVelocity: 20,
         scale: new Ramp(0.5, 5),
         alpha: new Ramp(0.05, 0),
@@ -76,17 +80,18 @@ function start() {
     });
     particleSystem3 = new ParticleSystem({
         enabled:true,
-        texture: loader.resources.kour3.texture,
+        texture: loader.resources.circle.texture,
         maxParticles: 10000,
         emitRate: 300,
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
         randomVelocity: 0,
-        scale: new Ramp(0.15, 0),
-        alpha: new Ramp(0.3, 0),
-        velocity: new Ramp(0, 0),
-        color: new ColorRamp(0x1199FF, 0xFEFEFE),
+        randomRotation:true,
+        scale: new Ramp(0.05, 0),
+        alpha: new Ramp(0.2, 0),
+        velocity: new Ramp(100, 0),
+        color: new ColorRamp(0xBEDEFE, 0x0077FF),
         lifetime: new Ramp(3, 3)
     });
 

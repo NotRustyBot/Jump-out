@@ -204,6 +204,7 @@ function ParticleSystem(settings) {
             inheritVelocity: 0,
             inheritRotation: -50,
             rotateToVelocity: true,
+            randomRotation: false,
             randomVelocity: 50,
             scale: new Ramp(1, 1),
             alpha: new Ramp(1, 0),
@@ -234,10 +235,11 @@ function ParticleSystem(settings) {
                         .add(Vector.fromAngle(new Ramp(this.emitter.oldRotation, this.emitter.rotation).evaluate(buildupRatio)).mult(this.settings.inheritRotation)),
 
 
-                    1, this.settings.lifetime.evaluate(Math.random()), this.settings.texture);
+                    0, this.settings.lifetime.evaluate(Math.random()), this.settings.texture);
                 newP.velocity = Vector.fromAngle(newP.velocityAngle).mult(this.settings.velocity.min);
                 newP.position.add(newP.velocity.result().mult(deltaTime).lerp(Vector.zero(), buildupRatio));
                 if (this.settings.rotateToVelocity) newP.rotation = newP.velocityAngle;
+                if (this.settings.randomRotation) newP.rotation = Math.random() * 6.28;
                 this.particles.push(newP);
                 this.container.addChild(newP.sprite);
             }
