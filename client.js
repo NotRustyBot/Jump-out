@@ -1,7 +1,6 @@
-
 var connection;
 let app = new PIXI.Application({
-    antialias: true
+    antialias: true,
 });
 let loader = PIXI.Loader.shared;
 document.body.appendChild(app.renderer.view);
@@ -71,7 +70,7 @@ function loadingProgress(e) {
     console.log("loading", e.progress);
 }
 
-function connect(){
+function connect() {
     console.log(window.location.hostname);
     if (window.location.hostname == "10.200.140.14") {
         connection = new WebSocket("ws://localhost:20003/");
@@ -85,9 +84,6 @@ function connect(){
     connection.onmessage = onConnectionMessage;
     connection.onclose = onConnectionClose;
 }
-
-
-
 
 var localPlayer = new Player();
 localPlayer.init();
@@ -168,6 +164,12 @@ function parsePlayer(view, index) {
     index.i += 4;
     player.ship.control.y = view.getFloat32(index.i);
     index.i += 4;
+    player.ship.afterBurnerActive = view.setUint8(index.i);
+    index.i += 1;
+    player.ship.afterBurnerFuel = view.getFloat32(index.i); //??
+    index.i += 4;
+
+
 }
 
 const fps = 60;
@@ -177,6 +179,8 @@ setInterval(update, 1000 / fps);
 function update() {
     if (running) {
         sendControls();
+
+        console.log(localPlayer.ship.afterBurnerFuel);
     }
 }
 
@@ -194,7 +198,7 @@ function graphicsUpdate(deltaTimeFactor) {
     updateParticles(deltaTime);
 }
 
-let controlVector = { x: 0, y: 0 };
+let controlVector = { x: 0, y: 0, afterBurner: 0 };
 window.addEventListener("keydown", function (e) {
     let key = e.key.toLocaleLowerCase();
     switch (key) {
@@ -210,6 +214,11 @@ window.addEventListener("keydown", function (e) {
         case "a":
             controlVector.x = -1;
             break;
+        case "shift":
+            controlVector.afterBurner = 1;
+            break;
+        default:
+            break;
     }
 });
 
@@ -224,20 +233,27 @@ window.addEventListener("keyup", function (e) {
         case "a":
             controlVector.x = 0;
             break;
+        case "shift":
+            controlVector.afterBurner = 0;
+            break;
+        default:
+            break;
     }
 });
 
 function sendControls() {
     var index = 0;
-    const buffer = new ArrayBuffer(9);
+    const buffer = new ArrayBuffer(10);
     const view = new DataView(buffer);
     view.setUint8(index, 1);
     index += 1;
     view.setFloat32(index, controlVector.x);
     index += 4;
     view.setFloat32(index, controlVector.y);
+    index += 4;
+    view.setUint8(index, controlVector.afterBurner);
+    index += 1;
 
     connection.send(buffer);
     //console.log(buffer);
 }
-
