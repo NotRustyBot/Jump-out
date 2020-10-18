@@ -53,10 +53,10 @@ function loadingProgress(e) {
     console.log("loading", e.progress);
 }
 
-function connect() {
-    if (window.location.hostname.length == 0) {
-        //connection = new WebSocket("ws://localhost:20003/");
-        connection = new WebSocket("wss://jumpout.ws.coal.games/");
+function connect(){
+    console.log(window.location.hostname);
+    if (window.location.hostname == "10.200.140.14") {
+        connection = new WebSocket("ws://localhost:20003/");
         console.log("Connecting to local...");
     } else {
         connection = new WebSocket("wss://jumpout.ws.coal.games/");
