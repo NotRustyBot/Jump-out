@@ -192,10 +192,6 @@ function parseMessage(message) {
         case 1:
             parsePlayer(view, index);
             break;
-        case 2:
-            parseStats(view, index);
-            console.log(localPlayer.ship.stats);
-            break;
     }
 
     //console.log("controlX: " + controlX + " Y:" + controlY + "struct on the next line");
@@ -231,30 +227,7 @@ function parsePlayer(view, index) {
     index.i += 4;
 }
 
-function parseStats(view, index) {
-    let player = localPlayer;
 
-    player.ship.stats.name = view.getUint8(index.i);
-    index.i += 1;
-    player.ship.stats.speed = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.acceleration = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.reverseAcceleration = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.rotationSpeed = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.afterBurnerSpeedBonus = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.afterBurnerRotationBonus = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.afterBurnerAccelerationBonus = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.afterBurnerCapacity = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.stats.drag = view.getFloat32(index.i);
-    index.i += 4;
-}
 
 const fps = 60;
 
