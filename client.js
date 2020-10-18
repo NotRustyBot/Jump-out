@@ -135,8 +135,12 @@ function parsePlayer(view, index) {
     index.i += 4;
     player.ship.control.x = view.getFloat32(index.i);
     index.i += 4;
-    player.ship.control.y = view.getFloat32(index.i);
+    player.ship.afterBurnerActive = view.setUint8(index.i);
+    index.i += 1;
+    player.ship.afterBurnerCapacity = view.getFloat32(index.i); //??
     index.i += 4;
+
+
 }
 
 const fps = 60;
@@ -146,6 +150,8 @@ setInterval(update, 1000 / fps);
 function update() {
     if (running) {
         sendControls();
+
+        console.log(localPlayer.ship.afterBurnerCapacity);
     }
 }
 
@@ -197,7 +203,7 @@ window.addEventListener("keyup", function (e) {
             controlVector.x = 0;
             break;
         case "shift":
-            controlVector.afterBurner = 1;
+            controlVector.afterBurner = 0;
             break;
         default:
             break;
@@ -216,9 +222,6 @@ function sendControls() {
     index += 4;
     view.setUint8(index, controlVector.afterBurner);
     index += 1;
-
-
-
 
     connection.send(buffer);
     //console.log(buffer);
