@@ -94,6 +94,7 @@ function Ship() {
     this.rotation = 0;
     this.control = new Vector(0, 0);
     this.afterBurnerActive = 0;
+    this.afterBurnerFuel = 0;
 
     this.init = function (type) {
         this.stats = type;
