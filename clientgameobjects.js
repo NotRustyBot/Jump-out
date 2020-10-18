@@ -147,7 +147,7 @@ Player.findID = function (id) {
             return Player.players[i];
         }
     }
-    console.log("Couldn't find player with ID " + id);
+    console.warn("Couldn't find player with ID " + id);
     return null;
 }
 
