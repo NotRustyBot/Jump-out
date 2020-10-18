@@ -177,16 +177,18 @@ function onConnectionMessage(messageRaw) {
     parseMessage(ms);
 }
 
+const MESSAGE_TYPE = {position: 1, allStats: 2, stats: 3};
+
 function parseMessage(message) {
     const view = new DataView(message);
     let index = { i: 0 };
     let messageType = view.getUint8(index.i);
     index.i += 1;
     switch (messageType) {
-        case 1:
+        case MESSAGE_TYPE.position:
             parsePlayer(view, index);
             break;
-        case 2:
+        case MESSAGE_TYPE.allStats:
             parseStats(view, index, localPlayer);
             console.log(localPlayer.ship.stats);
             let playersCount = view.getUint16(index.i);
