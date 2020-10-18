@@ -1,24 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@300&display=swap" rel="stylesheet">
     <style>
-        body{
-            margin:0;
-            padding:0;
-            width:100vw;
-            height:100vh;
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #loadingBarContainer {
+            position: absolute;
+            height: 100vh;
+            width: 100vw;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            transition: opacity 1s;
+        }
+
+        #loadingBarContainer span {
+            font-family: Montserrat, sans-serif;
+            font-weight: 100;
+            letter-spacing: 0.5em;
+            text-align: center;
+            font-size: 2em;
+            margin-right: -0.5em;
+            margin-bottom: 15px;
+        }
+
+        #loadingBar {
+            transition:width .2s;
+            height: 100%;
+            width: 0%;
+            background: rgb(38, 159, 240);
+            border-radius: 100px;
+        }
+
+        #loadingBarBG {
+            height: 2px;
+            width: 400px;
+            padding: 0px;
+            top: 50px;
+            left: 50px;
+            background: rgb(122, 122, 122);
+            border-radius: 100px;
+            border: 0px solid rgb(190, 190, 190)
         }
     </style>
     <title>Document</title>
 </head>
+
 <body>
-    <div id="loadingBarContainer" style="position:absolute;height:100vh;width:100vw;background:black;display:flex;justify-content: center;align-items: center;flex-direction:column;color:white;"><h1 style="font-family:sans-serif;font-weight: 100;letter-spacing: 0.5em;">LOADING</h1><div style="height:2px;width:300px;padding:0px;top:50px;left:50px; background: rgb(122, 122, 122); border-radius:100px;border:0px solid rgb(190, 190, 190)"><div id="loadingBar" style="height:100%;width:0%;background:rgb(38, 159, 240);border-radius:100px;"></div></div></div>
+    <div id="loadingBarContainer"><span>LOADING</span>
+        <div id="loadingBarBG">
+            <div id="loadingBar"></div>
+        </div>
+    </div>
 </body>
 
-<script  src="pixi.js"></script>
+<script src="pixi.js"></script>
 <script src="https://pixijs.io/examples/pixi-plugins/pixi-dragonbones.js"></script>
 <script type="text/javascript" src="clientgameobjects.js"></script>
 <script type="text/javascript" src="client.js"></script>
+
 </html>
