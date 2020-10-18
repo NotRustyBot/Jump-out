@@ -34,7 +34,7 @@ var running = false;
 let particleContainer = new PIXI.ParticleContainer();
 particleContainer.maxSize=10000;
 //particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
-var particleSystem;
+var particleSystem, particleSystem2;
 function start() {
     playerSprite = new PIXI.Sprite(loader.resources.player1.texture);
     document.getElementById("loadingBarContainer").style.opacity = "0";
@@ -47,6 +47,20 @@ function start() {
     app.stage.addChild(playerSprite);
 
     particleSystem = new ParticleSystem();
+    particleSystem2 = new ParticleSystem({
+        texture: loader.resources.kour.texture,
+        maxParticles: 100,
+        emitRate: 1,
+        inheritVelocity: 0,
+        inheritRotation: -50,
+        rotateToVelocity: true,
+        randomVelocity: 50,
+        scale: new Ramp(1, 10),
+        alpha: new Ramp(0.02, 0),
+        velocity: new Ramp(400, 0),
+        color: new ColorRamp(0xFFFFFF, 0x000000),
+        lifetime: new Ramp(1, 3)
+    });
 
     app.ticker.add(graphicsUpdate);
     loaded = true;
@@ -86,6 +100,15 @@ function updateParticles(deltaTime) {
         else particleSystem.settings.emitRate = 10;
         particleSystem.setEmitter(localPlayer.ship.position, localPlayer.ship.velocity, localPlayer.ship.rotation);
         particleSystem.update(deltaTime);
+
+
+        if(localPlayer.ship.control.y == 0) particleSystem2.settings.emitRate = 0;
+        else particleSystem2.settings.emitRate = 1;
+        particleSystem2.setEmitter(localPlayer.ship.position, localPlayer.ship.velocity, localPlayer.ship.rotation);
+        particleSystem2.update(deltaTime);
+
+        
+        
     }
 }
 
