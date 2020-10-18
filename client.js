@@ -229,7 +229,7 @@ function parsePlayer(view, index) {
 function parseStats(view, index) {
     let player = localPlayer;
 
-    player.ship.stats.name = view.getUInt8(index.i);
+    player.ship.stats.name = view.getUint8(index.i);
     index.i += 1;
     player.ship.stats.speed = view.getFloat32(index.i);
     index.i += 4;
@@ -239,7 +239,11 @@ function parseStats(view, index) {
     index.i += 4;
     player.ship.stats.rotationSpeed = view.getFloat32(index.i);
     index.i += 4;
-    player.ship.stats.afterBurnerBonus = view.getFloat32(index.i);
+    player.ship.stats.afterBurnerSpeedBonus = view.getFloat32(index.i);
+    index.i += 4;
+    player.ship.stats.afterBurnerRotationBonus = view.getFloat32(index.i);
+    index.i += 4;
+    player.ship.stats.afterBurnerAccelerationBonus = view.getFloat32(index.i);
     index.i += 4;
     player.ship.stats.afterBurnerCapacity = view.getFloat32(index.i);
     index.i += 4;
