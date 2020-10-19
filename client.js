@@ -236,8 +236,6 @@ setInterval(update, 1000 / fps);
 function update() {
     if (running) {
         sendControls();
-
-        //console.log(localPlayer.ship.afterBurnerFuel);
     }
 }
 
@@ -248,8 +246,8 @@ app.stage.addChild(fpsText);
 
 function graphicsUpdate(deltaTimeFactor) {
     let deltaTime = app.ticker.deltaMS / 1000;
-    let fuel = localPlayer.afterBurnerFuel || 0;
-    fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n Fuel" + fuel.toFixed(2);
+    let fuel = localPlayer.ship.afterBurnerFuel || 0;
+    fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n Fuel: " + fuel.toFixed(2);
     localPlayer.ship.position.x += localPlayer.ship.velocity.x * deltaTime;
     localPlayer.ship.position.y += localPlayer.ship.velocity.y * deltaTime;
     playerSprite.x = localPlayer.ship.position.x;
