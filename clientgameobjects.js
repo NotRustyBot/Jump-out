@@ -152,7 +152,7 @@ Player.findID = function (id) {
     return null;
 }
 
-function Particle(pos, vel, rot, lifetime, texture) {
+function Particle(pos, vel, rot, lifetime, texture, rotSpeed, colorRamp) {
     this.position = pos.result();
     this.velocity = vel.result();
     this.velocityAngle = this.velocity.toAngle();
@@ -164,6 +164,8 @@ function Particle(pos, vel, rot, lifetime, texture) {
     this.sprite.x = pos.x;
     this.sprite.y = pos.y;
     this.sprite.anchor.set(0.5);
+    this.rotationSpeed = rotSpeed || 0;
+    this.colorRamp = colorRamp;
     this.update = function (deltaTime) {
         if (this.age != 0) {
             this.position.add(this.velocity.result().mult(deltaTime));
@@ -172,7 +174,9 @@ function Particle(pos, vel, rot, lifetime, texture) {
         this.ageRatio = this.age / this.lifetime;
         this.sprite.x = this.position.x;
         this.sprite.y = this.position.y;
+        this.rotation += this.rotationSpeed * deltaTime;
         this.sprite.rotation = this.rotation;
+        this.sprite.tint = this.colorRamp.evaluate(this.ageRatio);
         //console.log("DT:"+deltaTime,this.age);
     }
 }
@@ -194,7 +198,7 @@ function ParticleSystem(settings) {
     //this.container = new PIXI.Container();
     //TODO: WHY BROKEN UPDATE WITH PARTICLECONTAINER?????????
     //this.container.blendMode = PIXI.BLEND_MODES.SCREEN;
-    app.stage.addChild(this.container);
+    gameContainer.addChild(this.container);
     if (settings != null) this.settings = settings;
     else {
         this.settings = {
@@ -211,7 +215,8 @@ function ParticleSystem(settings) {
             alpha: new Ramp(1, 0),
             velocity: new Ramp(600, 0),
             color: new ColorRamp(0xFFFFFF, 0x1199FF),
-            lifetime: new Ramp(0.1, 0.5)
+            lifetime: new Ramp(0.1, 0.5),
+            rotationSpeed: new Ramp(0, 0)
         }
     }
     this.update = function (deltaTime) {
@@ -236,7 +241,11 @@ function ParticleSystem(settings) {
                         .add(Vector.fromAngle(new Ramp(this.emitter.oldRotation, this.emitter.rotation).evaluate(buildupRatio)).mult(this.settings.inheritRotation)),
 
 
-                    0, this.settings.lifetime.evaluate(Math.random()), this.settings.texture);
+                    0,
+                    this.settings.lifetime.evaluate(Math.random()),
+                    this.settings.texture,
+                    this.settings.rotationSpeed.evaluate(Math.random()),
+                    this.settings.color.copy());
                 newP.velocity = Vector.fromAngle(newP.velocityAngle).mult(this.settings.velocity.min);
                 newP.position.add(newP.velocity.result().mult(deltaTime).lerp(Vector.zero(), buildupRatio));
                 if (this.settings.rotateToVelocity) newP.rotation = newP.velocityAngle;
@@ -254,7 +263,6 @@ function ParticleSystem(settings) {
                 particle.sprite.scale.set(this.settings.scale.evaluate(particle.ageRatio));
 
                 particle.sprite.alpha = this.settings.alpha.evaluate(particle.ageRatio);
-                particle.sprite.tint = this.settings.color.evaluate(particle.ageRatio);
                 particle.update(deltaTime);
             }
             else if (particle.ageRatio >= 1) {
@@ -309,6 +317,9 @@ function ColorRamp(min, max) {
 
             return ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0)/*.toString(16).slice(1)*/;
         }
+    }
+    this.copy = function () {
+        return new ColorRamp(this.min, this.max);
     }
 }
 
