@@ -305,6 +305,7 @@ function graphicsUpdate(deltaTimeFactor) {
     localPlayer.ship.position.y += localPlayer.ship.velocity.y * deltaTime;
     playerSprite.x = localPlayer.ship.position.x;
     playerSprite.y = localPlayer.ship.position.y;
+    playerSprite.rotation = localPlayer.ship.rotation;
     //console.log(localPlayer.ship.velocity);
     updateParticles(deltaTime);
     camera.x = localPlayer.ship.position.x;
