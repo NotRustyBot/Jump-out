@@ -1,5 +1,3 @@
-const { AutoView, Datagrams } = require("./datagram");
-
 var connection;
 let app = new PIXI.Application({
     antialias: true,
@@ -214,11 +212,11 @@ function onConnectionMessage(messageRaw) {
 // 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
 function parseMessage(message) {
     const view = new AutoView(message);
-    let messageType = view.getUint8(index.i);
+    let messageType = view.view.getUint8(view.index);
     view.index += 1;
     switch (messageType) {
         case 1:
-            parsePlayer(view, index);
+            parsePlayer(view);
             break;
     }
 
@@ -229,16 +227,16 @@ function parseMessage(message) {
     playerSprite.rotation = localPlayer.ship.rotation;
 }
 
-function parsePlayer(view, index) {
+function parsePlayer(view) {
     let ship = {};
     
-    let id = view.getUint16(index.i);
-    index.i += 2; 
+    let id = view.view.getUint16(view.index);
+    view.index += 2; 
     let player = localPlayer ;// Player.findID(id);
 
-    view.deserealize(ship, Datagrams.playerUpdate);
+    view.deserealize(ship, Datagrams.shipUpdate);
 
-    Datagrams.playerUpdate.transferData(player.ship, ship);
+    Datagrams.shipUpdate.transferData(player.ship, ship);
 }
 
 
@@ -336,14 +334,14 @@ window.addEventListener("mousewheel", e => {
 
 function sendControls() {
     var index = 0;
-    const buffer = new ArrayBuffer(Datagrams.input.size);
+    const buffer = new ArrayBuffer(1 + Datagrams.input.size);
     const view = new AutoView(buffer);
-    view.setUint8(view.index, 1);
+    view.view.setUint8(view.index, 1);
     view.index += 1;
 
     let toSend = {control: controlVector, afterBurnerActive: controlVector.afterBurner};
 
-    view.serialize(controlVector, Datagrams.input);
+    view.serialize(toSend, Datagrams.input);
 
 
     connection.send(buffer);
