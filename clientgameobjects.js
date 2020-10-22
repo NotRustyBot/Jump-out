@@ -155,8 +155,61 @@ function Player(id) {
     this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);
     this.sprite.anchor.set(0.5);
-    gameContainer.addChild(this.sprite);
     Player.players.set(this.id, this);
+    this.particleSystems = [];
+    this.particleSystems[0] = new ParticleSystem({
+        texture: loader.resources.spark.texture,
+        maxParticles: 10000,
+        emitRate: 200,
+        inheritVelocity: 0,
+        inheritRotation: -60,
+        rotateToVelocity: true,
+        randomRotation: false,
+        randomVelocity: 10,
+        scale: new Ramp(1, 1),
+        alpha: new Ramp(1, 0),
+        velocity: new Ramp(1000, 500),
+        color: new ColorRamp(0xFFFFFF, 0x1199FF),
+        lifetime: new Ramp(0.1, 0.15),
+        rotationSpeed: new Ramp(0, 0)
+    });
+    this.particleSystems[1] = new ParticleSystem({
+        texture: loader.resources.kour7.texture,
+        maxParticles: 10000,
+        emitRate: 15,
+        inheritVelocity: 0,
+        inheritRotation: -50,
+        rotateToVelocity: true,
+        randomRotation: true,
+        randomVelocity: 20,
+        scale: new Ramp(0.5, 5),
+        alpha: new Ramp(0.15, 0),
+        velocity: new Ramp(500, 0),
+        color: new ColorRamp(0xFFFFFF, 0xFDFDFD),
+        lifetime: new Ramp(1, 3),
+        rotationSpeed: new Ramp(-1, 1)
+    });
+    this.particleSystems[2] = new ParticleSystem({
+        enabled: true,
+        texture: loader.resources.kour7.texture,
+        maxParticles: 10000,
+        emitRate: 120,
+        inheritVelocity: 0,
+        inheritRotation: -50,
+        rotateToVelocity: true,
+        randomVelocity: 0,
+        randomRotation: true,
+        scale: new Ramp(0.1, 1.5),
+        alpha: new Ramp(0.1, 0),
+        velocity: new Ramp(15, 0),
+        color: new ColorRamp(0xBEDEFE, 0x0077FF),
+        lifetime: new Ramp(40, 10),
+        rotationSpeed: new Ramp(-2, 2)
+    });
+    gameContainer.addChild(this.sprite);
+    this.nameText = new PIXI.Text(this.nick + this.id,{fontFamily:"Montserrat",fontSize:30,fill:0xFFFFFF,align:"center"});
+    gameContainer.addChild(this.nameText);
+    this.nameText.anchor.set(0.5);
 }
 Player.players = new Map();
 
