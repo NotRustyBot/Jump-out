@@ -45,14 +45,14 @@ var running = false;
 
 var particleSystem, particleSystem2, particleSystem3;
 function start() {
-    playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
+    //playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
     playerLight = new PIXI.Sprite(loader.resources.light.texture);
     document.getElementById("loadingBarContainer").style.opacity = "0";
     setTimeout(() => {
         document.getElementById("loadingBarContainer").style.display = "none";
     }, 1000);
-    playerSprite.scale.set(0.5);
-    playerSprite.anchor.set(0.5);
+    //playerSprite.scale.set(0.5);
+    //playerSprite.anchor.set(0.5);
 
     /*playerSprite.addChild(playerLight);
     playerLight.anchor.set(0.25,0.5);
@@ -112,7 +112,7 @@ function start() {
     });
 
     gameContainer.pivot.set(0.5);
-    gameContainer.addChild(playerSprite);
+    //gameContainer.addChild(playerSprite);
     app.stage.addChild(gameContainer);
 
     app.ticker.add(graphicsUpdate);
@@ -239,15 +239,23 @@ function parsePlayer(view) {
     let ship = {};
     let id = view.view.getUint16(view.index);
     view.index += 2;
-    let player = Player.players.get(id);
-    view.deserealize(ship, Datagrams.shipUpdate);
 
-    Datagrams.shipUpdate.transferData(player.ship, ship);
+    console.log("Parsing player update with ID " + id);
+    let player = Player.players.get(id);
+    if (player!=undefined) {
+        view.deserealize(ship, Datagrams.shipUpdate);
+
+        Datagrams.shipUpdate.transferData(player.ship, ship);
+    }
+    else {
+        console.log("Undefined player update with ID " + id);
+    }
 }
 
 function parseInit(view) {
     let id = view.view.getUint16(view.index);
     view.index += 2;
+    console.log("Setting up local player with ID " + id);
     localPlayer = new Player(id);
     initLocalPlayer();
     let existingPlayers = view.view.getUint8(view.index);
@@ -255,6 +263,7 @@ function parseInit(view) {
     for (let i = 0; i < existingPlayers; i++) {
         let p = {};
         view.deserealize(p, Datagrams.initPlayer);
+        console.log("Adding existing player with ID " + p.id);
 
         let pl = new Player(p.id);
         Datagrams.initPlayer.transferData(pl, p);
@@ -268,9 +277,11 @@ function parseNewPlayers(view) {
     for (let i = 0; i < newPlayers; i++) {
         let p = {};
         view.deserealize(p, Datagrams.initPlayer);
+        console.log("Adding new player with ID " + p.id);
         if (p.id != localPlayer.id) {
             let pl = new Player(p.id);
             Datagrams.initPlayer.transferData(pl, p);
+
         }
     }
 }
@@ -300,12 +311,14 @@ function graphicsUpdate(deltaTimeFactor) {
     let deltaTime = app.ticker.deltaMS / 1000;
     let fuel = localPlayer.ship.afterBurnerFuel || 0;
     fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2);
-    localPlayer.ship.position.x += localPlayer.ship.velocity.x * deltaTime;
-    localPlayer.ship.position.y += localPlayer.ship.velocity.y * deltaTime;
-    playerSprite.x = localPlayer.ship.position.x;
-    playerSprite.y = localPlayer.ship.position.y;
-    playerSprite.rotation = localPlayer.ship.rotation;
-    //console.log(localPlayer.ship.velocity);
+    Player.players.forEach(player => {
+        player.ship.position.x += player.ship.velocity.x * deltaTime;
+        player.ship.position.y += player.ship.velocity.y * deltaTime;
+        player.sprite.x = player.ship.position.x;
+        player.sprite.y = player.ship.position.y;
+        player.sprite.rotation = player.ship.rotation;
+        //console.log(localPlayer.ship.velocity);
+    });
     updateParticles(deltaTime);
     camera.x = localPlayer.ship.position.x;
     camera.y = localPlayer.ship.position.y;
