@@ -213,6 +213,7 @@ function onConnectionMessage(messageRaw) {
 // 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
 function parseMessage(message) {
     const view = new AutoView(message);
+    console.log(message);
     while (view.index < message.byteLength) {
         let messageType = view.view.getUint8(view.index);
         view.index += 1;
