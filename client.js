@@ -12,7 +12,11 @@ app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
 app.renderer.backgroundColor = 0x000000;
 
-
+var camera = {x:0,y:0,zoom:0.5};
+var zoomStep = 1.2;
+var minZoom = 0.3;
+var maxZoom = 6;
+var gameContainer = new PIXI.Container();
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -29,11 +33,12 @@ loader
     .add("spark", "images/spark.png")
     .add("circle", "images/circle.png")
     .add("player1", "images/player2.png")
+    .add("light", "images/light.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
 
-var playerSprite;
+var playerSprite, playerLight;
 var loaded = false;
 var connected = false;
 var running = false;
@@ -42,6 +47,7 @@ var running = false;
 var particleSystem, particleSystem2, particleSystem3;
 function start() {
     playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
+    playerLight = new PIXI.Sprite(loader.resources.light.texture);
     document.getElementById("loadingBarContainer").style.opacity = "0";
     setTimeout(() => {
         document.getElementById("loadingBarContainer").style.display = "none";
@@ -49,21 +55,28 @@ function start() {
     playerSprite.scale.set(0.5);
     playerSprite.anchor.set(0.5);
 
+    /*playerSprite.addChild(playerLight);
+    playerLight.anchor.set(0.25,0.5);
+    playerLight.scale.set(10);
+    gameContainer.mask = playerLight;*/
+    
+
 
     particleSystem = new ParticleSystem({
         texture: loader.resources.spark.texture,
         maxParticles: 10000,
         emitRate: 200,
         inheritVelocity: 0,
-        inheritRotation: -50,
+        inheritRotation: -60,
         rotateToVelocity: true,
         randomRotation:false,
-        randomVelocity: 50,
+        randomVelocity: 10,
         scale: new Ramp(1, 1),
         alpha: new Ramp(1, 0),
-        velocity: new Ramp(600, 0),
+        velocity: new Ramp(1000, 500),
         color: new ColorRamp(0xFFFFFF, 0x1199FF),
-        lifetime: new Ramp(0.1, 0.5)
+        lifetime: new Ramp(0.1, 0.15),
+        rotationSpeed: new Ramp(0,0)
     });
     particleSystem2 = new ParticleSystem({
         texture: loader.resources.kour7.texture,
@@ -75,29 +88,33 @@ function start() {
         randomRotation:true,
         randomVelocity: 20,
         scale: new Ramp(0.5, 5),
-        alpha: new Ramp(0.05, 0),
+        alpha: new Ramp(0.15, 0),
         velocity: new Ramp(500, 0),
         color: new ColorRamp(0xFFFFFF, 0xFDFDFD),
-        lifetime: new Ramp(1, 3)
+        lifetime: new Ramp(1, 3),
+        rotationSpeed: new Ramp(-1,1)
     });
     particleSystem3 = new ParticleSystem({
         enabled:true,
-        texture: loader.resources.circle.texture,
+        texture: loader.resources.kour7.texture,
         maxParticles: 10000,
-        emitRate: 300,
+        emitRate: 120,
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
         randomVelocity: 0,
         randomRotation:true,
-        scale: new Ramp(0.05, 0),
-        alpha: new Ramp(0.2, 0),
-        velocity: new Ramp(100, 0),
+        scale: new Ramp(0.1, 1.5),
+        alpha: new Ramp(0.1, 0),
+        velocity: new Ramp(15, 0),
         color: new ColorRamp(0xBEDEFE, 0x0077FF),
-        lifetime: new Ramp(3, 3)
+        lifetime: new Ramp(40, 10),
+        rotationSpeed: new Ramp(-2,2)
     });
 
-    app.stage.addChild(playerSprite);
+    gameContainer.pivot.set(0.5);
+    gameContainer.addChild(playerSprite);
+    app.stage.addChild(gameContainer);
 
     app.ticker.add(graphicsUpdate);
     loaded = true;
@@ -143,14 +160,24 @@ function updateParticles(deltaTime) {
         }
         if (localPlayer.ship.afterBurnerActive == 1 && localPlayer.ship.control.y == 1) {
             particleSystem2.settings.enabled = true;
-            particleSystem.settings.color.max = 0xff8800;
-            particleSystem.settings.color.min = 0xFFEEAA;
+            particleSystem.settings.emitRate = 1800 * localPlayer.ship.afterBurnerFuel/localPlayer.ship.stats.afterBurnerCapacity;
+            particleSystem.settings.color.min = 0xFFEFAA;
+            particleSystem.settings.color.max = 0xff6600;
+            particleSystem.settings.randomVelocity = 30;
+
+            particleSystem3.settings.color.min = 0xAA8855;
+            particleSystem3.settings.color.max = 0xAA2277;
             //particleSystem.settings.emitRate = 300;
         }
         else {
             particleSystem2.settings.enabled = false;
-            particleSystem.settings.color.max = 0x1199FF;
             particleSystem.settings.color.min = 0xFFFFFF;
+            particleSystem.settings.color.max = 0x1199FF;
+            particleSystem.settings.emitRate = 900;
+            particleSystem.settings.randomVelocity = 5;
+
+            particleSystem3.settings.color.min = 0xBEDEFE;
+            particleSystem3.settings.color.max = 0x0077FF;
             //particleSystem.settings.emitRate = 150;
         }
         particleSystem3.updateEmitter((localPlayer.ship));
@@ -241,6 +268,11 @@ function graphicsUpdate(deltaTimeFactor) {
     playerSprite.y = localPlayer.ship.position.y;
     //console.log(localPlayer.ship.velocity);
     updateParticles(deltaTime);
+    camera.x = localPlayer.ship.position.x;
+    camera.y = localPlayer.ship.position.y;
+    gameContainer.scale.set(camera.zoom);
+    gameContainer.x = -camera.x*camera.zoom+window.innerWidth/2;
+    gameContainer.y = -camera.y*camera.zoom+window.innerHeight/2;
 }
 
 let controlVector = { x: 0, y: 0, afterBurner: 0 };
@@ -284,6 +316,22 @@ window.addEventListener("keyup", function (e) {
         default:
             break;
     }
+});
+
+window.addEventListener("mousewheel", e => {
+    //var oldTargetZoom = targetZoom;
+    let targetZoom = camera.zoom;
+	if (e.deltaY < 0) {
+		if (targetZoom <= maxZoom) targetZoom *= zoomStep;
+	}
+	if (e.deltaY > 0) {
+		if (targetZoom >= minZoom) targetZoom /= zoomStep;
+	}
+	/*if (targetZoom != oldTargetZoom) {
+		zoomDuration = 0;
+		startZoom = zoom;
+	}*/
+    camera.zoom = targetZoom;
 });
 
 function sendControls() {
