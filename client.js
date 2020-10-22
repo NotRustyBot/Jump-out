@@ -207,7 +207,7 @@ function parsePlayer(view, index) {
     
     let id = view.getUint16(index.i);
     index.i += 2; 
-    let player = Player.findID(id);
+    let player = localPlayer ;// Player.findID(id);
 
     view.deserealize(ship, Datagrams.playerUpdate);
 
@@ -288,7 +288,7 @@ window.addEventListener("keyup", function (e) {
 
 function sendControls() {
     var index = 0;
-    const buffer = new ArrayBuffer(10);
+    const buffer = new ArrayBuffer(Datagrams.input.size);
     const view = new AutoView(buffer);
     view.setUint8(view.index, 1);
     view.index += 1;
