@@ -139,18 +139,10 @@ function Player(id) {
         this.ship = new Ship();
         this.ship.init(ShipType.types["Debug"]);
     };
-    Player.players.push(this);
+    Player.players.set(this.id,this);
 }
-Player.players = [];
-Player.findID = function (id) {
-    for (let i = 0; i < Player.players.length; i++) {
-        if (Player.players[i].id == id) {
-            return Player.players[i];
-        }
-    }
-    console.warn("Couldn't find player with ID " + id);
-    return null;
-}
+Player.players = new Map();
+
 
 function Particle(pos, vel, rot, lifetime, texture, rotSpeed, colorRamp) {
     this.position = pos.result();

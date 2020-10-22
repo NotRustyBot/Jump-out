@@ -1,5 +1,3 @@
-const { AutoView, Datagrams } = require("./datagram");
-
 var connection;
 let app = new PIXI.Application({
     antialias: true,
@@ -12,11 +10,12 @@ app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
 app.renderer.backgroundColor = 0x000000;
 
-var camera = {x:0,y:0,zoom:0.5};
+var camera = { x: 0, y: 0, zoom: 0.5 };
 var zoomStep = 1.2;
 var minZoom = 0.3;
 var maxZoom = 6;
 var gameContainer = new PIXI.Container();
+var playerSettings = { nick: "Nixk" };
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -59,7 +58,7 @@ function start() {
     playerLight.anchor.set(0.25,0.5);
     playerLight.scale.set(10);
     gameContainer.mask = playerLight;*/
-    
+
 
 
     particleSystem = new ParticleSystem({
@@ -69,14 +68,14 @@ function start() {
         inheritVelocity: 0,
         inheritRotation: -60,
         rotateToVelocity: true,
-        randomRotation:false,
+        randomRotation: false,
         randomVelocity: 10,
         scale: new Ramp(1, 1),
         alpha: new Ramp(1, 0),
         velocity: new Ramp(1000, 500),
         color: new ColorRamp(0xFFFFFF, 0x1199FF),
         lifetime: new Ramp(0.1, 0.15),
-        rotationSpeed: new Ramp(0,0)
+        rotationSpeed: new Ramp(0, 0)
     });
     particleSystem2 = new ParticleSystem({
         texture: loader.resources.kour7.texture,
@@ -85,17 +84,17 @@ function start() {
         inheritVelocity: 0,
         inheritRotation: -50,
         rotateToVelocity: true,
-        randomRotation:true,
+        randomRotation: true,
         randomVelocity: 20,
         scale: new Ramp(0.5, 5),
         alpha: new Ramp(0.15, 0),
         velocity: new Ramp(500, 0),
         color: new ColorRamp(0xFFFFFF, 0xFDFDFD),
         lifetime: new Ramp(1, 3),
-        rotationSpeed: new Ramp(-1,1)
+        rotationSpeed: new Ramp(-1, 1)
     });
     particleSystem3 = new ParticleSystem({
-        enabled:true,
+        enabled: true,
         texture: loader.resources.kour7.texture,
         maxParticles: 10000,
         emitRate: 120,
@@ -103,13 +102,13 @@ function start() {
         inheritRotation: -50,
         rotateToVelocity: true,
         randomVelocity: 0,
-        randomRotation:true,
+        randomRotation: true,
         scale: new Ramp(0.1, 1.5),
         alpha: new Ramp(0.1, 0),
         velocity: new Ramp(15, 0),
         color: new ColorRamp(0xBEDEFE, 0x0077FF),
         lifetime: new Ramp(40, 10),
-        rotationSpeed: new Ramp(-2,2)
+        rotationSpeed: new Ramp(-2, 2)
     });
 
     gameContainer.pivot.set(0.5);
@@ -160,7 +159,7 @@ function updateParticles(deltaTime) {
         }
         if (localPlayer.ship.afterBurnerActive == 1 && localPlayer.ship.control.y == 1) {
             particleSystem2.settings.enabled = true;
-            particleSystem.settings.emitRate = 1800 * localPlayer.ship.afterBurnerFuel/localPlayer.ship.stats.afterBurnerCapacity;
+            particleSystem.settings.emitRate = 1800 * localPlayer.ship.afterBurnerFuel / localPlayer.ship.stats.afterBurnerCapacity;
             particleSystem.settings.color.min = 0xFFEFAA;
             particleSystem.settings.color.max = 0xff6600;
             particleSystem.settings.randomVelocity = 30;
@@ -201,8 +200,8 @@ function onConnectionClose(e) {
 function onConnectionOpen() {
     console.log("Connection opened");
     connected = true;
-    //TEMP:
-    running = true;
+    sendInit();
+
 }
 
 function onConnectionMessage(messageRaw) {
@@ -214,31 +213,72 @@ function onConnectionMessage(messageRaw) {
 // 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
 function parseMessage(message) {
     const view = new AutoView(message);
-    let messageType = view.getUint8(index.i);
-    view.index += 1;
-    switch (messageType) {
-        case 1:
-            parsePlayer(view, index);
-            break;
+    while (view.index < message.byteLength) {
+        let messageType = view.view.getUint8(view.index);
+        view.index += 1;
+        if (running) {
+            switch (messageType) {
+                case 1:
+                    parsePlayer(view);
+                    break;
+                case 2:
+                    parseNewPlayers(view);
+                    break;
+            }
+        }
+        else if (messageType == 0) {
+            parseInit(view);
+        }
     }
 
     //console.log("controlX: " + controlX + " Y:" + controlY + "struct on the next line");
     //console.log(localPlayer);
-    playerSprite.x = localPlayer.ship.position.x;
-    playerSprite.y = localPlayer.ship.position.y;
-    playerSprite.rotation = localPlayer.ship.rotation;
+
+}
+function parsePlayer(view) {
+    let ship = {};
+
+    let id = view.view.getUint16(view.index);
+    view.index += 2;
+    let player = Player.players.get(id);
+
+    view.deserealize(ship, Datagrams.shipUpdate);
+
+    Datagrams.shipUpdate.transferData(player.ship, ship);
 }
 
-function parsePlayer(view, index) {
-    let ship = {};
-    
-    let id = view.getUint16(index.i);
-    index.i += 2; 
-    let player = localPlayer ;// Player.findID(id);
+function parseInit(view) {
+    let id = view.view.getUint16(view.index);
+    view.index += 2;
+    localPlayer = new Player(id);
+    initLocalPlayer();
+    let existingPlayers = view.view.getUint8(view.index);
+    view.index += 1;
+    for (let i = 0; i < existingPlayers; i++) {
+        let p = {};
+        view.deserealize(p, Datagrams.initPlayer);
 
-    view.deserealize(ship, Datagrams.playerUpdate);
+        let pl = new Player(p.id);
+        Datagrams.initPlayer.transferData(pl, p);
+    }
+    running = true;
+}
 
-    Datagrams.playerUpdate.transferData(player.ship, ship);
+function parseNewPlayers(view) {
+    let newPlayers = view.view.getUint8(view.index);
+    view.index += 1;
+    for (let i = 0; i < newPlayers; i++) {
+        let p = {};
+        view.deserealize(p, Datagrams.initPlayer);
+        if (p.id != localPlayer.id) {
+            let pl = new Player(p.id);
+            Datagrams.initPlayer.transferData(pl, p);
+        }
+    }
+}
+
+function initLocalPlayer() {
+    localPlayer.nick = playerSettings.nick;
 }
 
 
@@ -271,10 +311,12 @@ function graphicsUpdate(deltaTimeFactor) {
     camera.x = localPlayer.ship.position.x;
     camera.y = localPlayer.ship.position.y;
     gameContainer.scale.set(camera.zoom);
-    gameContainer.x = -camera.x*camera.zoom+window.innerWidth/2;
-    gameContainer.y = -camera.y*camera.zoom+window.innerHeight/2;
+    gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
+    gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
 }
 
+
+//#region INPUT
 let controlVector = { x: 0, y: 0, afterBurner: 0 };
 window.addEventListener("keydown", function (e) {
     let key = e.key.toLocaleLowerCase();
@@ -321,31 +363,46 @@ window.addEventListener("keyup", function (e) {
 window.addEventListener("mousewheel", e => {
     //var oldTargetZoom = targetZoom;
     let targetZoom = camera.zoom;
-	if (e.deltaY < 0) {
-		if (targetZoom <= maxZoom) targetZoom *= zoomStep;
-	}
-	if (e.deltaY > 0) {
-		if (targetZoom >= minZoom) targetZoom /= zoomStep;
-	}
-	/*if (targetZoom != oldTargetZoom) {
-		zoomDuration = 0;
-		startZoom = zoom;
-	}*/
+    if (e.deltaY < 0) {
+        if (targetZoom <= maxZoom) targetZoom *= zoomStep;
+    }
+    if (e.deltaY > 0) {
+        if (targetZoom >= minZoom) targetZoom /= zoomStep;
+    }
+    /*if (targetZoom != oldTargetZoom) {
+        zoomDuration = 0;
+        startZoom = zoom;
+    }*/
     camera.zoom = targetZoom;
 });
 
+//#endregion
+
+
 function sendControls() {
-    var index = 0;
-    const buffer = new ArrayBuffer(Datagrams.input.size);
+    const buffer = new ArrayBuffer(1 + Datagrams.input.size);
     const view = new AutoView(buffer);
-    view.setUint8(view.index, 1);
+    view.view.setUint8(view.index, 1);
     view.index += 1;
 
-    let toSend = {control: controlVector, afterBurnerActive: controlVector.afterBurner};
+    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner };
 
-    view.serialize(controlVector, Datagrams.input);
+    view.serialize(toSend, Datagrams.input);
 
 
     connection.send(buffer);
     //console.log(buffer);
+}
+
+function sendInit() {
+    const buffer = new ArrayBuffer(1 + Datagrams.playerSettings.sizeOf(playerSettings));
+    const view = new AutoView(buffer);
+    view.view.setUint8(view.index, 0);
+    view.index += 1;
+
+
+    view.serialize(playerSettings, Datagrams.playerSettings);
+
+
+    connection.send(buffer);
 }

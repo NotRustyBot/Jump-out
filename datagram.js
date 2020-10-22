@@ -1,3 +1,5 @@
+//const { Vector, ShipType, Ship, Player } = require("./gameobjects.js");
+
 function Datagram() {
     this.structure = [];
 
@@ -96,11 +98,11 @@ Datagram._Get = [
     },
     (auto) => {
         auto.index += 8;
-        return {x: auto.view.getFloat32(auto.index - 8), y: auto.view.getFloat32(auto.index - 4)};
+        return new Vector(auto.view.getFloat32(auto.index - 8), auto.view.getFloat32(auto.index - 4));
     },
     (auto) => {
         auto.index += 16;
-        return {x: auto.view.getFloat64(auto.index - 16), y: auto.view.getFloat64(auto.index - 8)};
+        return new Vector(auto.view.getFloat64(auto.index - 16), auto.view.getFloat64(auto.index - 8));
     },
 ];
 Datagram._Set = [
@@ -215,6 +217,15 @@ shipUpdate.add(types.vector32, "control");
 shipUpdate.add(types.uint8, "afterBurnerActive");
 shipUpdate.add(types.float32, "afterBurnerFuel");
 Datagrams.shipUpdate = shipUpdate;
+
+let initPlayer = new Datagram();
+initPlayer.add(types.uint16, "id");
+initPlayer.add(types.string,"nick");
+Datagrams.initPlayer = initPlayer;
+
+let playerSettingsDatagram = new Datagram();
+playerSettingsDatagram.add(types.string,"nick");
+Datagrams.playerSettings = playerSettingsDatagram;
 
 exports.Datagrams = Datagrams;
 
