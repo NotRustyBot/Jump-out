@@ -237,7 +237,6 @@ function parseMessage(message) {
 }
 function parsePlayer(view) {
     let ship = {};
-    console.log(view.view.buffer);
     let id = view.view.getUint16(view.index);
     view.index += 2;
     let player = Player.players.get(id);
