@@ -1,3 +1,5 @@
+const { AutoView, Datagrams } = require("./datagram");
+
 var connection;
 let app = new PIXI.Application({
     antialias: true,
@@ -184,10 +186,9 @@ function onConnectionMessage(messageRaw) {
 
 // 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
 function parseMessage(message) {
-    const view = new DataView(message);
-    let index = { i: 0 };
+    const view = new AutoView(message);
     let messageType = view.getUint8(index.i);
-    index.i += 1;
+    view.index += 1;
     switch (messageType) {
         case 1:
             parsePlayer(view, index);
@@ -202,29 +203,15 @@ function parseMessage(message) {
 }
 
 function parsePlayer(view, index) {
-    let id = view.getInt16(index.i);
-    index.i += 2;
-    //let player = Player.findID(id);
-    let player = localPlayer;
+    let ship = {};
+    
+    let id = view.getUint16(index.i);
+    index.i += 2; 
+    let player = Player.findID(id);
 
-    player.ship.position.x = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.position.y = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.velocity.x = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.velocity.y = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.rotation = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.control.x = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.control.y = view.getFloat32(index.i);
-    index.i += 4;
-    player.ship.afterBurnerActive = view.getUint8(index.i);
-    index.i += 1;
-    player.ship.afterBurnerFuel = view.getFloat32(index.i); //??
-    index.i += 4;
+    view.deserealize(ship, Datagrams.playerUpdate);
+
+    Datagrams.playerUpdate.transferData(player.ship, ship);
 }
 
 
@@ -302,15 +289,14 @@ window.addEventListener("keyup", function (e) {
 function sendControls() {
     var index = 0;
     const buffer = new ArrayBuffer(10);
-    const view = new DataView(buffer);
-    view.setUint8(index, 1);
-    index += 1;
-    view.setFloat32(index, controlVector.x);
-    index += 4;
-    view.setFloat32(index, controlVector.y);
-    index += 4;
-    view.setUint8(index, controlVector.afterBurner);
-    index += 1;
+    const view = new AutoView(buffer);
+    view.setUint8(view.index, 1);
+    view.index += 1;
+
+    let toSend = {control: controlVector, afterBurnerActive: controlVector.afterBurner};
+
+    view.serialize(controlVector, Datagrams.input);
+
 
     connection.send(buffer);
     //console.log(buffer);
