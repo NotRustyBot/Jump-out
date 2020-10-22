@@ -152,7 +152,7 @@ function Player(id) {
     this.id = id;
     this.ship = new Ship();
     this.ship.init(ShipType.types["Debug"]);
-    this.sprite = new PIXI.Sprite(loader.resources.player0.texture);
+    this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);
     this.sprite.anchor.set(0.5);
     gameContainer.addChild(this.sprite);
