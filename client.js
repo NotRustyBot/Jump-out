@@ -20,6 +20,7 @@ var playerSettings = { nick: "Nixk" };
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
+    screen.center = new Vector(window.innerWidth/2,window.innerHeight/2)
 });
 
 loader
@@ -34,6 +35,9 @@ loader
     .add("circle", "images/circle.png")
     .add("player1", "images/player2.png")
     .add("light", "images/light.png")
+    .add("lensflare0", "images/lensflare0.png")
+    .add("lensflare1", "images/lensflare1.png")
+    .add("lensflare2", "images/lensflare2.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -96,6 +100,55 @@ var localPlayer;
 //localPlayer.init();
 
 
+const fps = 60;
+
+setInterval(update, 1000 / fps);
+
+function update() {
+    if (running) {
+        sendControls();
+    }
+}
+
+var screen = {
+    center : new Vector(window.innerWidth/2,window.innerHeight/2)
+};
+
+
+var fpsText = new PIXI.Text();
+fpsText.style.fill = 0xFFFFFF;
+fpsText.style.fontFamily = "Overpass Mono";
+app.stage.addChild(fpsText);
+
+function graphicsUpdate(deltaTimeFactor) {
+    if (running) {
+        let deltaTime = app.ticker.deltaMS / 1000;
+        let fuel = localPlayer.ship.afterBurnerFuel || 0;
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2);
+        Player.players.forEach(player => {
+            player.ship.position.x += player.ship.velocity.x * deltaTime;
+            player.ship.position.y += player.ship.velocity.y * deltaTime;
+            player.sprite.x = player.ship.position.x;
+            player.sprite.y = player.ship.position.y;
+            player.sprite.rotation = player.ship.rotation;
+            //console.log(localPlayer.ship.velocity);
+            player.nameText.x = player.ship.position.x;
+            player.nameText.y = player.ship.position.y - 80;
+
+        });
+        updateParticles(deltaTime);
+        camera.x = localPlayer.ship.position.x;
+        camera.y = localPlayer.ship.position.y;
+        gameContainer.scale.set(camera.zoom);
+        gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
+        gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
+        Player.players.forEach(player => {
+
+            player.lensFlare.update(player.toGlobal(new Vector(-30,0)).add({x: -camera.x,y: -camera.y}).mult(camera.zoom));
+        });
+    }
+}
+
 
 function updateParticles(deltaTime) {
     if (running) {
@@ -106,11 +159,13 @@ function updateParticles(deltaTime) {
             if (player.ship.control.y == 1) {
                 particleSystem.settings.enabled = true;
                 particleSystem3.settings.enabled = true;
+                player.lensFlare.enabled = true;
 
             }
             else {
                 particleSystem.settings.enabled = false;
                 particleSystem3.settings.enabled = false;
+                player.lensFlare.enabled = false;
 
             }
             if (player.ship.afterBurnerActive == 1 && player.ship.control.y == 1) {
@@ -122,9 +177,11 @@ function updateParticles(deltaTime) {
 
                 particleSystem3.settings.color.min = 0xAA8855;
                 particleSystem3.settings.color.max = 0xAA2277;
+                player.lensFlare.tint = 0xAA6622;
                 //particleSystem.settings.emitRate = 300;
             }
             else {
+                player.lensFlare.tint = 0x1199FF;
                 particleSystem2.settings.enabled = false;
                 particleSystem.settings.color.min = 0xFFFFFF;
                 particleSystem.settings.color.max = 0x1199FF;
@@ -135,9 +192,12 @@ function updateParticles(deltaTime) {
                 particleSystem3.settings.color.max = 0x0077FF;
                 //particleSystem.settings.emitRate = 150;
             }
+            let global = player.toGlobal(new Vector(-30,0));
             particleSystem3.updateEmitter((player.ship));
+            //particleSystem3.emitter.position = global;
             particleSystem3.update(deltaTime);
             particleSystem.updateEmitter(player.ship);
+            //particleSystem.emitter.position = global;
             particleSystem.update(deltaTime);
 
 
@@ -277,44 +337,6 @@ function initLocalPlayer() {
 
 
 
-const fps = 60;
-
-setInterval(update, 1000 / fps);
-
-function update() {
-    if (running) {
-        sendControls();
-    }
-}
-
-var fpsText = new PIXI.Text();
-fpsText.style.fill = 0xFFFFFF;
-fpsText.style.fontFamily = "Overpass Mono";
-app.stage.addChild(fpsText);
-
-function graphicsUpdate(deltaTimeFactor) {
-    if (running) {
-        let deltaTime = app.ticker.deltaMS / 1000;
-        let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2);
-        Player.players.forEach(player => {
-            player.ship.position.x += player.ship.velocity.x * deltaTime;
-            player.ship.position.y += player.ship.velocity.y * deltaTime;
-            player.sprite.x = player.ship.position.x;
-            player.sprite.y = player.ship.position.y;
-            player.sprite.rotation = player.ship.rotation;
-            //console.log(localPlayer.ship.velocity);
-            player.nameText.x = player.ship.position.x;
-            player.nameText.y = player.ship.position.y - 80;
-        });
-        updateParticles(deltaTime);
-        camera.x = localPlayer.ship.position.x;
-        camera.y = localPlayer.ship.position.y;
-        gameContainer.scale.set(camera.zoom);
-        gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
-        gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
-    }
-}
 
 
 //#region INPUT

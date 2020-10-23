@@ -231,6 +231,15 @@ function Player(id) {
         });
         Player.players.delete(this.id);
     }
+    this.lensFlare = new LensFlare();
+    this.toGlobal = function(vector){
+        //let rv = Vector.fromAngle(this.ship.rotation);
+        let cos = Math.cos(this.ship.rotation);
+        let sin = Math.sin(this.ship.rotation);
+        return new Vector(vector.x*cos - vector.y*sin,vector.x*sin + vector.y*cos).add(this.ship.position);
+    };
+
+    
 }
 Player.players = new Map();
 
@@ -452,5 +461,34 @@ function ColorRamp(min, max) {
         return new ColorRamp(this.min, this.max);
     };
 }
+
+function LensFlare(){
+    this.position = new Vector(0,0);
+    this.sprites = [];
+    this.sprites[0] = new PIXI.Sprite(loader.resources.lensflare0.texture);
+    //this.sprites[1] = new PIXI.Sprite(loader.resources.lensflare1.texture);
+    //this.sprites[2] = new PIXI.Sprite(loader.resources.lensflare2.texture);
+    this.sprites.forEach(sprite => {
+        sprite.anchor.set(0.5);
+        sprite.scale.set(0.7);
+        sprite.blendMode = PIXI.BLEND_MODES.ADD;
+        app.stage.addChild(sprite);
+    });
+    this.spriteOffsets = [1,0.5,-0.7];
+    this.enbaled = true;
+    this.tint = 0x5599FF;
+    this.update = function(pos){
+        this.position = pos.result();
+        for (let i = 0; i < this.sprites.length; i++) {
+            this.sprites[i].x = screen.center.x + this.position.x * this.spriteOffsets[i];
+            this.sprites[i].y = screen.center.y + this.position.y * this.spriteOffsets[i];
+            this.sprites[i].tint = this.tint;
+            this.sprites[i].visible = this.enabled;
+            
+        }
+    }
+}
+
+
 
 //#endregion
