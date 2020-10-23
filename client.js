@@ -1,4 +1,3 @@
-const { Datagrams } = require("./datagram");
 
 var connection;
 let app = new PIXI.Application({
