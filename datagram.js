@@ -236,7 +236,7 @@ Datagrams.EntitySetup = Entity;
 
 exports.Datagrams = Datagrams;
 
-const serverHeaders = {update: 1, newPlayers: 2, initResponse: 0, entitySetup: 3};
+const serverHeaders = {update: 1, newPlayers: 2, initResponse: 0, playerLeft: 3, entitySetup: 4};
 exports.serverHeaders = serverHeaders;
 const clientHeaders = {init: 0, control: 1};
 exports.clientHeaders = clientHeaders;

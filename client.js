@@ -45,7 +45,6 @@ var connected = false;
 var running = false;
 
 
-var particleSystem, particleSystem2, particleSystem3;
 function start() {
     //playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
     playerLight = new PIXI.Sprite(loader.resources.light.texture);
@@ -63,55 +62,7 @@ function start() {
 
 
 
-    particleSystem = new ParticleSystem({
-        texture: loader.resources.spark.texture,
-        maxParticles: 10000,
-        emitRate: 200,
-        inheritVelocity: 0,
-        inheritRotation: -60,
-        rotateToVelocity: true,
-        randomRotation: false,
-        randomVelocity: 10,
-        scale: new Ramp(1, 1),
-        alpha: new Ramp(1, 0),
-        velocity: new Ramp(1000, 500),
-        color: new ColorRamp(0xFFFFFF, 0x1199FF),
-        lifetime: new Ramp(0.1, 0.15),
-        rotationSpeed: new Ramp(0, 0)
-    });
-    particleSystem2 = new ParticleSystem({
-        texture: loader.resources.kour7.texture,
-        maxParticles: 10000,
-        emitRate: 15,
-        inheritVelocity: 0,
-        inheritRotation: -50,
-        rotateToVelocity: true,
-        randomRotation: true,
-        randomVelocity: 20,
-        scale: new Ramp(0.5, 5),
-        alpha: new Ramp(0.15, 0),
-        velocity: new Ramp(500, 0),
-        color: new ColorRamp(0xFFFFFF, 0xFDFDFD),
-        lifetime: new Ramp(1, 3),
-        rotationSpeed: new Ramp(-1, 1)
-    });
-    particleSystem3 = new ParticleSystem({
-        enabled: true,
-        texture: loader.resources.kour7.texture,
-        maxParticles: 10000,
-        emitRate: 120,
-        inheritVelocity: 0,
-        inheritRotation: -50,
-        rotateToVelocity: true,
-        randomVelocity: 0,
-        randomRotation: true,
-        scale: new Ramp(0.1, 1.5),
-        alpha: new Ramp(0.1, 0),
-        velocity: new Ramp(15, 0),
-        color: new ColorRamp(0xBEDEFE, 0x0077FF),
-        lifetime: new Ramp(40, 10),
-        rotationSpeed: new Ramp(-2, 2)
-    });
+
 
     gameContainer.pivot.set(0.5);
     //gameContainer.addChild(playerSprite);
@@ -142,53 +93,59 @@ function connect() {
     connection.onclose = onConnectionClose;
 }
 
-var localPlayer = new Player();
+var localPlayer;
 //localPlayer.init();
 
 
 
 function updateParticles(deltaTime) {
     if (running) {
-        if (localPlayer.ship.control.y == 1) {
-            particleSystem.settings.enabled = true;
-            particleSystem3.settings.enabled = true;
+        Player.players.forEach(player => {
+            let particleSystem = player.particleSystems[0];
+            let particleSystem2 = player.particleSystems[1];
+            let particleSystem3 = player.particleSystems[2];
+            if (player.ship.control.y == 1) {
+                particleSystem.settings.enabled = true;
+                particleSystem3.settings.enabled = true;
 
-        }
-        else {
-            particleSystem.settings.enabled = false;
-            particleSystem3.settings.enabled = false;
+            }
+            else {
+                particleSystem.settings.enabled = false;
+                particleSystem3.settings.enabled = false;
 
-        }
-        if (localPlayer.ship.afterBurnerActive == 1 && localPlayer.ship.control.y == 1) {
-            particleSystem2.settings.enabled = true;
-            particleSystem.settings.emitRate = 1800 * localPlayer.ship.afterBurnerFuel / localPlayer.ship.stats.afterBurnerCapacity;
-            particleSystem.settings.color.min = 0xFFEFAA;
-            particleSystem.settings.color.max = 0xff6600;
-            particleSystem.settings.randomVelocity = 30;
+            }
+            if (player.ship.afterBurnerActive == 1 && player.ship.control.y == 1) {
+                particleSystem2.settings.enabled = true;
+                particleSystem.settings.emitRate = 1800 * player.ship.afterBurnerFuel / player.ship.stats.afterBurnerCapacity;
+                particleSystem.settings.color.min = 0xFFEFAA;
+                particleSystem.settings.color.max = 0xff6600;
+                particleSystem.settings.randomVelocity = 30;
 
-            particleSystem3.settings.color.min = 0xAA8855;
-            particleSystem3.settings.color.max = 0xAA2277;
-            //particleSystem.settings.emitRate = 300;
-        }
-        else {
-            particleSystem2.settings.enabled = false;
-            particleSystem.settings.color.min = 0xFFFFFF;
-            particleSystem.settings.color.max = 0x1199FF;
-            particleSystem.settings.emitRate = 900;
-            particleSystem.settings.randomVelocity = 5;
+                particleSystem3.settings.color.min = 0xAA8855;
+                particleSystem3.settings.color.max = 0xAA2277;
+                //particleSystem.settings.emitRate = 300;
+            }
+            else {
+                particleSystem2.settings.enabled = false;
+                particleSystem.settings.color.min = 0xFFFFFF;
+                particleSystem.settings.color.max = 0x1199FF;
+                particleSystem.settings.emitRate = 900;
+                particleSystem.settings.randomVelocity = 5;
 
-            particleSystem3.settings.color.min = 0xBEDEFE;
-            particleSystem3.settings.color.max = 0x0077FF;
-            //particleSystem.settings.emitRate = 150;
-        }
-        particleSystem3.updateEmitter((localPlayer.ship));
-        particleSystem3.update(deltaTime);
-        particleSystem.updateEmitter(localPlayer.ship);
-        particleSystem.update(deltaTime);
+                particleSystem3.settings.color.min = 0xBEDEFE;
+                particleSystem3.settings.color.max = 0x0077FF;
+                //particleSystem.settings.emitRate = 150;
+            }
+            particleSystem3.updateEmitter((player.ship));
+            particleSystem3.update(deltaTime);
+            particleSystem.updateEmitter(player.ship);
+            particleSystem.update(deltaTime);
 
 
-        particleSystem2.updateEmitter((localPlayer.ship));
-        particleSystem2.update(deltaTime);
+            particleSystem2.updateEmitter((player.ship));
+            particleSystem2.update(deltaTime);
+
+        });
 
 
 
@@ -215,7 +172,7 @@ function onConnectionMessage(messageRaw) {
 // 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
 function parseMessage(message) {
     const view = new AutoView(message);
-    console.log(message);
+    //console.log(message);
     while (view.index < message.byteLength) {
         let messageType = view.view.getUint8(view.index);
         view.index += 1;
@@ -226,6 +183,9 @@ function parseMessage(message) {
                     break;
                 case serverHeaders.newPlayers:
                     parseNewPlayers(view);
+                    break;
+                case serverHeaders.playerLeft:
+                    parseLeftPlayers(view);
                     break;
                 case serverHeaders.entitySetup:
                     parseGameSetup(view);
@@ -246,9 +206,9 @@ function parsePlayer(view) {
     let id = view.view.getUint16(view.index);
     view.index += 2;
 
-    console.log("Parsing player update with ID " + id);
+    //console.log("Parsing player update with ID " + id);
     let player = Player.players.get(id);
-    if (player!=undefined) {
+    if (player != undefined) {
         view.deserealize(ship, Datagrams.shipUpdate);
 
         Datagrams.shipUpdate.transferData(player.ship, ship);
@@ -283,8 +243,8 @@ function parseNewPlayers(view) {
     for (let i = 0; i < newPlayers; i++) {
         let p = {};
         view.deserealize(p, Datagrams.initPlayer);
-        console.log("Adding new player with ID " + p.id);
         if (p.id != localPlayer.id) {
+            console.log("Adding new player with ID " + p.id);
             let pl = new Player(p.id);
             Datagrams.initPlayer.transferData(pl, p);
 
@@ -292,11 +252,22 @@ function parseNewPlayers(view) {
     }
 }
 
-function parseGameSetup(view){
+function parseGameSetup(view) {
     let size = view.view.getUint16(view.index);
     for (let i = 0; i < size; i++) {
         let entity = {};
-        view.deserialize(entity, Datagrams.EntitySetup);        
+        view.deserialize(entity, Datagrams.EntitySetup);
+    }
+}
+
+function parseLeftPlayers(view) {
+    let leftPlayersAmount = view.view.getUint8(view.index);
+    view.index += 1;
+    for (let i = 0; i < leftPlayersAmount; i++) {
+        let pid = view.view.getUint16(view.index);
+        view.index+=2;
+        console.log("Removing player with ID "+pid);
+        Player.players.get(pid).delete();
     }
 }
 
@@ -322,23 +293,27 @@ fpsText.style.fontFamily = "Overpass Mono";
 app.stage.addChild(fpsText);
 
 function graphicsUpdate(deltaTimeFactor) {
-    let deltaTime = app.ticker.deltaMS / 1000;
-    let fuel = localPlayer.ship.afterBurnerFuel || 0;
-    fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2);
-    Player.players.forEach(player => {
-        player.ship.position.x += player.ship.velocity.x * deltaTime;
-        player.ship.position.y += player.ship.velocity.y * deltaTime;
-        player.sprite.x = player.ship.position.x;
-        player.sprite.y = player.ship.position.y;
-        player.sprite.rotation = player.ship.rotation;
-        //console.log(localPlayer.ship.velocity);
-    });
-    updateParticles(deltaTime);
-    camera.x = localPlayer.ship.position.x;
-    camera.y = localPlayer.ship.position.y;
-    gameContainer.scale.set(camera.zoom);
-    gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
-    gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
+    if (running) {
+        let deltaTime = app.ticker.deltaMS / 1000;
+        let fuel = localPlayer.ship.afterBurnerFuel || 0;
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2);
+        Player.players.forEach(player => {
+            player.ship.position.x += player.ship.velocity.x * deltaTime;
+            player.ship.position.y += player.ship.velocity.y * deltaTime;
+            player.sprite.x = player.ship.position.x;
+            player.sprite.y = player.ship.position.y;
+            player.sprite.rotation = player.ship.rotation;
+            //console.log(localPlayer.ship.velocity);
+            player.nameText.x = player.ship.position.x;
+            player.nameText.y = player.ship.position.y - 80;
+        });
+        updateParticles(deltaTime);
+        camera.x = localPlayer.ship.position.x;
+        camera.y = localPlayer.ship.position.y;
+        gameContainer.scale.set(camera.zoom);
+        gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
+        gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
+    }
 }
 
 
