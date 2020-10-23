@@ -147,6 +147,9 @@ function graphicsUpdate(deltaTimeFactor) {
 
             player.lensFlare.update(player.toGlobal(new Vector(-30,0)).add({x: -camera.x,y: -camera.y}).mult(camera.zoom));
         });
+        Entity.list.forEach(entity =>{
+            entity.update(deltaTime);
+        });
     }
 }
 
