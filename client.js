@@ -254,6 +254,7 @@ function parseLeftPlayers(view) {
     for (let i = 0; i < leftPlayersAmount; i++) {
         let pid = view.view.getUint16(view.index);
         view.index+=2;
+        console.log("Removing player with ID "+pid);
         Player.players.get(pid).delete();
     }
 }
