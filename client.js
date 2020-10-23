@@ -319,7 +319,7 @@ function parseGameSetup(view) {
     for (let i = 0; i < size; i++) {
         let temp = {};
         view.deserealize(entity, Datagrams.EntitySetup);
-        let entity = Entity.list[temp.id];
+        let entity = Entity.list[temp.id] || new Entity();
         Datagrams.EntitySetup.transferData(entity,temp);
         entity.update(0);
     }
