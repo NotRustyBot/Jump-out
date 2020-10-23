@@ -1,3 +1,5 @@
+const { serverHeaders, Datagrams } = require("./datagram");
+
 var connection;
 let app = new PIXI.Application({
     antialias: true,
@@ -219,11 +221,14 @@ function parseMessage(message) {
         view.index += 1;
         if (running) {
             switch (messageType) {
-                case 1:
+                case serverHeaders.update:
                     parsePlayer(view);
                     break;
-                case 2:
+                case serverHeaders.newPlayers:
                     parseNewPlayers(view);
+                    break;
+                case serverHeaders.entitySetup:
+                    parseGameSetup(view);
                     break;
             }
         }
@@ -284,6 +289,14 @@ function parseNewPlayers(view) {
             Datagrams.initPlayer.transferData(pl, p);
 
         }
+    }
+}
+
+function parseGameSetup(view){
+    let size = view.view.getUint16(view.index);
+    for (let i = 0; i < size; i++) {
+        let entity = {};
+        view.deserialize(entity, Datagrams.EntitySetup);        
     }
 }
 
