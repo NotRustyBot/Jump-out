@@ -315,9 +315,11 @@ function parseNewPlayers(view) {
 function parseGameSetup(view) {
     let size = view.view.getUint16(view.index);
     view.index += 2;
+    Entity.list = [];
     for (let i = 0; i < size; i++) {
         let entity = new Entity();
         view.deserealize(entity, Datagrams.EntitySetup);
+        entity.update(0);
     }
 }
 
