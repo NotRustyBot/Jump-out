@@ -88,6 +88,19 @@ ShipType.init = function () {
 
 ShipType.init();
 
+function Entity() {
+    this.position = new Vector(0,0);
+    this.rotation = 0;
+    this.rotationSpeed = 0;
+    this.type = 0;
+    this.id = Entity.list.length;
+    Entity.list.push(this);
+    this.update = function (dt) {
+        this.rotation += this.rotationSpeed * dt;
+    };
+}
+Entity.list = [];
+
 function Ship() {
     this.stats;
     this.position = new Vector(0, 0);

@@ -1,4 +1,4 @@
-const { Vector, ShipType, Ship, Player } = require("./gameobjects.js");
+//const { Vector, ShipType, Ship, Player } = require("./gameobjects.js");
 
 function Datagram() {
     this.structure = [];
@@ -227,12 +227,12 @@ let playerSettingsDatagram = new Datagram();
 playerSettingsDatagram.add(types.string,"nick");
 Datagrams.playerSettings = playerSettingsDatagram;
 
-let Entity = new Datagram();
-Entity.add(types.int16, "type");
-Entity.add(types.vector32, "position");
-Entity.add(types.float32, "rotation");
-Entity.add(types.float32, "rotationSpeed");
-Datagrams.EntitySetup = Entity;
+let EntitySetup = new Datagram();
+EntitySetup.add(types.int16, "type");
+EntitySetup.add(types.vector32, "position");
+EntitySetup.add(types.float32, "rotation");
+EntitySetup.add(types.float32, "rotationSpeed");
+Datagrams.EntitySetup = EntitySetup;
 
 exports.Datagrams = Datagrams;
 
