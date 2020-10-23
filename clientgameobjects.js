@@ -121,12 +121,12 @@ function Ship() {
             if (this.control.y > 0) {
                 pointing.normalize(
                     stats.accel +
-                        this.afterBurnerActive * stats.afterBurnerAgilityBonus
+                    this.afterBurnerActive * stats.afterBurnerAgilityBonus
                 );
             } else {
                 pointing.normalize(
                     stats.revAccel +
-                        this.afterBurnerActive * stats.afterBurnerAgilityBonus
+                    this.afterBurnerActive * stats.afterBurnerAgilityBonus
                 );
             }
             this.velocity.add(pointing);
@@ -138,7 +138,7 @@ function Ship() {
         ) {
             this.velocity.normalize(
                 stats.speed +
-                    this.afterBurnerActive * stats.afterBurnerSpeedBonus
+                this.afterBurnerActive * stats.afterBurnerSpeedBonus
             );
         }
 
@@ -207,9 +207,17 @@ function Player(id) {
         rotationSpeed: new Ramp(-2, 2)
     });
     gameContainer.addChild(this.sprite);
-    this.nameText = new PIXI.Text(this.nick + this.id,{fontFamily:"Montserrat",fontSize:30,fill:0xFFFFFF,align:"center"});
+    this.nameText = new PIXI.Text(this.nick + this.id, { fontFamily: "Montserrat", fontSize: 30, fill: 0xFFFFFF, align: "center" });
     gameContainer.addChild(this.nameText);
     this.nameText.anchor.set(0.5);
+    this.delete = function () {
+        gameContainer.removeChild(this.sprite);
+        gameContainer.removeChild(this.nameText);
+        this.particleSystems.forEach(ps => {
+            ps.delete();
+        });
+        Player.players.delete(this.id);
+    }
 }
 Player.players = new Map();
 
@@ -390,6 +398,9 @@ function ParticleSystem(settings) {
         this.emitter.rotation = obj.rotation;
         this.emitter.oldPosition = this.emitter.position.result();
         this.emitter.position = obj.position.result();
+    };
+    this.delete = function () {
+        gameContainer.removeChild(this.container);
     };
 }
 

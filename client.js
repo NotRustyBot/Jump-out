@@ -182,6 +182,9 @@ function parseMessage(message) {
                 case 2:
                     parseNewPlayers(view);
                     break;
+                case 3:
+                    parseLeftPlayers(view);
+                    break;
             }
         }
         else if (messageType == 0) {
@@ -241,6 +244,17 @@ function parseNewPlayers(view) {
             Datagrams.initPlayer.transferData(pl, p);
 
         }
+    }
+}
+
+
+function parseLeftPlayers(view) {
+    let leftPlayersAmount = view.view.getUint8(view.index);
+    view.index += 1;
+    for (let i = 0; i < leftPlayersAmount; i++) {
+        let pid = view.view.getUint16(view.index);
+        view.index+=2;
+        Player.players.get(pid).delete();
     }
 }
 
