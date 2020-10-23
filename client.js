@@ -1,4 +1,3 @@
-const { Datagrams } = require("./datagram");
 
 var connection;
 let app = new PIXI.Application({
@@ -318,7 +317,7 @@ function parseGameSetup(view) {
     view.index += 2;
     for (let i = 0; i < size; i++) {
         let temp = {};
-        view.deserealize(entity, Datagrams.EntitySetup);
+        view.deserealize(temp, Datagrams.EntitySetup);
         let entity = Entity.list[temp.id] || new Entity();
         Datagrams.EntitySetup.transferData(entity,temp);
         entity.update(0);
