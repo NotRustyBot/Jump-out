@@ -97,7 +97,15 @@ function Entity() {
     Entity.list.push(this);
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
+        this.sprite.rotation = this.rotation;
+        this.sprite.x = this.position.x;
+        this.sprite.y = this.position.y;
     };
+    this.sprite = new PIXI.Sprite(loader.resources.asteroid.texture);
+    this.sprite.x = this.position.x;
+    this.sprite.y = this.position.y;
+    this.sprite.anchor.set(0.5);
+    gameContainer.addChild(this.sprite);
 }
 Entity.list = [];
 

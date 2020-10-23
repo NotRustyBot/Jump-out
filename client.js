@@ -38,6 +38,7 @@ loader
     .add("lensflare0", "images/lensflare0.png")
     .add("lensflare1", "images/lensflare1.png")
     .add("lensflare2", "images/lensflare2.png")
+    .add("asteroid", "images/asteroid.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
