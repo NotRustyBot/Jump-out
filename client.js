@@ -39,6 +39,7 @@ loader
     .add("lensflare1", "images/lensflare1.png")
     .add("lensflare2", "images/lensflare2.png")
     .add("asteroid", "images/asteroid.png")
+    .add("beam", "images/beam.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);

@@ -234,6 +234,7 @@ function Player(id) {
     this.delete = function () {
         gameContainer.removeChild(this.sprite);
         gameContainer.removeChild(this.nameText);
+        this.lensFlare.delete();
         this.particleSystems.forEach(ps => {
             ps.delete();
         });
@@ -494,6 +495,11 @@ function LensFlare(){
             this.sprites[i].visible = this.enabled;
             
         }
+    }
+    this.delete = function(){
+        this.sprites.forEach(sprite => {
+            app.stage.removeChild(sprite);
+        });
     }
 }
 
