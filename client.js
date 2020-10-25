@@ -346,7 +346,7 @@ function parseLeftPlayers(view) {
 function parseCollision(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.CollisionEvent);
-    console.log(temp);
+    //particles go here
 }
 
 function initLocalPlayer() {
