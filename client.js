@@ -40,6 +40,7 @@ loader
     .add("lensflare2", "images/lensflare2.png")
     .add("asteroid", "images/asteroid.png")
     .add("beam", "images/beam.png")
+    .add("square600", "images/square600.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
