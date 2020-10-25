@@ -255,6 +255,9 @@ function parseMessage(message) {
                 case serverHeaders.entitySetup:
                     parseGameSetup(view);
                     break;
+                case serverHeaders.collisionEvent:
+                    parseGameSetup(view);
+                    break;
             }
         }
         else if (messageType == 0) {
@@ -338,6 +341,11 @@ function parseLeftPlayers(view) {
         console.log("Removing player with ID "+pid);
         Player.players.get(pid).delete();
     }
+}
+
+function parseCollision(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.CollisionEvent);
 }
 
 function initLocalPlayer() {
