@@ -256,7 +256,7 @@ function parseMessage(message) {
                     parseGameSetup(view);
                     break;
                 case serverHeaders.collisionEvent:
-                    parseGameSetup(view);
+                    parseCollision(view);
                     break;
             }
         }
@@ -346,6 +346,7 @@ function parseLeftPlayers(view) {
 function parseCollision(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.CollisionEvent);
+    console.log(temp);
 }
 
 function initLocalPlayer() {
