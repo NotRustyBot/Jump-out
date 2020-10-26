@@ -174,7 +174,7 @@ function updateParticles(deltaTime) {
                 player.lensFlare.enabled = false;
 
             }
-            if (player.ship.afterBurnerActive == 1 && player.ship.control.y == 1) {
+            if (player.ship.afterBurnerUsed == 1 && player.ship.control.y == 1) {
                 particleSystem2.settings.enabled = true;
                 particleSystem.settings.emitRate = 1800 * player.ship.afterBurnerFuel / player.ship.stats.afterBurnerCapacity;
                 particleSystem.settings.color.min = 0xFFEFAA;
