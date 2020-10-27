@@ -41,6 +41,7 @@ loader
     .add("asteroid", "images/asteroid.png")
     .add("beam", "images/beam.png")
     .add("square600", "images/square600.png")
+    .add("plane", "images/plane.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
