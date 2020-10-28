@@ -1,0 +1,3 @@
+let collider = [];
+collider.push(new Shape().circle(0,0,100));
+collider.push(new Shape().line(-50,0,50,0));

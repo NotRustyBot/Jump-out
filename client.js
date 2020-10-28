@@ -240,8 +240,7 @@ function parseMessage(message) {
     const view = new AutoView(message);
     //console.log(message);
     while (view.index < message.byteLength) {
-        let messageType = view.view.getUint8(view.index);
-        view.index += 1;
+        let messageType = view.getUint8();
         if (running) {
             switch (messageType) {
                 case serverHeaders.update:
@@ -272,8 +271,7 @@ function parseMessage(message) {
 }
 function parsePlayer(view) {
     let ship = {};
-    let id = view.view.getUint16(view.index);
-    view.index += 2;
+    let id = view.getUint16();
 
     //console.log("Parsing player update with ID " + id);
     let player = Player.players.get(id);
@@ -288,13 +286,11 @@ function parsePlayer(view) {
 }
 
 function parseInit(view) {
-    let id = view.view.getUint16(view.index);
-    view.index += 2;
+    let id = view.getUint16();
     console.log("Setting up local player with ID " + id);
     localPlayer = new Player(id);
     initLocalPlayer();
-    let existingPlayers = view.view.getUint8(view.index);
-    view.index += 1;
+    let existingPlayers = view.getUint8();
     for (let i = 0; i < existingPlayers; i++) {
         let p = {};
         view.deserealize(p, Datagrams.initPlayer);
@@ -307,8 +303,7 @@ function parseInit(view) {
 }
 
 function parseNewPlayers(view) {
-    let newPlayers = view.view.getUint8(view.index);
-    view.index += 1;
+    let newPlayers = view.getUint8();
     for (let i = 0; i < newPlayers; i++) {
         let p = {};
         view.deserealize(p, Datagrams.initPlayer);
@@ -322,8 +317,7 @@ function parseNewPlayers(view) {
 }
 
 function parseGameSetup(view) {
-    let size = view.view.getUint16(view.index);
-    view.index += 2;
+    let size = view.getUint16();
     for (let i = 0; i < size; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.EntitySetup);
@@ -334,11 +328,9 @@ function parseGameSetup(view) {
 }
 
 function parseLeftPlayers(view) {
-    let leftPlayersAmount = view.view.getUint8(view.index);
-    view.index += 1;
+    let leftPlayersAmount = view.getUint8();
     for (let i = 0; i < leftPlayersAmount; i++) {
-        let pid = view.view.getUint16(view.index);
-        view.index+=2;
+        let pid = view.getUint16();
         console.log("Removing player with ID "+pid);
         Player.players.get(pid).delete();
     }
@@ -424,8 +416,7 @@ window.addEventListener("mousewheel", e => {
 function sendControls() {
     const buffer = new ArrayBuffer(1 + Datagrams.input.size);
     const view = new AutoView(buffer);
-    view.view.setUint8(view.index, 1);
-    view.index += 1;
+    view.setUint8(1);
 
     let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner };
 
@@ -439,8 +430,7 @@ function sendControls() {
 function sendInit() {
     const buffer = new ArrayBuffer(1 + Datagrams.playerSettings.sizeOf(playerSettings));
     const view = new AutoView(buffer);
-    view.view.setUint8(view.index, 0);
-    view.index += 1;
+    view.setUint8(0);
 
 
     view.serialize(playerSettings, Datagrams.playerSettings);
