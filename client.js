@@ -263,8 +263,10 @@ function parseMessage(message) {
                     break;
             }
         }
-        else if (messageType == 0) {
+        else if (messageType == serverHeaders.initResponse) {
             parseInit(view);
+        }else if(messageType == serverHeaders.gasData){
+            parseGas(view);
         }
     }
 
@@ -349,6 +351,18 @@ function parseDebug(view){
     let temp = {};
     view.deserealize(temp, Datagrams.DebugPacket);
     textToDisplay = temp.data;
+}
+
+function parseGas(view){
+    let w = view.getUint16();
+    let h = view.getUint16();
+    for (let y = 0; y < h; y++) {
+        Universe.gasMap[y] = [];
+        for (let x = 0; x < w; x++) {
+            const e = view.getUint8();
+            Universe.gasMap[y][x] = e;
+        }
+    }
 }
 
 function initLocalPlayer() {

@@ -89,6 +89,9 @@ ShipType.init = function () {
 ShipType.init();
 
 
+var Universe = {};
+Universe.gasMap = [];
+
 function Entity() {
     this.position = new Vector(0,0);
     this.rotation = 0;
@@ -503,7 +506,5 @@ function LensFlare(){
         });
     }
 }
-
-
 
 //#endregion
