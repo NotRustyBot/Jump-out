@@ -349,7 +349,6 @@ function parseDebug(view){
     let temp = {};
     view.deserealize(temp, Datagrams.DebugPacket);
     textToDisplay = temp.data;
-    console.log(temp);
 }
 
 function initLocalPlayer() {
