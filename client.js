@@ -20,7 +20,7 @@ var playerSettings = { nick: "Nixk" };
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
-    screen.center = new Vector(window.innerWidth/2,window.innerHeight/2)
+    screen.center = new Vector(window.innerWidth / 2, window.innerHeight / 2)
 });
 
 loader
@@ -115,7 +115,7 @@ function update() {
 }
 
 var screen = {
-    center : new Vector(window.innerWidth/2,window.innerHeight/2)
+    center: new Vector(window.innerWidth / 2, window.innerHeight / 2)
 };
 
 
@@ -128,7 +128,7 @@ function graphicsUpdate(deltaTimeFactor) {
     if (running) {
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2);
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay;
         Player.players.forEach(player => {
             player.ship.position.x += player.ship.velocity.x * deltaTime;
             player.ship.position.y += player.ship.velocity.y * deltaTime;
@@ -148,9 +148,9 @@ function graphicsUpdate(deltaTimeFactor) {
         gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
         Player.players.forEach(player => {
 
-            player.lensFlare.update(player.toGlobal(new Vector(-30,0)).add({x: -camera.x,y: -camera.y}).mult(camera.zoom));
+            player.lensFlare.update(player.toGlobal(new Vector(-30, 0)).add({ x: -camera.x, y: -camera.y }).mult(camera.zoom));
         });
-        Entity.list.forEach(entity =>{
+        Entity.list.forEach(entity => {
             entity.update(deltaTime);
         });
     }
@@ -199,7 +199,7 @@ function updateParticles(deltaTime) {
                 particleSystem3.settings.color.max = 0x0077FF;
                 //particleSystem.settings.emitRate = 150;
             }
-            let global = player.toGlobal(new Vector(-30,0));
+            let global = player.toGlobal(new Vector(-30, 0));
             particleSystem3.updateEmitter((player.ship));
             //particleSystem3.emitter.position = global;
             particleSystem3.update(deltaTime);
@@ -258,6 +258,9 @@ function parseMessage(message) {
                 case serverHeaders.collisionEvent:
                     parseCollision(view);
                     break;
+                case serverHeaders.debugPacket:
+                    parseDebug(view);
+                    break;
             }
         }
         else if (messageType == 0) {
@@ -311,7 +314,6 @@ function parseNewPlayers(view) {
             console.log("Adding new player with ID " + p.id);
             let pl = new Player(p.id);
             Datagrams.initPlayer.transferData(pl, p);
-
         }
     }
 }
@@ -322,7 +324,7 @@ function parseGameSetup(view) {
         let temp = {};
         view.deserealize(temp, Datagrams.EntitySetup);
         let entity = Entity.list[temp.id] || new Entity();
-        Datagrams.EntitySetup.transferData(entity,temp);
+        Datagrams.EntitySetup.transferData(entity, temp);
         entity.update(0);
     }
 }
@@ -331,7 +333,7 @@ function parseLeftPlayers(view) {
     let leftPlayersAmount = view.getUint8();
     for (let i = 0; i < leftPlayersAmount; i++) {
         let pid = view.getUint16();
-        console.log("Removing player with ID "+pid);
+        console.log("Removing player with ID " + pid);
         Player.players.get(pid).delete();
     }
 }
@@ -340,6 +342,14 @@ function parseCollision(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.CollisionEvent);
     //particles go here
+}
+
+let textToDisplay = "";
+function parseDebug(view){
+    let temp = {};
+    view.deserealize(temp, Datagrams.DebugPacket);
+    textToDisplay = temp.data;
+    console.log(temp);
 }
 
 function initLocalPlayer() {
