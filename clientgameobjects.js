@@ -105,7 +105,7 @@ function Entity() {
         this.sprite.x = this.position.x;
         this.sprite.y = this.position.y;
     };
-    this.sprite = new PIXI.Sprite(loader.resources.plane.texture);
+    this.sprite = new PIXI.Sprite(loader.resources.circle_r300.texture);
     this.sprite.x = this.position.x;
     this.sprite.y = this.position.y;
     this.sprite.anchor.set(0.5);

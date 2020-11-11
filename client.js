@@ -42,6 +42,8 @@ loader
     .add("beam", "images/beam.png")
     .add("square600", "images/square600.png")
     .add("plane", "images/plane.png")
+    .add("shape", "images/shape.png")
+    .add("circle_r300", "images/circle-r300.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
