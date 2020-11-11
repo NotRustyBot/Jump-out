@@ -38,12 +38,12 @@ loader
     .add("lensflare0", "images/lensflare0.png")
     .add("lensflare1", "images/lensflare1.png")
     .add("lensflare2", "images/lensflare2.png")
-    .add("asteroid", "images/asteroid.png")
     .add("beam", "images/beam.png")
-    .add("square600", "images/square600.png")
-    .add("plane", "images/plane.png")
-    .add("shape", "images/shape.png")
     .add("circle_r300", "images/circle-r300.png")
+    .add("square600", "images/square600.png")
+    .add("shape", "images/shape.png")
+    .add("entity_1", "images/entity/1.png")
+    .add("entity_2", "images/entity/2.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -327,7 +327,7 @@ function parseGameSetup(view) {
     for (let i = 0; i < size; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.EntitySetup);
-        let entity = Entity.list[temp.id] || new Entity();
+        let entity = Entity.list[temp.id] || new Entity(temp.type);
         Datagrams.EntitySetup.transferData(entity, temp);
         entity.update(0);
     }

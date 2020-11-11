@@ -92,11 +92,11 @@ ShipType.init();
 var Universe = {};
 Universe.gasMap = [];
 
-function Entity() {
+function Entity(type) {
     this.position = new Vector(0,0);
     this.rotation = 0;
     this.rotationSpeed = 0;
-    this.type = 0;
+    this.type = type;
     this.id = Entity.list.length;
     Entity.list.push(this);
     this.update = function (dt) {
@@ -105,7 +105,7 @@ function Entity() {
         this.sprite.x = this.position.x;
         this.sprite.y = this.position.y;
     };
-    this.sprite = new PIXI.Sprite(loader.resources.circle_r300.texture);
+    this.sprite = new PIXI.Sprite(loader.resources["entity_"+this.type].texture);
     this.sprite.x = this.position.x;
     this.sprite.y = this.position.y;
     this.sprite.anchor.set(0.5);
