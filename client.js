@@ -233,14 +233,12 @@ function onConnectionOpen() {
 
 function onConnectionMessage(messageRaw) {
     var ms = messageRaw.data;
-    //console.log(ms);
+    //console.log(typeof(ms)); //myslím, že je chyba na serveru
     parseMessage(ms);
 }
 
-// 4+4 - pos, 4+4 vel, 4 rot, 4+4 cont
 function parseMessage(message) {
     const view = new AutoView(message);
-    //console.log(message);
     while (view.index < message.byteLength) {
         let messageType = view.getUint8();
         if (running) {
@@ -263,11 +261,14 @@ function parseMessage(message) {
                 case serverHeaders.debugPacket:
                     parseDebug(view);
                     break;
+                case serverHeaders.proximity:
+                    parseGameSetup(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
             parseInit(view);
-        }else if(messageType == serverHeaders.gasData){
+        } else if (messageType == serverHeaders.gasData) {
             parseGas(view);
         }
     }
@@ -349,13 +350,13 @@ function parseCollision(view) {
 }
 
 let textToDisplay = "";
-function parseDebug(view){
+function parseDebug(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.DebugPacket);
     textToDisplay = temp.data;
 }
 
-function parseGas(view){
+function parseGas(view) {
     let w = view.getUint16();
     let h = view.getUint16();
     for (let y = 0; y < h; y++) {
@@ -419,7 +420,7 @@ window.addEventListener("keyup", function (e) {
     }
 });
 
-window.addEventListener("mousewheel", e => {
+window.addEventListener("wheel", e => {
     //var oldTargetZoom = targetZoom;
     let targetZoom = camera.zoom;
     if (e.deltaY < 0) {
