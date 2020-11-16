@@ -52,15 +52,23 @@ var playerSprite, playerLight;
 var loaded = false;
 var connected = false;
 var running = false;
+var gasLoaded = false;
+var gasChunkCountX = 50;
+var gasParticleContainers = [gasChunkCountX];
+var gasParticleSpacing = 100;
+var gasParticleDisplayAmount = 1; //DOES NOT WORK
+var gasChunkWidth = 1000 * gasParticleSpacing / gasChunkCountX;
+var gasCount = 0;
+
+var loadingStatus = document.getElementById("loadingStatus");
+loadingStatus.textContent = "LOADING";
 
 
 function start() {
     //playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
     playerLight = new PIXI.Sprite(loader.resources.light.texture);
-    document.getElementById("loadingBarContainer").style.opacity = "0";
-    setTimeout(() => {
-        document.getElementById("loadingBarContainer").style.display = "none";
-    }, 1000);
+    loadingStatus.textContent = "CONNECTING";
+
     //playerSprite.scale.set(0.5);
     //playerSprite.anchor.set(0.5);
 
@@ -76,6 +84,9 @@ function start() {
     gameContainer.pivot.set(0.5);
     //gameContainer.addChild(playerSprite);
     app.stage.addChild(gameContainer);
+
+
+    //gasParticleContainers[0,0].visible = true;
 
     app.ticker.add(graphicsUpdate);
     loaded = true;
@@ -130,7 +141,7 @@ function graphicsUpdate(deltaTimeFactor) {
     if (running) {
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay;
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\n    Gas: " + gasCount;
         Player.players.forEach(player => {
             player.ship.position.x += player.ship.velocity.x * deltaTime;
             player.ship.position.y += player.ship.velocity.y * deltaTime;
@@ -155,6 +166,10 @@ function graphicsUpdate(deltaTimeFactor) {
         Entity.list.forEach(entity => {
             entity.update(deltaTime);
         });
+
+        //gasParticleContainers[5][5].visible = true;
+        gasParticleChunksDisplay();
+
     }
 }
 
@@ -217,7 +232,6 @@ function updateParticles(deltaTime) {
 
 
 
-
     }
 }
 
@@ -270,6 +284,7 @@ function parseMessage(message) {
             parseInit(view);
         } else if (messageType == serverHeaders.gasData) {
             parseGas(view);
+
         }
     }
 
@@ -277,6 +292,29 @@ function parseMessage(message) {
     //console.log(localPlayer);
 
 }
+
+function parseGas(view) {
+    gasParticleSpacing = view.getUint16();
+    let w = view.getUint16();
+    let h = view.getUint16();
+    let bytes = 4;
+    for (let y = 0; y < h; y++) {
+        Universe.gasMap[y] = [];
+        for (let x = 0; x < w; x++) {
+            const e = view.getUint8();
+            bytes++;
+            Universe.gasMap[y][x] = e;
+        }
+    }
+
+    loadingStatus.textContent = "GENERATING MAP";
+    
+    document.getElementById("loadingBar").style.transition = "none";
+    document.getElementById("loadingBar").style.width = 0 + "%";
+    
+    setTimeout(function () { generateGas(); }, 0);
+}
+
 function parsePlayer(view) {
     let ship = {};
     let id = view.getUint16();
@@ -307,7 +345,9 @@ function parseInit(view) {
         let pl = new Player(p.id);
         Datagrams.initPlayer.transferData(pl, p);
     }
+
     running = true;
+
 }
 
 function parseNewPlayers(view) {
@@ -356,20 +396,68 @@ function parseDebug(view) {
     textToDisplay = temp.data;
 }
 
-function parseGas(view) {
-    let w = view.getUint16();
-    let h = view.getUint16();
-    for (let y = 0; y < h; y++) {
-        Universe.gasMap[y] = [];
-        for (let x = 0; x < w; x++) {
-            const e = view.getUint8();
-            Universe.gasMap[y][x] = e;
+function generateGas() {
+
+    console.log("generating");
+
+    document.getElementById("loadingBar").style.transition = "width .2s";
+
+    for (let px = 0; px < gasChunkCountX; px++) {
+        gasParticleContainers[px] = [10];
+        for (let py = 0; py < gasChunkCountX; py++) {
+            gasParticleContainers[px][py] = new PIXI.ParticleContainer(10000, {
+                scale: true,
+                position: true,
+                rotation: true,
+                tint: false,
+            });
+            gasParticleContainers[px][py].visible = false;
+            gameContainer.addChild(gasParticleContainers[px][py]);
+
         }
+
     }
+
+    setTimeout(function () { gasGenProgress(0) }, 0);
+
+
 }
 
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
+}
+function gasGenProgress(y) {
+    document.getElementById("loadingBar").style.width = (y / 10)+10 + "%";
+    //console.log("prog" + y);
+    let ys = y + 100;
+    for (; y < ys; y++) {
+        for (let x = 0; x < 1000; x++) {
+            const e = Universe.gasMap[y][x];
+            //if (gasCount % 10 == 0) {
+            let gasParticle = new PIXI.Sprite(loader.resources.kour.texture);
+            gasParticle.position.set(x * gasParticleSpacing, y * gasParticleSpacing);
+            gasParticle.anchor.set(0.5);
+            gasParticle.scale.set(6);
+            gasParticle.rotation = Math.random() * 6.28;
+            gasParticle.alpha = e / 400;
+            if (gasCount % Math.floor(1 / gasParticleDisplayAmount) == 0) gasParticle.visible = true;
+            else gasParticle.visible = false;
+            //console.log("s");
+            gasParticleContainers[Math.floor(x / 1000 * gasChunkCountX)][Math.floor(y / 1000 * gasChunkCountX)].addChild(gasParticle);
+            //}
+            gasCount++;
+        }
+
+    }
+    if (y < 1000) {
+        
+        setTimeout(function () { gasGenProgress(y) }, 0);
+    }
+    else {
+        closeLoadingScreen();
+        gasLoaded = true;
+    }
+
 }
 
 
@@ -463,4 +551,29 @@ function sendInit() {
 
 
     connection.send(buffer);
+}
+
+function gasParticleChunksDisplay() {
+    if (gasLoaded) {
+        gasParticleContainers[Math.floor(localPlayer.ship.position.x / gasChunkWidth)][Math.floor(localPlayer.ship.position.y / gasChunkWidth)].visible = true;
+        let playerChunkX = Math.floor(localPlayer.ship.position.x / gasChunkWidth);
+        let playerChunkY = Math.floor(localPlayer.ship.position.y / gasChunkWidth);
+        for (let px = 0; px < gasChunkCountX; px++) {
+            for (let py = 0; py < gasChunkCountX; py++) {
+                if (Math.abs(px - playerChunkX) <= 1 && Math.abs(py - playerChunkY) <= 1) {
+                    gasParticleContainers[px][py].visible = true;
+                }
+                else gasParticleContainers[px][py].visible = false;
+
+            }
+
+        }
+    }
+
+}
+function closeLoadingScreen() {
+    document.getElementById("loadingBarContainer").style.opacity = "0";
+    setTimeout(() => {
+        document.getElementById("loadingBarContainer").style.display = "none";
+    }, 1000);
 }
