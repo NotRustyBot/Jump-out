@@ -53,7 +53,7 @@ var loaded = false;
 var connected = false;
 var running = false;
 var gasLoaded = false;
-var gasChunkCountX = 50;
+var gasChunkCountX = 100;
 var gasParticleContainers = [gasChunkCountX];
 var gasParticleSpacing = 1000;
 var gasParticleDisplayAmount = 1; //DOES NOT WORK
@@ -295,6 +295,7 @@ function parseMessage(message) {
 
 function parseGas(view) {
     gasParticleSpacing = view.getUint16();
+    gasChunkWidth = 1000 * gasParticleSpacing / gasChunkCountX;
     let w = view.getUint16();
     let h = view.getUint16();
     let bytes = 4;
@@ -429,19 +430,22 @@ function initLocalPlayer() {
 function gasGenProgress(y) {
     document.getElementById("loadingBar").style.width = (y / 10)+10 + "%";
     //console.log("prog" + y);
+    let colorMap = new ColorRamp(0xddd2f2,0xbf5eff);
     let ys = y + 100;
     for (; y < ys; y++) {
         for (let x = 0; x < 1000; x++) {
             const e = Universe.gasMap[y][x];
             //if (gasCount % 10 == 0) {
-            let gasParticle = new PIXI.Sprite(loader.resources.kour.texture);
-            gasParticle.position.set(x * gasParticleSpacing, y * gasParticleSpacing);
+            let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
+            gasParticle.position.set(x * gasParticleSpacing + gasParticleSpacing*(Math.random()-.5)*.5, y * gasParticleSpacing + gasParticleSpacing*(Math.random()-.5)*.5);
+            //gasParticle.position.set(x * gasParticleSpacing, y * gasParticleSpacing);
             gasParticle.anchor.set(0.5);
             gasParticle.scale.set(6);
             gasParticle.rotation = Math.random() * 6.28;
-            gasParticle.alpha = e / 400;
-            if (gasCount % Math.floor(1 / gasParticleDisplayAmount) == 0) gasParticle.visible = true;
-            else gasParticle.visible = false;
+            gasParticle.alpha = e / 100;
+            gasParticle.tint = colorMap.evaluate(e/100);
+            //if (gasCount % Math.floor(1 / gasParticleDisplayAmount) == 0) gasParticle.visible = true;
+            //else gasParticle.visible = false;
             //console.log("s");
             gasParticleContainers[Math.floor(x / 1000 * gasChunkCountX)][Math.floor(y / 1000 * gasChunkCountX)].addChild(gasParticle);
             //}
@@ -555,13 +559,16 @@ function sendInit() {
 
 function gasParticleChunksDisplay() {
     if (gasLoaded) {
-        gasParticleContainers[Math.floor(localPlayer.ship.position.x / gasChunkWidth)][Math.floor(localPlayer.ship.position.y / gasChunkWidth)].visible = true;
+        //gasParticleContainers[Math.floor(localPlayer.ship.position.x / gasChunkWidth)][Math.floor(localPlayer.ship.position.y / gasChunkWidth)].visible = true;
         let playerChunkX = Math.floor(localPlayer.ship.position.x / gasChunkWidth);
         let playerChunkY = Math.floor(localPlayer.ship.position.y / gasChunkWidth);
         for (let px = 0; px < gasChunkCountX; px++) {
             for (let py = 0; py < gasChunkCountX; py++) {
                 if (Math.abs(px - playerChunkX) <= 1 && Math.abs(py - playerChunkY) <= 1) {
                     gasParticleContainers[px][py].visible = true;
+                    gasParticleContainers[px][py].children.forEach(s => {
+                        s.rotation += 0.03 * s.alpha + 0.008;
+                    });
                 }
                 else gasParticleContainers[px][py].visible = false;
 
