@@ -292,7 +292,6 @@ function parseMessage(message) {
 
 function parseGas(view) {
     gasParticleSpacing = view.getUint16();
-    gasChunkWidth = 1000 * gasParticleSpacing / gasChunkCountX;
     let w = view.getUint16();
     let h = view.getUint16();
     let bytes = 4;
