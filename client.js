@@ -168,7 +168,7 @@ function graphicsUpdate(deltaTimeFactor) {
         });
 
         //gasParticleContainers[5][5].visible = true;
-        gasParticleChunksDisplay();
+        gasParticleChunksDisplay_v2();
 
     }
 }
@@ -309,11 +309,11 @@ function parseGas(view) {
     }
 
     loadingStatus.textContent = "GENERATING MAP";
-    
+
     document.getElementById("loadingBar").style.transition = "none";
     document.getElementById("loadingBar").style.width = 0 + "%";
-    
-    setTimeout(function () { generateGas(); }, 0);
+
+    setTimeout(function () { generateGas_v2(); }, 0);
 }
 
 function parsePlayer(view) {
@@ -420,30 +420,70 @@ function generateGas() {
     }
 
     setTimeout(function () { gasGenProgress(0) }, 0);
+}
 
 
+let gasContainer;
+let gasParticles = [];
+
+let gasDisplay = [];
+function generateGas_v2() {
+    console.log("generating");
+
+    document.getElementById("loadingBar").style.transition = "width .2s";
+
+    gasContainer = new PIXI.ParticleContainer(1000, {
+        scale: true,
+        position: true,
+        rotation: true,
+        tint: true,
+    });
+
+    gameContainer.addChild(gasContainer);
+
+    for (let i = 0; i < 1000; i++) {
+        let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
+
+        gasParticles[i] = gasParticle;
+
+        gasParticle.anchor.set(0.5);
+        gasParticle.scale.set(6);
+        gasParticle.rotation = Math.random() * 6.28;
+
+        gasContainer.addChild(gasParticle);
+        
+
+        gasDisplay[i] = [];
+        for (let y = 0; y < 100; y++) {
+            gasDisplay[i][y] = false;
+        }
+        gasCount++;
+    }
+
+    closeLoadingScreen();
+    gasLoaded = true;
 }
 
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
 }
 function gasGenProgress(y) {
-    document.getElementById("loadingBar").style.width = (y / 10)+10 + "%";
+    document.getElementById("loadingBar").style.width = (y / 10) + 10 + "%";
     //console.log("prog" + y);
-    let colorMap = new ColorRamp(0xddd2f2,0xbf5eff);
+    let colorMap = new ColorRamp(0xddd2f2, 0xbf5eff);
     let ys = y + 100;
     for (; y < ys; y++) {
         for (let x = 0; x < 1000; x++) {
             const e = Universe.gasMap[y][x];
             //if (gasCount % 10 == 0) {
             let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
-            gasParticle.position.set(x * gasParticleSpacing + gasParticleSpacing*(Math.random()-.5)*.5, y * gasParticleSpacing + gasParticleSpacing*(Math.random()-.5)*.5);
+            gasParticle.position.set(x * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5, y * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5);
             //gasParticle.position.set(x * gasParticleSpacing, y * gasParticleSpacing);
             gasParticle.anchor.set(0.5);
             gasParticle.scale.set(6);
             gasParticle.rotation = Math.random() * 6.28;
             gasParticle.alpha = e / 100;
-            gasParticle.tint = colorMap.evaluate(e/100);
+            gasParticle.tint = colorMap.evaluate(e / 100);
             //if (gasCount % Math.floor(1 / gasParticleDisplayAmount) == 0) gasParticle.visible = true;
             //else gasParticle.visible = false;
             //console.log("s");
@@ -454,7 +494,7 @@ function gasGenProgress(y) {
 
     }
     if (y < 1000) {
-        
+
         setTimeout(function () { gasGenProgress(y) }, 0);
     }
     else {
@@ -578,6 +618,54 @@ function gasParticleChunksDisplay() {
     }
 
 }
+
+
+let gasCamWidth = 20;
+let gasCamHeight = 16;
+let gasColorMap = new ColorRamp(0xddd2f2, 0xbf5eff);
+function gasParticleChunksDisplay_v2() {
+    if (gasLoaded) {
+        let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
+        let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        let avalible = [];
+
+        for (let i = 0; i < gasParticles.length; i++) {
+            const g = gasParticles[i];
+            let gX = Math.floor(g.x / gasParticleSpacing);
+            let gY = Math.floor(g.y / gasParticleSpacing);
+            if( gX > gasPosX + gasCamWidth /2 ||
+                gX < gasPosX - gasCamWidth /2 ||
+                gY > gasPosY + gasCamHeight/2 ||
+                gY < gasPosY - gasCamHeight/2 
+                ){
+                    avalible.push(g);
+                    gasDisplay[gX][gY] = false;
+                }else{
+                    g.rotation += 0.03 * g.alpha + 0.008;
+                }
+            
+        }
+
+        for (let px = Math.max(gasPosX-gasCamWidth/2,0); px < gasPosX+gasCamWidth/2; px++) {
+            for (let py = Math.max(gasPosY-gasCamHeight/2,0); py < gasPosY+gasCamHeight/2; py++) {
+
+                if(!gasDisplay[px][py]){
+                    let g = avalible.pop();
+                    if(g != undefined){
+                        let e = Universe.gasMap[py][px];
+                        gasDisplay[px][py] = true;
+                        g.alpha = e / 100;
+                        g.tint = gasColorMap.evaluate(e / 100);
+                        g.position.set(px * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5, py * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5);
+                    }
+                }
+            }
+
+        }
+    }
+
+}
+
 function closeLoadingScreen() {
     document.getElementById("loadingBarContainer").style.opacity = "0";
     setTimeout(() => {

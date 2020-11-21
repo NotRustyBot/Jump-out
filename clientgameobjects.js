@@ -475,6 +475,22 @@ function ColorRamp(min, max) {
     };
 }
 
+function Graph(values, scale) {
+    if(scale != null){
+        for (let i = 0; i < values.length; i++) values[i] *= scale;
+    }
+
+    this.values = values;
+    this.evaluate = function (value) {
+        let length = this.values.length-1;
+        let bottom = Math.floor(value*length);
+        let top = Math.ceil(value*length);
+        let min = this.values[bottom];
+        let max = this.values[top];
+        return min + (max - min) * (value*length-bottom);
+    };
+}
+
 function LensFlare(){
     this.position = new Vector(0,0);
     this.sprites = [];
