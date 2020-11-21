@@ -53,11 +53,8 @@ var loaded = false;
 var connected = false;
 var running = false;
 var gasLoaded = false;
-var gasChunkCountX = 100;
-var gasParticleContainers = [gasChunkCountX];
 var gasParticleSpacing = 1000;
 var gasParticleDisplayAmount = 1; //DOES NOT WORK
-var gasChunkWidth = 1000 * gasParticleSpacing / gasChunkCountX;
 var gasCount = 0;
 
 var loadingStatus = document.getElementById("loadingStatus");
@@ -168,7 +165,7 @@ function graphicsUpdate(deltaTimeFactor) {
         });
 
         //gasParticleContainers[5][5].visible = true;
-        gasParticleChunksDisplay_v2();
+        gasParticleChunksDisplay();
 
     }
 }
@@ -313,7 +310,7 @@ function parseGas(view) {
     document.getElementById("loadingBar").style.transition = "none";
     document.getElementById("loadingBar").style.width = 0 + "%";
 
-    setTimeout(function () { generateGas_v2(); }, 0);
+    setTimeout(function () { generateGas(); }, 0);
 }
 
 function parsePlayer(view) {
@@ -397,37 +394,12 @@ function parseDebug(view) {
     textToDisplay = temp.data;
 }
 
-function generateGas() {
-
-    console.log("generating");
-
-    document.getElementById("loadingBar").style.transition = "width .2s";
-
-    for (let px = 0; px < gasChunkCountX; px++) {
-        gasParticleContainers[px] = [10];
-        for (let py = 0; py < gasChunkCountX; py++) {
-            gasParticleContainers[px][py] = new PIXI.ParticleContainer(10000, {
-                scale: true,
-                position: true,
-                rotation: true,
-                tint: false,
-            });
-            gasParticleContainers[px][py].visible = false;
-            gameContainer.addChild(gasParticleContainers[px][py]);
-
-        }
-
-    }
-
-    setTimeout(function () { gasGenProgress(0) }, 0);
-}
-
 
 let gasContainer;
 let gasParticles = [];
 
 let gasDisplay = [];
-function generateGas_v2() {
+function generateGas() {
     console.log("generating");
 
     document.getElementById("loadingBar").style.transition = "width .2s";
@@ -466,42 +438,6 @@ function generateGas_v2() {
 
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
-}
-function gasGenProgress(y) {
-    document.getElementById("loadingBar").style.width = (y / 10) + 10 + "%";
-    //console.log("prog" + y);
-    let colorMap = new ColorRamp(0xddd2f2, 0xbf5eff);
-    let ys = y + 100;
-    for (; y < ys; y++) {
-        for (let x = 0; x < 1000; x++) {
-            const e = Universe.gasMap[y][x];
-            //if (gasCount % 10 == 0) {
-            let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
-            gasParticle.position.set(x * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5, y * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5);
-            //gasParticle.position.set(x * gasParticleSpacing, y * gasParticleSpacing);
-            gasParticle.anchor.set(0.5);
-            gasParticle.scale.set(6);
-            gasParticle.rotation = Math.random() * 6.28;
-            gasParticle.alpha = e / 100;
-            gasParticle.tint = colorMap.evaluate(e / 100);
-            //if (gasCount % Math.floor(1 / gasParticleDisplayAmount) == 0) gasParticle.visible = true;
-            //else gasParticle.visible = false;
-            //console.log("s");
-            gasParticleContainers[Math.floor(x / 1000 * gasChunkCountX)][Math.floor(y / 1000 * gasChunkCountX)].addChild(gasParticle);
-            //}
-            gasCount++;
-        }
-
-    }
-    if (y < 1000) {
-
-        setTimeout(function () { gasGenProgress(y) }, 0);
-    }
-    else {
-        closeLoadingScreen();
-        gasLoaded = true;
-    }
-
 }
 
 
@@ -623,7 +559,7 @@ function gasParticleChunksDisplay() {
 let gasCamWidth = 20;
 let gasCamHeight = 16;
 let gasColorMap = new ColorRamp(0xddd2f2, 0xbf5eff);
-function gasParticleChunksDisplay_v2() {
+function gasParticleChunksDisplay() {
     if (gasLoaded) {
         let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
         let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
