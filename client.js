@@ -532,28 +532,6 @@ function sendInit() {
     connection.send(buffer);
 }
 
-function gasParticleChunksDisplay() {
-    if (gasLoaded) {
-        //gasParticleContainers[Math.floor(localPlayer.ship.position.x / gasChunkWidth)][Math.floor(localPlayer.ship.position.y / gasChunkWidth)].visible = true;
-        let playerChunkX = Math.floor(localPlayer.ship.position.x / gasChunkWidth);
-        let playerChunkY = Math.floor(localPlayer.ship.position.y / gasChunkWidth);
-        for (let px = 0; px < gasChunkCountX; px++) {
-            for (let py = 0; py < gasChunkCountX; py++) {
-                if (Math.abs(px - playerChunkX) <= 1 && Math.abs(py - playerChunkY) <= 1) {
-                    gasParticleContainers[px][py].visible = true;
-                    gasParticleContainers[px][py].children.forEach(s => {
-                        s.rotation += 0.03 * s.alpha + 0.008;
-                    });
-                }
-                else gasParticleContainers[px][py].visible = false;
-
-            }
-
-        }
-    }
-
-}
-
 
 let gasCamWidth = 20;
 let gasCamHeight = 16;
@@ -591,7 +569,7 @@ function gasParticleChunksDisplay() {
                         gasDisplay[px][py] = true;
                         g.alpha = e / 100;
                         g.tint = gasColorMap.evaluate(e / 100);
-                        g.position.set(px * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5, py * gasParticleSpacing + gasParticleSpacing * (Math.random() - .5) * .5);
+                        g.position.set(px * gasParticleSpacing /*+ gasParticleSpacing * (Math.random() - .5) * .5*/, py * gasParticleSpacing /*+ gasParticleSpacing * (Math.random() - .5) * .5*/);
                     }
                 }
             }
