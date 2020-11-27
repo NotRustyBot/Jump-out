@@ -422,7 +422,7 @@ function generateGas() {
         gasParticle.rotation = Math.random() * 6.28;
 
         gasContainer.addChild(gasParticle);
-        
+
 
         gasDisplay[i] = [];
         for (let y = 0; y < 100; y++) {
@@ -445,6 +445,7 @@ function initLocalPlayer() {
 
 //#region INPUT
 let controlVector = { x: 0, y: 0, afterBurner: 0 };
+let actionID = 0;
 window.addEventListener("keydown", function (e) {
     let key = e.key.toLocaleLowerCase();
     switch (key) {
@@ -462,6 +463,9 @@ window.addEventListener("keydown", function (e) {
             break;
         case "shift":
             controlVector.afterBurner = 1;
+            break;
+        case "f":
+            actionID = 1;
             break;
         default:
             break;
@@ -511,7 +515,8 @@ function sendControls() {
     const view = new AutoView(buffer);
     view.setUint8(1);
 
-    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner };
+    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: actionID };
+    actionID = 0;
 
     view.serialize(toSend, Datagrams.input);
 
@@ -525,9 +530,7 @@ function sendInit() {
     const view = new AutoView(buffer);
     view.setUint8(0);
 
-
     view.serialize(playerSettings, Datagrams.playerSettings);
-
 
     connection.send(buffer);
 }
@@ -546,25 +549,25 @@ function gasParticleChunksDisplay() {
             const g = gasParticles[i];
             let gX = Math.floor(g.x / gasParticleSpacing);
             let gY = Math.floor(g.y / gasParticleSpacing);
-            if( gX > gasPosX + gasCamWidth /2 ||
-                gX < gasPosX - gasCamWidth /2 ||
-                gY > gasPosY + gasCamHeight/2 ||
-                gY < gasPosY - gasCamHeight/2 
-                ){
-                    avalible.push(g);
-                    gasDisplay[gX][gY] = false;
-                }else{
-                    g.rotation += 0.03 * g.alpha + 0.008;
-                }
-            
+            if (gX > gasPosX + gasCamWidth / 2 ||
+                gX < gasPosX - gasCamWidth / 2 ||
+                gY > gasPosY + gasCamHeight / 2 ||
+                gY < gasPosY - gasCamHeight / 2
+            ) {
+                avalible.push(g);
+                gasDisplay[gX][gY] = false;
+            } else {
+                g.rotation += 0.03 * g.alpha + 0.008;
+            }
+
         }
 
-        for (let px = Math.max(gasPosX-gasCamWidth/2,0); px < gasPosX+gasCamWidth/2; px++) {
-            for (let py = Math.max(gasPosY-gasCamHeight/2,0); py < gasPosY+gasCamHeight/2; py++) {
+        for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
+            for (let py = Math.max(gasPosY - gasCamHeight / 2, 0); py < gasPosY + gasCamHeight / 2; py++) {
 
-                if(!gasDisplay[px][py]){
+                if (!gasDisplay[px][py]) {
                     let g = avalible.pop();
-                    if(g != undefined){
+                    if (g != undefined) {
                         let e = Universe.gasMap[py][px];
                         gasDisplay[px][py] = true;
                         g.alpha = e / 100;
