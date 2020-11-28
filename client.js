@@ -38,6 +38,7 @@ loader
     .add("shape", "images/shape.png")
     .add("entity_1", "images/entity/1.png")
     .add("entity_2", "images/entity/2.png")
+    .add("entity_101", "images/entity/101.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -136,7 +137,7 @@ function graphicsUpdate(deltaTimeFactor) {
 
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
-        updateCamera(deltatime);
+        updateCamera(deltaTime);
 
         Player.players.forEach(player => {
 
