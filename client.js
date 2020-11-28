@@ -136,7 +136,7 @@ function graphicsUpdate(deltaTimeFactor) {
 
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
-        updateCamera(deltatime);
+        updateCamera(deltaTime);
 
         Player.players.forEach(player => {
 
