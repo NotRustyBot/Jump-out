@@ -41,6 +41,7 @@ loader
     .add("entity_1", "images/entity/1.png")
     .add("entity_2", "images/entity/2.png")
     .add("minimap", "images/minimap/minimap.png")
+    .add("entity_101", "images/entity/101.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
