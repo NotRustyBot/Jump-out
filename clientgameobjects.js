@@ -251,6 +251,7 @@ function Player(id) {
         let sin = Math.sin(this.ship.rotation);
         return new Vector(vector.x*cos - vector.y*sin,vector.x*sin + vector.y*cos).add(this.ship.position);
     };
+    this.miniMapMarker = new PIXI.Sprite(loader.resources.mapMarker1.texture);
 
     
 }

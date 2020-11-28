@@ -12,7 +12,9 @@ app.renderer.backgroundColor = 0x000000;
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
-    screen.center = new Vector(window.innerWidth / 2, window.innerHeight / 2)
+    screen.center = new Vector(window.innerWidth / 2, window.innerHeight / 2);
+    screen.width = window.innerWidth;
+    screen.height = window.innerHeight;
 });
 //#endregion
 
@@ -38,6 +40,7 @@ loader
     .add("shape", "images/shape.png")
     .add("entity_1", "images/entity/1.png")
     .add("entity_2", "images/entity/2.png")
+    .add("minimap", "images/minimap/minimap.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -51,7 +54,9 @@ var zoomStep = 1.2;
 var minZoom = 0.3;
 var maxZoom = 6;
 var screen = {
-    center: new Vector(window.innerWidth / 2, window.innerHeight / 2)
+    center: new Vector(window.innerWidth / 2, window.innerHeight / 2),
+    width: window.innerWidth,
+    height: window.innerHeight
 };
 
 //CONTAINER INIT
@@ -102,17 +107,31 @@ var fpsText = new PIXI.Text();
 fpsText.style.fill = 0xFFFFFF;
 fpsText.style.fontFamily = "Overpass Mono";
 guiContainer.addChild(fpsText);
+
+
+var miniMap = new PIXI.Container();
+miniMap.pivot.set(0.5);
+guiContainer.addChild(miniMap);
+miniMap.position.set(screen.width-150,screen.height-150);
+miniMap.addChild(new PIXI.Sprite(loader.resources.minimap.texture));
+
+var miniMapZoom = 1/(5000*80);
+
+var mapGraphics = new PIXI.Graphics();
+miniMap.addChild(mapGraphics);
+
 //#endregion
 
 function start() {
     loadingStatus.textContent = "CONNECTING";
-    
+
     setInterval(update, 1000 / fps);
 
     gameContainer.pivot.set(0.5);
 
     app.stage.addChild(gameContainer);
     app.stage.addChild(guiContainer);
+    
 
     app.ticker.add(graphicsUpdate);
     loaded = true;
@@ -137,6 +156,7 @@ function graphicsUpdate(deltaTimeFactor) {
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateCamera(deltaTime);
+        updateGui(deltaTime);
 
         Player.players.forEach(player => {
 
@@ -234,6 +254,19 @@ function updateParticles(deltaTime) {
 
 
     }
+}
+
+function updateGui(deltaTime) {
+    mapGraphics.clear();
+    /*mapGraphics.beginFill(0x111133);
+    mapGraphics.lineStyle(5, 0x334488);
+    mapGraphics.drawCircle(0, 0, 120);
+    mapGraphics.endFill();
+    */
+    mapGraphics.beginFill(0x0000FF);
+    mapGraphics.lineStyle(0, 0x000000);
+    mapGraphics.drawStar(localPlayer.ship.position.x * miniMapZoom, localPlayer.ship.position.y * miniMapZoom, 3,6,3,localPlayer.ship.rotation+Math.PI/2);
+    mapGraphics.endFill();
 }
 
 //#endregion
