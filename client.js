@@ -16,6 +16,7 @@ var zoomStep = 1.2;
 var minZoom = 0.3;
 var maxZoom = 6;
 var gameContainer = new PIXI.Container();
+var guiContainer = new PIXI.Container();
 var playerSettings = { nick: "Nixk" };
 
 window.addEventListener("resize", function () {
@@ -81,6 +82,7 @@ function start() {
     gameContainer.pivot.set(0.5);
     //gameContainer.addChild(playerSprite);
     app.stage.addChild(gameContainer);
+    app.stage.addChild(guiContainer);
 
 
     //gasParticleContainers[0,0].visible = true;
@@ -139,27 +141,16 @@ function graphicsUpdate(deltaTimeFactor) {
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
         fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\n    Gas: " + gasCount;
-        Player.players.forEach(player => {
-            player.ship.position.x += player.ship.velocity.x * deltaTime;
-            player.ship.position.y += player.ship.velocity.y * deltaTime;
-            player.sprite.x = player.ship.position.x;
-            player.sprite.y = player.ship.position.y;
-            player.sprite.rotation = player.ship.rotation;
-            //console.log(localPlayer.ship.velocity);
-            player.nameText.x = player.ship.position.x;
-            player.nameText.y = player.ship.position.y - 80;
 
-        });
+        updatePlayers(deltaTime);
         updateParticles(deltaTime);
-        camera.x = localPlayer.ship.position.x;
-        camera.y = localPlayer.ship.position.y;
-        gameContainer.scale.set(camera.zoom);
-        gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
-        gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
+        updateCamera(deltatime);
+
         Player.players.forEach(player => {
 
             player.lensFlare.update(player.toGlobal(new Vector(-30, 0)).add({ x: -camera.x, y: -camera.y }).mult(camera.zoom));
         });
+
         Entity.list.forEach(entity => {
             entity.update(deltaTime);
         });
@@ -170,6 +161,27 @@ function graphicsUpdate(deltaTimeFactor) {
     }
 }
 
+function updatePlayers(deltaTime) {
+    Player.players.forEach(player => {
+        player.ship.position.x += player.ship.velocity.x * deltaTime;
+        player.ship.position.y += player.ship.velocity.y * deltaTime;
+        player.sprite.x = player.ship.position.x;
+        player.sprite.y = player.ship.position.y;
+        player.sprite.rotation = player.ship.rotation;
+        //console.log(localPlayer.ship.velocity);
+        player.nameText.x = player.ship.position.x;
+        player.nameText.y = player.ship.position.y - 80;
+
+    });
+}
+
+function updateCamera(deltaTime) {
+    camera.x = localPlayer.ship.position.x;
+    camera.y = localPlayer.ship.position.y;
+    gameContainer.scale.set(camera.zoom);
+    gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
+    gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
+}
 
 function updateParticles(deltaTime) {
     if (running) {
