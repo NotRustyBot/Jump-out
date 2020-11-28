@@ -1,5 +1,4 @@
-
-var connection;
+//#region PIXI INIT
 let app = new PIXI.Application({
     antialias: true,
 });
@@ -11,19 +10,13 @@ app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
 app.renderer.backgroundColor = 0x000000;
 
-var camera = { x: 0, y: 0, zoom: 0.5 };
-var zoomStep = 1.2;
-var minZoom = 0.3;
-var maxZoom = 6;
-var gameContainer = new PIXI.Container();
-var guiContainer = new PIXI.Container();
-var playerSettings = { nick: "Nixk" };
-
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
     screen.center = new Vector(window.innerWidth / 2, window.innerHeight / 2)
 });
+//#endregion
 
+//#region LOADER
 loader
     .add("player0", "images/player0.png")
     .add("kour", "images/kour.png")
@@ -48,93 +41,92 @@ loader
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
+//#endregion
 
-var playerSprite, playerLight;
+//#region INIT VARIABLES
+
+//CAMERA INIT
+var camera = { x: 0, y: 0, zoom: 0.5 };
+var zoomStep = 1.2;
+var minZoom = 0.3;
+var maxZoom = 6;
+var screen = {
+    center: new Vector(window.innerWidth / 2, window.innerHeight / 2)
+};
+
+//CONTAINER INIT
+var gameContainer = new PIXI.Container();
+var guiContainer = new PIXI.Container();
+
+//GAME VARIABLES
+var connection;
 var loaded = false;
 var connected = false;
 var running = false;
+
+//GAS
 var gasLoaded = false;
 var gasParticleSpacing = 1000;
 var gasParticleDisplayAmount = 1; //DOES NOT WORK
 var gasCount = 0;
 
+//LOCAL PLAYER
+var localPlayer;
+var playerSprite, playerLight;
+var playerSettings = { nick: "Nixk" };
+
+//FPS
+const fps = 60;
+
+//#endregion
+
+//#region LOADING SCREEN
 var loadingStatus = document.getElementById("loadingStatus");
 loadingStatus.textContent = "LOADING";
 
+function loadingProgress(e) {
+    document.getElementById("loadingBar").style.width = e.progress + "%";
+    console.log("loading", e.progress);
+}
+
+function closeLoadingScreen() {
+    document.getElementById("loadingBarContainer").style.opacity = "0";
+    setTimeout(() => {
+        document.getElementById("loadingBarContainer").style.display = "none";
+    }, 1000);
+}
+//#endregion
+
+//#region GUI INIT
+var fpsText = new PIXI.Text();
+fpsText.style.fill = 0xFFFFFF;
+fpsText.style.fontFamily = "Overpass Mono";
+guiContainer.addChild(fpsText);
+//#endregion
 
 function start() {
-    //playerSprite = new PIXI.Sprite(loader.resources.player0.texture);
-    playerLight = new PIXI.Sprite(loader.resources.light.texture);
     loadingStatus.textContent = "CONNECTING";
-
-    //playerSprite.scale.set(0.5);
-    //playerSprite.anchor.set(0.5);
-
-    /*playerSprite.addChild(playerLight);
-    playerLight.anchor.set(0.25,0.5);
-    playerLight.scale.set(10);
-    gameContainer.mask = playerLight;*/
-
-
-
-
+    
+    setInterval(update, 1000 / fps);
 
     gameContainer.pivot.set(0.5);
-    //gameContainer.addChild(playerSprite);
+
     app.stage.addChild(gameContainer);
     app.stage.addChild(guiContainer);
-
-
-    //gasParticleContainers[0,0].visible = true;
 
     app.ticker.add(graphicsUpdate);
     loaded = true;
     console.log("LOADED");
     connect();
 }
-function loadingProgress(e) {
-    document.getElementById("loadingBar").style.width = e.progress + "%";
-    console.log("loading", e.progress);
-}
 
-function connect() {
-    console.log(window.location.hostname);
-    if (window.location.hostname == "10.200.140.14") {
-        connection = new WebSocket("ws://10.200.140.14:20003/");
-        console.log("Connecting to local...");
-    } else {
-        connection = new WebSocket("wss://jumpout.ws.coal.games/");
-        console.log("Connecting to server...");
-    }
-    connection.binaryType = "arraybuffer";
-    connection.onopen = onConnectionOpen;
-    connection.onmessage = onConnectionMessage;
-    connection.onclose = onConnectionClose;
-}
-
-var localPlayer;
-//localPlayer.init();
-
-
-const fps = 60;
-
-setInterval(update, 1000 / fps);
+//#region UPDATE
 
 function update() {
     if (running) {
         sendControls();
     }
 }
-
-var screen = {
-    center: new Vector(window.innerWidth / 2, window.innerHeight / 2)
-};
-
-
-var fpsText = new PIXI.Text();
-fpsText.style.fill = 0xFFFFFF;
-fpsText.style.fontFamily = "Overpass Mono";
-app.stage.addChild(fpsText);
 
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
@@ -242,6 +234,25 @@ function updateParticles(deltaTime) {
 
 
     }
+}
+
+//#endregion
+
+//#region NETWORK
+
+function connect() {
+    console.log(window.location.hostname);
+    if (window.location.hostname == "10.200.140.14") {
+        connection = new WebSocket("ws://10.200.140.14:20003/");
+        console.log("Connecting to local...");
+    } else {
+        connection = new WebSocket("wss://jumpout.ws.coal.games/");
+        console.log("Connecting to server...");
+    }
+    connection.binaryType = "arraybuffer";
+    connection.onopen = onConnectionOpen;
+    connection.onmessage = onConnectionMessage;
+    connection.onclose = onConnectionClose;
 }
 
 function onConnectionClose(e) {
@@ -405,55 +416,32 @@ function parseDebug(view) {
     textToDisplay = temp.data;
 }
 
+function sendControls() {
+    const buffer = new ArrayBuffer(1 + Datagrams.input.size);
+    const view = new AutoView(buffer);
+    view.setUint8(1);
 
-let gasContainer;
-let gasParticles = [];
+    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: actionID };
+    actionID = 0;
 
-let gasDisplay = [];
-function generateGas() {
-    console.log("generating");
-
-    document.getElementById("loadingBar").style.transition = "width .2s";
-
-    gasContainer = new PIXI.ParticleContainer(1000, {
-        scale: true,
-        position: true,
-        rotation: true,
-        tint: true,
-    });
-
-    gameContainer.addChild(gasContainer);
-
-    for (let i = 0; i < 1000; i++) {
-        let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
-
-        gasParticles[i] = gasParticle;
-
-        gasParticle.anchor.set(0.5);
-        gasParticle.scale.set(6);
-        gasParticle.rotation = Math.random() * 6.28;
-
-        gasContainer.addChild(gasParticle);
+    view.serialize(toSend, Datagrams.input);
 
 
-        gasDisplay[i] = [];
-        for (let y = 0; y < 100; y++) {
-            gasDisplay[i][y] = false;
-        }
-        gasCount++;
-    }
-
-    closeLoadingScreen();
-    gasLoaded = true;
+    connection.send(buffer);
+    //console.log(buffer);
 }
 
-function initLocalPlayer() {
-    localPlayer.nick = playerSettings.nick;
+function sendInit() {
+    const buffer = new ArrayBuffer(1 + Datagrams.playerSettings.sizeOf(playerSettings));
+    const view = new AutoView(buffer);
+    view.setUint8(0);
+
+    view.serialize(playerSettings, Datagrams.playerSettings);
+
+    connection.send(buffer);
 }
 
-
-
-
+//#endregion
 
 //#region INPUT
 let controlVector = { x: 0, y: 0, afterBurner: 0 };
@@ -521,36 +509,15 @@ window.addEventListener("wheel", e => {
 
 //#endregion
 
-
-function sendControls() {
-    const buffer = new ArrayBuffer(1 + Datagrams.input.size);
-    const view = new AutoView(buffer);
-    view.setUint8(1);
-
-    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: actionID };
-    actionID = 0;
-
-    view.serialize(toSend, Datagrams.input);
-
-
-    connection.send(buffer);
-    //console.log(buffer);
-}
-
-function sendInit() {
-    const buffer = new ArrayBuffer(1 + Datagrams.playerSettings.sizeOf(playerSettings));
-    const view = new AutoView(buffer);
-    view.setUint8(0);
-
-    view.serialize(playerSettings, Datagrams.playerSettings);
-
-    connection.send(buffer);
-}
-
+//#region GAS
 
 let gasCamWidth = 20;
 let gasCamHeight = 16;
 let gasColorMap = new ColorRamp(0xddd2f2, 0xbf5eff);
+let gasContainer;
+let gasParticles = [];
+let gasDisplay = [];
+
 function gasParticleChunksDisplay() {
     if (gasLoaded) {
         let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
@@ -594,9 +561,45 @@ function gasParticleChunksDisplay() {
 
 }
 
-function closeLoadingScreen() {
-    document.getElementById("loadingBarContainer").style.opacity = "0";
-    setTimeout(() => {
-        document.getElementById("loadingBarContainer").style.display = "none";
-    }, 1000);
+function generateGas() {
+    console.log("generating");
+
+    document.getElementById("loadingBar").style.transition = "width .2s";
+
+    gasContainer = new PIXI.ParticleContainer(1000, {
+        scale: true,
+        position: true,
+        rotation: true,
+        tint: true,
+    });
+
+    gameContainer.addChild(gasContainer);
+
+    for (let i = 0; i < 1000; i++) {
+        let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
+
+        gasParticles[i] = gasParticle;
+
+        gasParticle.anchor.set(0.5);
+        gasParticle.scale.set(6);
+        gasParticle.rotation = Math.random() * 6.28;
+
+        gasContainer.addChild(gasParticle);
+
+
+        gasDisplay[i] = [];
+        for (let y = 0; y < 100; y++) {
+            gasDisplay[i][y] = false;
+        }
+        gasCount++;
+    }
+
+    closeLoadingScreen();
+    gasLoaded = true;
+}
+
+//#endregion
+
+function initLocalPlayer() {
+    localPlayer.nick = playerSettings.nick;
 }
