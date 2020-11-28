@@ -112,9 +112,13 @@ guiContainer.addChild(fpsText);
 
 var miniMap = new PIXI.Container();
 miniMap.pivot.set(0.5);
-guiContainer.addChild(miniMap);
 miniMap.position.set(screen.width-150,screen.height-150);
-miniMap.addChild(new PIXI.Sprite(loader.resources.minimap.texture));
+guiContainer.addChild(miniMap);
+var miniMapBG = new PIXI.Sprite(loader.resources.player1.texture);
+//miniMapBG.anchor.set(0.5);
+miniMap.addChild(miniMapBG);
+miniMapBG.position.set(10,10);
+miniMapBG.scale.set(100);
 
 var miniMapZoom = 1/(5000*80);
 
