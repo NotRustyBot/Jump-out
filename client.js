@@ -42,6 +42,8 @@ loader
     .add("entity_2", "images/entity/2.png")
     .add("minimap", "images/minimap/minimap.png")
     .add("entity_101", "images/entity/101.png")
+    .add("marker1", "images/minimap/marker1.png")
+    .add("marker2", "images/minimap/marker2.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -112,18 +114,16 @@ guiContainer.addChild(fpsText);
 
 var miniMap = new PIXI.Container();
 miniMap.pivot.set(0.5);
-miniMap.position.set(screen.width-150,screen.height-150);
+miniMap.position.set(screen.width-300,screen.height-300);
 guiContainer.addChild(miniMap);
-var miniMapBG = new PIXI.Sprite(loader.resources.player1.texture);
-//miniMapBG.anchor.set(0.5);
-miniMap.addChild(miniMapBG);
-miniMapBG.position.set(10,10);
-miniMapBG.scale.set(100);
 
-var miniMapZoom = 1/(5000*80);
+//miniMapBG.anchor.set(0.5);
+
+
+var miniMapZoom = 300/(5000*80);
 
 var mapGraphics = new PIXI.Graphics();
-miniMap.addChild(mapGraphics);
+//miniMap.addChild(mapGraphics);
 
 //#endregion
 
@@ -136,6 +136,11 @@ function start() {
 
     app.stage.addChild(gameContainer);
     app.stage.addChild(guiContainer);
+    var miniMapBG = new PIXI.Sprite(loader.resources.minimap.texture);
+    miniMapBG.anchor.set(0);
+    miniMapBG.scale.set(1);
+    //miniMapBG.position.set(-150);
+    miniMap.addChild(miniMapBG);
     
 
     app.ticker.add(graphicsUpdate);
@@ -151,6 +156,7 @@ function update() {
         sendControls();
     }
 }
+
 
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
@@ -188,8 +194,10 @@ function updatePlayers(deltaTime) {
         //console.log(localPlayer.ship.velocity);
         player.nameText.x = player.ship.position.x;
         player.nameText.y = player.ship.position.y - 80;
+        player.miniMapMarker.position.set(player.ship.position.x * miniMapZoom, player.ship.position.y * miniMapZoom);
 
     });
+    localPlayer.miniMapMarker.rotation = localPlayer.ship.rotation + Math.PI/2;
 }
 
 function updateCamera(deltaTime) {
@@ -640,4 +648,6 @@ function generateGas() {
 
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
+    localPlayer.miniMapMarker.texture = loader.resources.marker2.texture;
+    localPlayer.miniMapMarker.anchor.set(0.5,0.6);
 }

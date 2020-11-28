@@ -243,6 +243,7 @@ function Player(id) {
             ps.delete();
         });
         Player.players.delete(this.id);
+        miniMap.removeChild(this.miniMapMarker);
     }
     this.lensFlare = new LensFlare();
     this.toGlobal = function(vector){
@@ -251,7 +252,10 @@ function Player(id) {
         let sin = Math.sin(this.ship.rotation);
         return new Vector(vector.x*cos - vector.y*sin,vector.x*sin + vector.y*cos).add(this.ship.position);
     };
-    //this.miniMapMarker = new PIXI.Sprite(loader.resources.mapMarker1.texture);
+    this.miniMapMarker = new PIXI.Sprite(loader.resources.marker1.texture);
+    miniMap.addChild(this.miniMapMarker);
+    this.miniMapMarker.anchor.set(0.5);
+    this.miniMapMarker.tint = Math.floor(Math.random()*16777215);
 
     
 }
