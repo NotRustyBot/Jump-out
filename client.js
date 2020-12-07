@@ -115,13 +115,13 @@ guiContainer.addChild(fpsText);
 
 var miniMap = new PIXI.Container();
 miniMap.pivot.set(0.5);
-miniMap.position.set(screen.width-300,screen.height-300);
+miniMap.position.set(screen.width - 300, screen.height - 300);
 guiContainer.addChild(miniMap);
 
 //miniMapBG.anchor.set(0.5);
 
 
-var miniMapZoom = 300/(5000*80);
+var miniMapZoom = 300 / (5000 * 80);
 
 var mapGraphics = new PIXI.Graphics();
 //miniMap.addChild(mapGraphics);
@@ -142,7 +142,7 @@ function start() {
     miniMapBG.scale.set(1);
     //miniMapBG.position.set(-150);
     miniMap.addChild(miniMapBG);
-    
+
 
     app.ticker.add(graphicsUpdate);
     loaded = true;
@@ -198,7 +198,7 @@ function updatePlayers(deltaTime) {
         player.miniMapMarker.position.set(player.ship.position.x * miniMapZoom, player.ship.position.y * miniMapZoom);
 
     });
-    localPlayer.miniMapMarker.rotation = localPlayer.ship.rotation + Math.PI/2;
+    localPlayer.miniMapMarker.rotation = localPlayer.ship.rotation + Math.PI / 2;
 }
 
 function updateCamera(deltaTime) {
@@ -279,7 +279,7 @@ function updateGui(deltaTime) {
     */
     mapGraphics.beginFill(0x0000FF);
     mapGraphics.lineStyle(0, 0x000000);
-    mapGraphics.drawStar(localPlayer.ship.position.x * miniMapZoom, localPlayer.ship.position.y * miniMapZoom, 3,6,3,localPlayer.ship.rotation+Math.PI/2);
+    mapGraphics.drawStar(localPlayer.ship.position.x * miniMapZoom, localPlayer.ship.position.y * miniMapZoom, 3, 6, 3, localPlayer.ship.rotation + Math.PI / 2);
     mapGraphics.endFill();
 }
 
@@ -344,6 +344,9 @@ function parseMessage(message) {
                     break;
                 case serverHeaders.proximity:
                     parseGameSetup(view);
+                    break;
+                case serverHeaders.actionReply:
+                    parseActionReply(view);
                     break;
             }
         }
@@ -456,6 +459,15 @@ function parseCollision(view) {
     //particles go here
 }
 
+function parseActionReply(view){
+    let temp = {};
+    let type = view.getUint8();
+    view.index--;
+    view.deserealize(temp, ReplyData[type]);
+
+    console.log(temp);
+}
+
 let textToDisplay = "";
 function parseDebug(view) {
     let temp = {};
@@ -463,29 +475,32 @@ function parseDebug(view) {
     textToDisplay = temp.data;
 }
 
+const buffer = new ArrayBuffer(100);
 function sendControls() {
-    const buffer = new ArrayBuffer(1 + Datagrams.input.size);
     const view = new AutoView(buffer);
     view.setUint8(1);
 
-    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: actionID };
-    actionID = 0;
-
+    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: 0 };
     view.serialize(toSend, Datagrams.input);
 
+    if(actionID != 0){
+        view.setUint8(clientHeaders.smartAction);
+        view.serialize({handle: 1, actionId: ActionId.placeObject}, Datagrams.SmartAction);
+        view.serialize({structure: 1}, SmartActionData[ActionId.placeObject]);
+    }
+    actionID = 0;
 
-    connection.send(buffer);
+    connection.send(buffer.slice(0, view.index));
     //console.log(buffer);
 }
 
 function sendInit() {
-    const buffer = new ArrayBuffer(1 + Datagrams.playerSettings.sizeOf(playerSettings));
     const view = new AutoView(buffer);
     view.setUint8(0);
 
     view.serialize(playerSettings, Datagrams.playerSettings);
 
-    connection.send(buffer);
+    connection.send(buffer.slice(0, view.index));
 }
 
 //#endregion
@@ -650,5 +665,5 @@ function generateGas() {
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
     localPlayer.miniMapMarker.texture = loader.resources.marker2.texture;
-    localPlayer.miniMapMarker.anchor.set(0.5,0.6);
+    localPlayer.miniMapMarker.anchor.set(0.5, 0.6);
 }
