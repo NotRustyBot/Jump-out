@@ -459,7 +459,7 @@ function parseCollision(view) {
     //particles go here
 }
 
-function parseActionReply(view){
+function parseActionReply(view) {
     let temp = {};
     let type = view.getUint8();
     view.index--;
@@ -483,10 +483,14 @@ function sendControls() {
     let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: 0 };
     view.serialize(toSend, Datagrams.input);
 
-    if(actionID != 0){
+    if (actionID == 1) {
         view.setUint8(clientHeaders.smartAction);
-        view.serialize({handle: 1, actionId: ActionId.placeObject}, Datagrams.SmartAction);
-        view.serialize({structure: 1}, SmartActionData[ActionId.placeObject]);
+        view.serialize({ handle: 1, actionId: ActionId.placeObject }, Datagrams.SmartAction);
+        view.serialize({ structure: 1 }, SmartActionData[ActionId.placeObject]);
+    } else if (actionID == 2) {
+        view.setUint8(clientHeaders.smartAction);
+        view.serialize({ handle: 1, actionId: ActionId.MineRock }, Datagrams.SmartAction);
+        view.serialize({}, SmartActionData[ActionId.MineRock]);
     }
     actionID = 0;
 
@@ -528,6 +532,9 @@ window.addEventListener("keydown", function (e) {
             break;
         case "f":
             actionID = 1;
+            break;
+        case "e":
+            actionID = 2;
             break;
         default:
             break;

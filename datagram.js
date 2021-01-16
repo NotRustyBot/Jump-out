@@ -1,4 +1,10 @@
-//const { Vector, ShipType, Ship, Player } = require("./gameobjects.js");
+var Vector;
+
+function init(vec){
+    Vector = vec;
+}
+
+exports.init = init;
 
 function Datagram() {
     this.structure = [];
@@ -343,7 +349,11 @@ PlaceObject.add(types.int8, "structure");
 SmartActionData.push(PlaceObject);
 exports.SmartActionData = SmartActionData;
 
-const ActionId = { placeObject: 0 };
+let MineRock = new Datagram();
+SmartActionData.push(MineRock);
+exports.SmartActionData = SmartActionData;
+
+const ActionId = { placeObject: 0, MineRock: 1};
 exports.ActionId = ActionId;
 
 
