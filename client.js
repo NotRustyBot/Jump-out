@@ -334,7 +334,7 @@ function parseMessage(message) {
                     parseLeftPlayers(view);
                     break;
                 case serverHeaders.entitySetup:
-                    parseGameSetup(view);
+                    parseEntitySetup(view);
                     break;
                 case serverHeaders.collisionEvent:
                     parseCollision(view);
@@ -343,7 +343,7 @@ function parseMessage(message) {
                     parseDebug(view);
                     break;
                 case serverHeaders.proximity:
-                    parseGameSetup(view);
+                    parseProximity(view);
                     break;
                 case serverHeaders.actionReply:
                     parseActionReply(view);
@@ -433,15 +433,38 @@ function parseNewPlayers(view) {
     }
 }
 
-function parseGameSetup(view) {
+function parseEntitySetup(view) { // tady se děje init
     let size = view.getUint16();
     for (let i = 0; i < size; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.EntitySetup);
-        let entity = Entity.list[temp.id] || new Entity(temp.type);
+        let entity = new Entity(temp.type);
         Datagrams.EntitySetup.transferData(entity, temp);
         entity.update(0);
     }
+    console.log(size);
+}
+
+function parseProximity(view) { // tady se děje update
+    let size = view.getUint16();
+    for (let i = 0; i < size; i++) {
+        let temp = {};
+        view.deserealize(temp, Datagrams.EntitySetup);
+        let entity = Entity.list[temp.id];
+        if(entity != undefined)
+        {
+            Datagrams.EntitySetup.transferData(entity, temp);
+            entity.update(0);
+        }else{
+            console.log(temp.id);
+        }
+    }
+}
+
+function parseEntityRemoved(){
+    let temp = {};
+    view.deserealize(temp, Datagrams.EnitiyRemove);
+    Entity.list.splice(temp.id, 1);
 }
 
 function parseLeftPlayers(view) {
