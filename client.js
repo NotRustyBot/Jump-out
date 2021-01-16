@@ -348,6 +348,12 @@ function parseMessage(message) {
                 case serverHeaders.actionReply:
                     parseActionReply(view);
                     break;
+                case serverHeaders.entityRemove:
+                    parseEntityRemoved(view);
+                    break;
+                case serverHeaders.gasUpdate:
+                    parseGasUpdate(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -460,10 +466,19 @@ function parseProximity(view) { // tady se děje update
     }
 }
 
-function parseEntityRemoved(){
+function parseEntityRemoved(view){
     let temp = {};
     view.deserealize(temp, Datagrams.EnitiyRemove);
     Entity.list.splice(temp.id, 1);
+}
+
+function parseGasUpdate(view){
+    let gasCount = view.getUint16();
+    for (let i = 0; i < gasCount; i++) {
+        let temp = {};
+        view.deserealize(temp, Datagrams.GasUpdate);
+        Universe.gasMap[temp.position.x][temp.position.y] = temp.value;
+    }
 }
 
 function parseLeftPlayers(view) {
@@ -628,6 +643,7 @@ function gasParticleChunksDisplay() {
                 gasDisplay[gX][gY] = false;
             } else {
                 g.rotation += 0.03 * g.alpha + 0.008;
+                g.alpha = Universe.gasMap[gX][gY] / 100;
             }
 
         }
