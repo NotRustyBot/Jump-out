@@ -442,7 +442,6 @@ function parseEntitySetup(view) { // tady se děje init
         Datagrams.EntitySetup.transferData(entity, temp);
         entity.update(0);
     }
-    console.log(size);
 }
 
 function parseProximity(view) { // tady se děje update
