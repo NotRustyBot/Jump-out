@@ -141,10 +141,16 @@ function ShadedSprite(parent, prefix, sizeObject) {
     this.outlineMask.anchor.set(0.5);
     this.shadow.anchor.set(0.5, 0.09);
 
+    /* DEL THIS */
+    this.dark.scale.set(0.35);
+    this.base.scale.set(0.35);
+    this.outline.scale.set(0.35);
+
     this.lightMask.scale.set(sizeObject.size);
     this.outlineMask.scale.set(sizeObject.size);
 
     this.shadow.scale.set(1, sizeObject.size);
+    this.shadow.alpha = 0.45;
 
     this.base.mask = this.lightMask;
     this.outline.mask = this.outlineMask;
@@ -197,7 +203,7 @@ function Ship() {
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
     this.trails = [new Trail(this, new Vector(-30, 0))];
-    this.sprite = new ShadedSprite(this, "ship", {size: 1});
+    this.sprite = new ShadedSprite(this, "ship", {size: 0.35});
 
     this.init = function (type) {
         this.stats = type;
@@ -208,7 +214,7 @@ function Ship() {
        this.position.x += this.velocity.x * dt;
        this.position.y += this.velocity.y * dt;
 
-       this.sprite.update({directional: true, rotation: 0});
+       this.sprite.update({directional: true, rotation: -2});
     };
 }
 
