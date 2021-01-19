@@ -30,7 +30,7 @@ loader
     .add("spark", "images/spark.png")
     .add("circle", "images/circle.png")
     .add("player1", "images/player2.png")
-    .add("light", "images/light.png")
+    .add("light", "images/lightBeam.png")
     .add("lensflare", "images/LensFlare.png")
     .add("lensflare0", "images/lensflare0.png")
     .add("lensflare1", "images/lensflare1.png")
