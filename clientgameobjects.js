@@ -161,9 +161,9 @@ function ShadedSprite(parent, prefix, sizeObject) {
 
         this.container.position.set(this.parent.position.x, this.parent.position.y);
 
-        this.dark.rotation.set(this.parent.rotation);
-        this.base.rotation.set(this.parent.rotation);
-        this.outline.rotation.set(this.parent.rotation);
+        this.dark.rotation = (this.parent.rotation);
+        this.base.rotation = (this.parent.rotation);
+        this.outline.rotation = (this.parent.rotation);
 
         let rotation;
         let distanceRatio;
