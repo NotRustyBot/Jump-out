@@ -105,20 +105,13 @@ function Entity(type) {
     this.type = type;
     this.id = Entity.list.length;
     Entity.list.push(this);
+    this.sprite = new ShadedSprite(this, "asteroid", {size: 0.35});
 
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
-        this.sprite.rotation = this.rotation;
-        this.sprite.x = this.position.x;
-        this.sprite.y = this.position.y;
 
-
+        this.sprite.update({directional: true, rotation: -2});
     };
-    this.sprite = new PIXI.Sprite(loader.resources["entity_" + this.type].texture);
-    this.sprite.x = this.position.x;
-    this.sprite.y = this.position.y;
-    this.sprite.anchor.set(0.5);
-    gameContainer.addChild(this.sprite);
 }
 Entity.list = [];
 
@@ -149,8 +142,8 @@ function ShadedSprite(parent, prefix, sizeObject) {
     this.lightMask.scale.set(sizeObject.size);
     this.outlineMask.scale.set(sizeObject.size);
 
-    this.shadow.scale.set(1, sizeObject.size);
-    this.shadow.alpha = 0.45;
+    this.shadow.scale.set(sizeObject.size, 1);
+    this.shadow.alpha = 0.2;
 
     this.base.mask = this.lightMask;
     this.outline.mask = this.outlineMask;
