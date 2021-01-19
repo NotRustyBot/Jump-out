@@ -192,12 +192,7 @@ function graphicsUpdate(deltaTimeFactor) {
 
 function updatePlayers(deltaTime) {
     Player.players.forEach(player => {
-        player.ship.position.x += player.ship.velocity.x * deltaTime;
-        player.ship.position.y += player.ship.velocity.y * deltaTime;
-        player.sprite.x = player.ship.position.x;
-        player.sprite.y = player.ship.position.y;
-        player.sprite.rotation = player.ship.rotation;
-        //console.log(localPlayer.ship.velocity);
+        player.ship.update(deltaTime);
         player.nameText.x = player.ship.position.x;
         player.nameText.y = player.ship.position.y - 80;
         player.miniMapMarker.position.set(player.ship.position.x * miniMapZoom, player.ship.position.y * miniMapZoom);

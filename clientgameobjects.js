@@ -105,11 +105,14 @@ function Entity(type) {
     this.type = type;
     this.id = Entity.list.length;
     Entity.list.push(this);
+
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
         this.sprite.rotation = this.rotation;
         this.sprite.x = this.position.x;
         this.sprite.y = this.position.y;
+
+
     };
     this.sprite = new PIXI.Sprite(loader.resources["entity_" + this.type].texture);
     this.sprite.x = this.position.x;
@@ -118,6 +121,69 @@ function Entity(type) {
     gameContainer.addChild(this.sprite);
 }
 Entity.list = [];
+
+
+function ShadedSprite(parent, prefix, sizeObject) {
+    this.container = new PIXI.Container();
+    this.parent = parent;
+    this.sizeObject = sizeObject;
+    this.base = new PIXI.Sprite(loader.resources[prefix + "_base"].texture);
+    this.dark = new PIXI.Sprite(loader.resources[prefix + "_dark"].texture);
+    this.outline = new PIXI.Sprite(loader.resources[prefix + "_outline"].texture);
+    this.lightMask = new PIXI.Sprite(loader.resources["lightMask"].texture);
+    this.outlineMask = new PIXI.Sprite(loader.resources["outlineMask"].texture);
+    this.shadow = new PIXI.Sprite(loader.resources["shadow"].texture);
+
+    this.base.anchor.set(0.5);
+    this.dark.anchor.set(0.5);
+    this.outline.anchor.set(0.5);
+    this.lightMask.anchor.set(0.5);
+    this.outlineMask.anchor.set(0.5);
+    this.shadow.anchor.set(0.5, 0.09);
+
+    this.lightMask.scale.set(sizeObject.size);
+    this.outlineMask.scale.set(sizeObject.size);
+
+    this.shadow.scale.set(1, sizeObject.size);
+
+    this.container.addChild(
+        this.shadow,
+        this.dark,
+        this.base,
+        this.outline,
+        this.lightMask,
+        this.outlineMask
+    );
+
+    gameContainer.addChild(this.container);
+
+    this.update = function (source) {
+
+        this.container.position.set(this.parent.position.x, this.parent.position.y);
+
+        this.dark.rotation.set(this.parent.rotation);
+        this.base.rotation.set(this.parent.rotation);
+        this.outline.rotation.set(this.parent.rotation);
+
+        let rotation;
+        let distanceRatio;
+        if (!source.directional) {
+            distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.container.y, 2) + Math.pow(source.position.x - this.container.x, 2));
+            rotation = Math.atan2(source.position.y - this.container.y, source.position.x - this.container.x);
+        }else{
+            rotation = source.rotation;
+            distanceRatio = 1;
+        }
+
+        this.lightMask.rotation = rotation;
+        this.outlineMask.rotation = rotation;
+
+        this.lightMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);
+        this.outlineMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);
+        this.shadow.rotation = rotation + Math.PI / 2;
+    }
+}
+
 
 function Ship() {
     this.stats;
@@ -128,53 +194,18 @@ function Ship() {
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
     this.trails = [new Trail(this, new Vector(-30, 0))];
+    this.sprite = new ShadedSprite();
 
     this.init = function (type) {
         this.stats = type;
     };
 
     this.update = function (dt) {
-        let stats = this.stats;
-        console.log(stats);
+        
+       this.position.x += this.velocity.x * dt;
+       this.position.y += this.velocity.y * dt;
 
-        if (this.control.x != 0) {
-            // rotationace
-            this.rotation +=
-                (stats.rotationSpeed +
-                    this.afterBurnerActive * stats.afterBurnerAgilityBonus) *
-                this.control.x *
-                dt;
-        }
-
-        if (this.control.y != 0) {
-            // zrychlení / brždění
-            let pointing = Vector.fromAngle(this.rotation).mult(this.control.y);
-            pointing.mult(dt);
-            if (this.control.y > 0) {
-                pointing.normalize(
-                    stats.accel +
-                    this.afterBurnerActive * stats.afterBurnerAgilityBonus
-                );
-            } else {
-                pointing.normalize(
-                    stats.revAccel +
-                    this.afterBurnerActive * stats.afterBurnerAgilityBonus
-                );
-            }
-            this.velocity.add(pointing);
-        }
-
-        if (
-            this.velocity.length() >=
-            stats.speed + this.afterBurnerActive * stats.afterBurnerSpeedBonus
-        ) {
-            this.velocity.normalize(
-                stats.speed +
-                this.afterBurnerActive * stats.afterBurnerSpeedBonus
-            );
-        }
-
-        this.position.add(this.velocity.result().mult(dt));
+       this.sprite.update({directional: true, rotation: 0});
     };
 }
 
@@ -555,16 +586,16 @@ function Trail(emitter, offset) {
     this.heatingMultiplier = 1;
     this.coolingMultiplier = 3;
     this.heatRatioMap = new Ramp(0.8, 0);
-    this.heatRatio=this.heatRatioMap.min;
+    this.heatRatio = this.heatRatioMap.min;
     this.update = function (deltaTime) {
-        
+
         //console.log(this.points);
         let point = this.firstPoint;
         let previousPoint = this.firstPoint;
         let emitPos = this.offset.rotate(this.emitter.rotation).add((this.emitter.position));
         while (point != null) {
             point.age += deltaTime;
-            point.visualAge = Math.min(this.maxAge, point.visualAge+deltaTime);
+            point.visualAge = Math.min(this.maxAge, point.visualAge + deltaTime);
             if (point.age >= this.maxAge) {
                 this.firstPoint = point.nextPoint;
                 //console.log(this.firstPoint);
@@ -598,15 +629,15 @@ function Trail(emitter, offset) {
             point = point.nextPoint;
         }
         if (this.emit) {
-            this.heat = Math.min(this.maxHeat, this.heat + deltaTime*this.heatingMultiplier);
+            this.heat = Math.min(this.maxHeat, this.heat + deltaTime * this.heatingMultiplier);
             this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
         }
         else {
             if (this.heat > 0) {
                 this.heat = Math.max(0, this.heat - deltaTime * this.coolingMultiplier);
                 this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
-                if (this.heat ==0) {
-                    previousPoint.nextPoint = new Point(emitPos, true,this.maxAge*this.heatRatio,this.color);
+                if (this.heat == 0) {
+                    previousPoint.nextPoint = new Point(emitPos, true, this.maxAge * this.heatRatio, this.color);
                     this.points++;
                 }
             }
@@ -617,7 +648,7 @@ function Trail(emitter, offset) {
                 this.color = this.boostColor;
             else
                 this.color = this.baseColor;
-                
+
         }
         else {
             if (previousPoint) {
@@ -633,9 +664,9 @@ function Trail(emitter, offset) {
             this.framesFromEmit++;
             if (this.framesFromEmit >= this.framesPerEmit) {
                 if (previousPoint)
-                previousPoint.nextPoint = new Point(emitPos,false,this.maxAge*this.heatRatio,this.color);
+                    previousPoint.nextPoint = new Point(emitPos, false, this.maxAge * this.heatRatio, this.color);
                 else
-                this.firstPoint = new Point(emitPos,false,this.maxAge*this.heatRatio,this.color);
+                    this.firstPoint = new Point(emitPos, false, this.maxAge * this.heatRatio, this.color);
                 this.points++;
                 this.framesFromEmit = 0;
             }
