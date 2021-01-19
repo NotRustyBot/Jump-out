@@ -52,8 +52,9 @@ loader
     .add("asteroid_base", "images/asteroid_base.png")
     .add("asteroid_dark", "images/asteroid_dark.png")
     .add("asteroid_outline", "images/asteroid_outline.png")
-    .add("mask_base", "images/mask_base.png")
-    .add("mask_outline", "images/mask_outline.png")
+    .add("lightMask", "images/mask_base.png")
+    .add("outlineMask", "images/mask_outline.png")
+    .add("shadow", "images/shadow.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
