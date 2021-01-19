@@ -54,6 +54,12 @@ function Vector(x, y) {
             this.y + (vector.y - this.y) * amount
         );
     };
+    this.rotate = function (angle) {
+        return new Vector(
+            this.x * Math.cos(angle) - this.y * Math.sin(angle),
+            this.x * Math.sin(angle) + this.y * Math.cos(angle)
+        );
+    }
 }
 Vector.zero = function () {
     return new Vector(0, 0);
@@ -93,7 +99,7 @@ var Universe = {};
 Universe.gasMap = [];
 
 function Entity(type) {
-    this.position = new Vector(0,0);
+    this.position = new Vector(0, 0);
     this.rotation = 0;
     this.rotationSpeed = 0;
     this.type = type;
@@ -105,7 +111,7 @@ function Entity(type) {
         this.sprite.x = this.position.x;
         this.sprite.y = this.position.y;
     };
-    this.sprite = new PIXI.Sprite(loader.resources["entity_"+this.type].texture);
+    this.sprite = new PIXI.Sprite(loader.resources["entity_" + this.type].texture);
     this.sprite.x = this.position.x;
     this.sprite.y = this.position.y;
     this.sprite.anchor.set(0.5);
@@ -121,6 +127,7 @@ function Ship() {
     this.control = new Vector(0, 0);
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
+    this.trails = [new Trail(this, new Vector(-30, 0))];
 
     this.init = function (type) {
         this.stats = type;
@@ -182,23 +189,24 @@ function Player(id) {
     this.sprite.anchor.set(0.5);
     Player.players.set(this.id, this);
     this.particleSystems = [];
-    this.particleSystems[0] = new ParticleSystem({
+    /*this.particleSystems[0] = new ParticleSystem({
+        offset: new Vector(-20, 0),
         texture: loader.resources.spark.texture,
         maxParticles: 10000,
-        emitRate: 200,
-        inheritVelocity: 0,
-        inheritRotation: -60,
+        emitRate: 100,
+        inheritVelocity: -0.01,
+        inheritRotation: -30,
         rotateToVelocity: true,
         randomRotation: false,
-        randomVelocity: 10,
+        randomVelocity: 5,
         scale: new Ramp(1, 1),
-        alpha: new Ramp(1, 0),
-        velocity: new Ramp(1000, 500),
+        alpha: new Ramp(.8, 0),
+        velocity: new Ramp(1000, 800),
         color: new ColorRamp(0xFFFFFF, 0x1199FF),
-        lifetime: new Ramp(0.1, 0.15),
+        lifetime: new Ramp(0.1, 0.1),
         rotationSpeed: new Ramp(0, 0)
-    });
-    this.particleSystems[1] = new ParticleSystem({
+    });*/
+    /*this.particleSystems[1] = new ParticleSystem({
         texture: loader.resources.kour7.texture,
         maxParticles: 10000,
         emitRate: 15,
@@ -230,7 +238,7 @@ function Player(id) {
         color: new ColorRamp(0xBEDEFE, 0x0077FF),
         lifetime: new Ramp(40, 10),
         rotationSpeed: new Ramp(-2, 2)
-    });
+    });*/
     gameContainer.addChild(this.sprite);
     this.nameText = new PIXI.Text(this.nick + this.id, { fontFamily: "Montserrat", fontSize: 30, fill: 0xFFFFFF, align: "center" });
     gameContainer.addChild(this.nameText);
@@ -246,18 +254,16 @@ function Player(id) {
         miniMap.removeChild(this.miniMapMarker);
     }
     this.lensFlare = new LensFlare();
-    this.toGlobal = function(vector){
+    this.toGlobal = function (vector) {
         //let rv = Vector.fromAngle(this.ship.rotation);
         let cos = Math.cos(this.ship.rotation);
         let sin = Math.sin(this.ship.rotation);
-        return new Vector(vector.x*cos - vector.y*sin,vector.x*sin + vector.y*cos).add(this.ship.position);
+        return new Vector(vector.x * cos - vector.y * sin, vector.x * sin + vector.y * cos).add(this.ship.position);
     };
     this.miniMapMarker = new PIXI.Sprite(loader.resources.marker1.texture);
     miniMap.addChild(this.miniMapMarker);
     this.miniMapMarker.anchor.set(0.5);
-    this.miniMapMarker.tint = Math.floor(Math.random()*16777215);
-
-    
+    this.miniMapMarker.tint = Math.floor(Math.random() * 16777215);
 }
 Player.players = new Map();
 
@@ -315,6 +321,7 @@ function ParticleSystem(settings) {
     if (settings != null) this.settings = settings;
     else {
         this.settings = {
+            offset: new Vector(0, 0),
             enabled: true,
             texture: loader.resources.spark.texture,
             maxParticles: 100,
@@ -420,7 +427,7 @@ function ParticleSystem(settings) {
     this.setEmitter = function (position, velocity, rotation) {
         this.emitter.velocity = velocity;
         this.emitter.rotation = rotation;
-        this.emitter.position = position;
+        this.emitter.position = position.add(this.settings.offset.rotate(rotation));
     };
     this.updateEmitter = function (obj) {
         this.emitter.velocityAngle = this.emitter.velocity.toAngle();
@@ -437,7 +444,7 @@ function ParticleSystem(settings) {
         this.emitter.rotationAge++;
         this.emitter.rotation = obj.rotation;
         this.emitter.oldPosition = this.emitter.position.result();
-        this.emitter.position = obj.position.result();
+        this.emitter.position = obj.position.result().add(this.settings.offset.rotate(this.emitter.rotation));
     };
     this.delete = function () {
         gameContainer.removeChild(this.container);
@@ -481,51 +488,172 @@ function ColorRamp(min, max) {
 }
 
 function Graph(values, scale) {
-    if(scale != null){
+    if (scale != null) {
         for (let i = 0; i < values.length; i++) values[i] *= scale;
     }
 
     this.values = values;
     this.evaluate = function (value) {
-        let length = this.values.length-1;
-        let bottom = Math.floor(value*length);
-        let top = Math.ceil(value*length);
+        let length = this.values.length - 1;
+        let bottom = Math.floor(value * length);
+        let top = Math.ceil(value * length);
         let min = this.values[bottom];
         let max = this.values[top];
-        return min + (max - min) * (value*length-bottom);
+        return min + (max - min) * (value * length - bottom);
     };
 }
 
-function LensFlare(){
-    this.position = new Vector(0,0);
+function LensFlare() {
+    this.position = new Vector(0, 0);
     this.sprites = [];
-    this.sprites[0] = new PIXI.Sprite(loader.resources.lensflare0.texture);
+    this.sprites[0] = new PIXI.Sprite(loader.resources.lensflare.texture);
     //this.sprites[1] = new PIXI.Sprite(loader.resources.lensflare1.texture);
     //this.sprites[2] = new PIXI.Sprite(loader.resources.lensflare2.texture);
     this.sprites.forEach(sprite => {
         sprite.anchor.set(0.5);
-        sprite.scale.set(0.7);
+        sprite.scale.set(0.13);
         sprite.blendMode = PIXI.BLEND_MODES.ADD;
         app.stage.addChild(sprite);
     });
-    this.spriteOffsets = [1,0.5,-0.7];
+    this.spriteOffsets = [1, 0.5, -0.7];
     this.enbaled = true;
     this.tint = 0x5599FF;
-    this.update = function(pos){
+    this.update = function (pos) {
         this.position = pos.result();
         for (let i = 0; i < this.sprites.length; i++) {
             this.sprites[i].x = screen.center.x + this.position.x * this.spriteOffsets[i];
             this.sprites[i].y = screen.center.y + this.position.y * this.spriteOffsets[i];
             this.sprites[i].tint = this.tint;
             this.sprites[i].visible = this.enabled;
-            
+
         }
     }
-    this.delete = function(){
+    this.delete = function () {
         this.sprites.forEach(sprite => {
             app.stage.removeChild(sprite);
         });
     }
+}
+
+
+
+function Trail(emitter, offset) {
+    this.emit = false;
+    this.offset = offset ?? Vector.zero();
+    this.color = new ColorRamp(0x6ae2f2, 0x5f2eff);
+    this.boostColor = new ColorRamp(0xffffee, 0xff0077);
+    this.baseColor = new ColorRamp(0xaaffff, 0x003388);
+    this.emitter = emitter;
+    this.firstPoint = null;
+    this.scale = new Ramp(10, 0);
+    this.maxAge = 1;
+    this.framesPerEmit = 2;
+    this.framesFromEmit = 0;
+    this.points = 0;
+    this.maxHeat = 1;
+    this.heat = 0;
+    this.heatingMultiplier = 1;
+    this.coolingMultiplier = 3;
+    this.heatRatioMap = new Ramp(0.8, 0);
+    this.heatRatio=this.heatRatioMap.min;
+    this.update = function (deltaTime) {
+        
+        //console.log(this.points);
+        let point = this.firstPoint;
+        let previousPoint = this.firstPoint;
+        let emitPos = this.offset.rotate(this.emitter.rotation).add((this.emitter.position));
+        while (point != null) {
+            point.age += deltaTime;
+            point.visualAge = Math.min(this.maxAge, point.visualAge+deltaTime);
+            if (point.age >= this.maxAge) {
+                this.firstPoint = point.nextPoint;
+                //console.log(this.firstPoint);
+                this.points--;
+                //console.log("removing point");
+            }
+            else {
+                //let ageRatio = point.age / this.maxAge;
+                let visualAgeRatio = point.visualAge / this.maxAge;
+                let color = point.colorRamp.evaluate(visualAgeRatio);
+                //if (point.stop) color = 0xff0000;
+                let scale = this.scale.evaluate(visualAgeRatio);
+                graphics.beginFill(color);
+                graphics.moveTo(point.pos.x, point.pos.y);
+                graphics.lineStyle(0, color);
+                graphics.drawCircle(point.pos.x, point.pos.y, scale / 2);
+                graphics.lineStyle(scale, color);
+                if (!point.stop) {
+                    if (point.nextPoint != null) {
+                        graphics.lineTo(point.nextPoint.pos.x, point.nextPoint.pos.y);
+                    }
+                    else if (this.heat > 0) {
+                        graphics.lineTo(emitPos.x, emitPos.y);
+                        graphics.lineStyle(0, color);
+                        graphics.drawCircle(emitPos.x, emitPos.y, scale / 2);
+                    }
+                }
+                graphics.endFill();
+            }
+            previousPoint = point;
+            point = point.nextPoint;
+        }
+        if (this.emit) {
+            this.heat = Math.min(this.maxHeat, this.heat + deltaTime*this.heatingMultiplier);
+            this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
+        }
+        else {
+            if (this.heat > 0) {
+                this.heat = Math.max(0, this.heat - deltaTime * this.coolingMultiplier);
+                this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
+                if (this.heat ==0) {
+                    previousPoint.nextPoint = new Point(emitPos, true,this.maxAge*this.heatRatio,this.color);
+                    this.points++;
+                }
+            }
+        }
+        if (this.emitter.control.y == 1) {
+            this.emit = true;
+            if (this.emitter.afterBurnerUsed == 1)
+                this.color = this.boostColor;
+            else
+                this.color = this.baseColor;
+                
+        }
+        else {
+            if (previousPoint) {
+                if (this.emit) {
+                    //previousPoint.nextPoint = new Point(emitPos, true,this.maxAge-this.emitTime);
+                    //this.points++;
+                    //this.emitTime = this.minHeatRatio;
+                }
+            }
+            this.emit = false;
+        }
+        if (this.heat > 0) {
+            this.framesFromEmit++;
+            if (this.framesFromEmit >= this.framesPerEmit) {
+                if (previousPoint)
+                previousPoint.nextPoint = new Point(emitPos,false,this.maxAge*this.heatRatio,this.color);
+                else
+                this.firstPoint = new Point(emitPos,false,this.maxAge*this.heatRatio,this.color);
+                this.points++;
+                this.framesFromEmit = 0;
+            }
+        }
+    }
+    Trail.trails.push(this);
+}
+
+Trail.trails = [];
+
+function Point(vector, stop, age, color) {
+    this.colorRamp = color;
+    this.nextPoint = null;
+    this.age = 0;
+    this.visualAge = age ?? 0;
+    //console.log("added point with age " + this.age);
+    this.pos = { x: vector.x, y: vector.y };
+    this.stop = stop ?? false;
 }
 
 //#endregion

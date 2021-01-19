@@ -31,6 +31,7 @@ loader
     .add("circle", "images/circle.png")
     .add("player1", "images/player2.png")
     .add("light", "images/light.png")
+    .add("lensflare", "images/LensFlare.png")
     .add("lensflare0", "images/lensflare0.png")
     .add("lensflare1", "images/lensflare1.png")
     .add("lensflare2", "images/lensflare2.png")
@@ -87,6 +88,9 @@ var playerSettings = { nick: "Nixk" };
 //FPS
 const fps = 60;
 
+//GRAPHICS
+var graphics = new PIXI.Graphics();
+gameContainer.addChild(graphics);
 //#endregion
 
 //#region LOADING SCREEN
@@ -167,6 +171,7 @@ function graphicsUpdate(deltaTimeFactor) {
 
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
+        updateTrails(deltaTime);
         updateCamera(deltaTime);
         updateGui(deltaTime);
 
@@ -211,63 +216,83 @@ function updateCamera(deltaTime) {
 
 function updateParticles(deltaTime) {
     if (running) {
+        
         Player.players.forEach(player => {
+            if (player.ship.control.y == 1) {
+                player.lensFlare.enabled = true;
+            }
+            else {
+                player.lensFlare.enabled = false;
+            }
+            if (player.ship.afterBurnerUsed == 1 && player.ship.control.y == 1) {
+                player.lensFlare.tint = 0xFF33AA;
+            }
+            else {
+                player.lensFlare.tint = 0x22CCFF;
+            }
+            /*
             let particleSystem = player.particleSystems[0];
             let particleSystem2 = player.particleSystems[1];
             let particleSystem3 = player.particleSystems[2];
             if (player.ship.control.y == 1) {
                 particleSystem.settings.enabled = true;
-                particleSystem3.settings.enabled = true;
+                //particleSystem3.settings.enabled = true;
                 player.lensFlare.enabled = true;
 
             }
             else {
                 particleSystem.settings.enabled = false;
-                particleSystem3.settings.enabled = false;
+                //particleSystem3.settings.enabled = false;
                 player.lensFlare.enabled = false;
 
             }
             if (player.ship.afterBurnerUsed == 1 && player.ship.control.y == 1) {
-                particleSystem2.settings.enabled = true;
-                particleSystem.settings.emitRate = 1800 * player.ship.afterBurnerFuel / player.ship.stats.afterBurnerCapacity;
+                //particleSystem2.settings.enabled = true;
+                particleSystem.settings.emitRate = 600 * player.ship.afterBurnerFuel / player.ship.stats.afterBurnerCapacity;
                 particleSystem.settings.color.min = 0xFFEFAA;
                 particleSystem.settings.color.max = 0xff6600;
                 particleSystem.settings.randomVelocity = 30;
 
-                particleSystem3.settings.color.min = 0xAA8855;
-                particleSystem3.settings.color.max = 0xAA2277;
+                //particleSystem3.settings.color.min = 0xAA8855;
+                //particleSystem3.settings.color.max = 0xAA2277;
                 player.lensFlare.tint = 0xAA6622;
                 //particleSystem.settings.emitRate = 300;
             }
             else {
                 player.lensFlare.tint = 0x1199FF;
-                particleSystem2.settings.enabled = false;
+                //particleSystem2.settings.enabled = false;
                 particleSystem.settings.color.min = 0xFFFFFF;
                 particleSystem.settings.color.max = 0x1199FF;
-                particleSystem.settings.emitRate = 900;
-                particleSystem.settings.randomVelocity = 5;
+                particleSystem.settings.emitRate = 200;
+                particleSystem.settings.randomVelocity = 2;
 
-                particleSystem3.settings.color.min = 0xBEDEFE;
-                particleSystem3.settings.color.max = 0x0077FF;
+                //particleSystem3.settings.color.min = 0xBEDEFE;
+                //particleSystem3.settings.color.max = 0x0077FF;
                 //particleSystem.settings.emitRate = 150;
             }
             let global = player.toGlobal(new Vector(-30, 0));
-            particleSystem3.updateEmitter((player.ship));
-            //particleSystem3.emitter.position = global;
-            particleSystem3.update(deltaTime);
+            //particleSystem3.updateEmitter((player.ship));
+            //particleSystem3.update(deltaTime);
             particleSystem.updateEmitter(player.ship);
-            //particleSystem.emitter.position = global;
             particleSystem.update(deltaTime);
 
 
-            particleSystem2.updateEmitter((player.ship));
-            particleSystem2.update(deltaTime);
-
+            //particleSystem2.updateEmitter((player.ship));
+            //particleSystem2.update(deltaTime);
+*/
         });
+        
 
 
 
     }
+}
+
+function updateTrails(deltaTime) {
+    graphics.clear();
+    Trail.trails.forEach(trail => {
+        trail.update(deltaTime);
+    });
 }
 
 function updateGui(deltaTime) {
@@ -461,7 +486,7 @@ function parseProximity(view) { // tady se děje update
             Datagrams.EntitySetup.transferData(entity, temp);
             entity.update(0);
         }else{
-            console.log(temp.id);
+            //console.log(temp.id);
         }
     }
 }
@@ -662,7 +687,6 @@ function gasParticleChunksDisplay() {
                     }
                 }
             }
-
         }
     }
 
@@ -712,3 +736,4 @@ function initLocalPlayer() {
     localPlayer.miniMapMarker.texture = loader.resources.marker2.texture;
     localPlayer.miniMapMarker.anchor.set(0.5, 0.6);
 }
+
