@@ -146,6 +146,9 @@ function ShadedSprite(parent, prefix, sizeObject) {
 
     this.shadow.scale.set(1, sizeObject.size);
 
+    this.base.mask = this.lightMask;
+    this.outline.mask = this.outlineMask;
+
     this.container.addChild(
         this.shadow,
         this.dark,
@@ -194,7 +197,7 @@ function Ship() {
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
     this.trails = [new Trail(this, new Vector(-30, 0))];
-    this.sprite = new ShadedSprite(this, "ship", {size: 300});
+    this.sprite = new ShadedSprite(this, "ship", {size: 1});
 
     this.init = function (type) {
         this.stats = type;
