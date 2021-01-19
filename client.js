@@ -8,7 +8,7 @@ document.body.appendChild(app.renderer.view);
 app.renderer.view.width = window.innerWidth;
 app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
-app.renderer.backgroundColor = 0x000000;
+app.renderer.backgroundColor = 0x1C2327;
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -46,6 +46,14 @@ loader
     .add("entity_101", "images/entity/101.png")
     .add("marker1", "images/minimap/marker1.png")
     .add("marker2", "images/minimap/marker2.png")
+    .add("ship_base", "images/ship_base.png")
+    .add("ship_dark", "images/ship_dark.png")
+    .add("ship_outline", "images/ship_outline.png")
+    .add("asteroid_base", "images/asteroid_base.png")
+    .add("asteroid_dark", "images/asteroid_dark.png")
+    .add("asteroid_outline", "images/asteroid_outline.png")
+    .add("mask_base", "images/mask_base.png")
+    .add("mask_outline", "images/mask_outline.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
