@@ -657,8 +657,8 @@ window.addEventListener("wheel", e => {
 
 //#region GAS
 
-let gasCamWidth = 20;
-let gasCamHeight = 16;
+let gasCamWidth = 2*Math.floor(screen.width/gasParticleSpacing/2/camera.zoom+5);
+let gasCamHeight = 2*Math.floor(screen.height/gasParticleSpacing/2/camera.zoom+5);
 let gasColorMap = new ColorRamp(0xddd2f2, 0xbf5eff);
 let gasContainer;
 let gasParticles = [];
@@ -666,6 +666,8 @@ let gasDisplay = [];
 
 function gasParticleChunksDisplay() {
     if (gasLoaded) {
+        gasCamWidth = 2*Math.floor(screen.width/gasParticleSpacing/2/camera.zoom+5);
+        gasCamHeight = 2*Math.floor(screen.height/gasParticleSpacing/2/camera.zoom+5);
         let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
         let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         let avalible = [];
