@@ -160,6 +160,12 @@ function ShadedSprite(parent, prefix, sizeObject) {
     gameContainer.addChild(this.container);
 
     this.update = function (source) {
+        if(!isOnScreen(this.parent.position, 100)){
+            this.container.visible = false
+            return;
+        }else{
+            this.container.visible = true
+        }
 
         this.container.position.set(this.parent.position.x, this.parent.position.y);
 

@@ -64,6 +64,7 @@ loader.load(start);
 
 //CAMERA INIT
 var camera = { x: 0, y: 0, zoom: 0.5 };
+
 var zoomStep = 1.2;
 var minZoom = 0.3;
 var maxZoom = 6;
@@ -72,6 +73,16 @@ var screen = {
     width: window.innerWidth,
     height: window.innerHeight
 };
+
+isOnScreen = function (position, size) {
+    return (
+        position.x + size > camera.x - screen.center.x / camera.zoom &&
+        position.x - size < camera.x + screen.center.x / camera.zoom &&
+        position.y + size > camera.y - screen.center.y / camera.zoom &&
+        position.y - size < camera.y + screen.center.y / camera.zoom
+    );
+}
+
 
 //CONTAINER INIT
 var gameContainer = new PIXI.Container();
@@ -220,7 +231,7 @@ function updateCamera(deltaTime) {
 
 function updateParticles(deltaTime) {
     if (running) {
-        
+
         Player.players.forEach(player => {
             if (player.ship.control.y == 1) {
                 player.lensFlare.enabled = true;
@@ -285,7 +296,7 @@ function updateParticles(deltaTime) {
             //particleSystem2.update(deltaTime);
 */
         });
-        
+
 
 
 
@@ -485,23 +496,22 @@ function parseProximity(view) { // tady se děje update
         let temp = {};
         view.deserealize(temp, Datagrams.EntitySetup);
         let entity = Entity.list[temp.id];
-        if(entity != undefined)
-        {
+        if (entity != undefined) {
             Datagrams.EntitySetup.transferData(entity, temp);
             entity.update(0);
-        }else{
+        } else {
             //console.log(temp.id);
         }
     }
 }
 
-function parseEntityRemoved(view){
+function parseEntityRemoved(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.EnitiyRemove);
     Entity.list.splice(temp.id, 1);
 }
 
-function parseGasUpdate(view){
+function parseGasUpdate(view) {
     let gasCount = view.getUint16();
     for (let i = 0; i < gasCount; i++) {
         let temp = {};
