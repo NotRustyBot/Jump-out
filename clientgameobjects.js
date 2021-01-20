@@ -200,7 +200,7 @@ function Ship() {
     this.control = new Vector(0, 0);
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
-    this.trails = [new Trail(this, new Vector(-30, 0))];
+    this.trails = [new Trail(this, new Vector(-60, 0))];
     this.sprite = new ShadedSprite(this, "ship", { size: 0.35 });
 
     this.init = function (type) {
@@ -553,7 +553,7 @@ function LensFlare() {
         sprite.blendMode = PIXI.BLEND_MODES.ADD;
         app.stage.addChild(sprite);
     });
-    this.spriteOffsets = [1, 0.5, -0.7];
+    this.spriteOffsets = [2, 0.5, -0.7];
     this.enbaled = true;
     this.tint = 0x5599FF;
     this.update = function (pos) {

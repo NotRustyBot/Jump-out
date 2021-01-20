@@ -55,6 +55,7 @@ loader
     .add("lightMask", "images/mask_base.png")
     .add("outlineMask", "images/mask_outline.png")
     .add("shadow", "images/shadow.png")
+    .add("smooth", "images/smooth.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
