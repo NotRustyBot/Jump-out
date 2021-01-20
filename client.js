@@ -67,7 +67,7 @@ loader.load(start);
 var camera = { x: 0, y: 0, zoom: 0.5 };
 
 var zoomStep = 1.2;
-var minZoom = 0.25;
+var minZoom = 0.15;
 var maxZoom = 1;
 var screen = {
     center: new Vector(window.innerWidth / 2, window.innerHeight / 2),
@@ -198,7 +198,7 @@ function graphicsUpdate(deltaTimeFactor) {
 
         Player.players.forEach(player => {
 
-            player.lensFlare.update(player.toGlobal(new Vector(-30, 0)).add({ x: -camera.x, y: -camera.y }).mult(camera.zoom));
+            player.lensFlare.update(player.toGlobal(new Vector(-90, 0)).add({ x: -camera.x, y: -camera.y }).mult(camera.zoom));
         });
 
         Entity.list.forEach(entity => {

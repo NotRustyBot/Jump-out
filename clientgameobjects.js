@@ -105,7 +105,7 @@ function Entity(type) {
     this.type = type;
     this.id = Entity.list.length;
     Entity.list.push(this);
-    this.sprite = new ShadedSprite(this, "asteroid", { size: 1 });
+    this.sprite = new ShadedSprite(this, "asteroid", { size: 2 });
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
         this.sprite.update({ directional: true, rotation: -2 });
@@ -136,7 +136,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
     this.lightMask.scale.set(sizeObject.size);
     this.outlineMask.scale.set(sizeObject.size);
 
-    this.shadow.scale.set(sizeObject.size, 1);
+    this.shadow.scale.set(sizeObject.size/2, 1);
     this.shadow.alpha = 0.2;
 
     this.base.mask = this.lightMask;
@@ -195,7 +195,7 @@ function Ship() {
     this.control = new Vector(0, 0);
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
-    this.trails = [new Trail(this, new Vector(-60, 0))];
+    this.trails = [new Trail(this, new Vector(-90, 0))];
     this.sprite = new ShadedSprite(this, "ship", { size: 1 });
 
     this.init = function (type) {
@@ -548,7 +548,7 @@ function LensFlare() {
         sprite.blendMode = PIXI.BLEND_MODES.ADD;
         app.stage.addChild(sprite);
     });
-    this.spriteOffsets = [2, 0.5, -0.7];
+    this.spriteOffsets = [1, -1.5, -0.7];
     this.enbaled = true;
     this.tint = 0x5599FF;
     this.update = function (pos) {
