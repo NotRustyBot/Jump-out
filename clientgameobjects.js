@@ -105,12 +105,11 @@ function Entity(type) {
     this.type = type;
     this.id = Entity.list.length;
     Entity.list.push(this);
-    this.sprite = new ShadedSprite(this, "asteroid", {size: 0.35});
-
+    this.sprite = new ShadedSprite(this, "asteroid", { size: 0.35 });
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
+        this.sprite.update({ directional: true, rotation: -2 });
 
-        this.sprite.update({directional: true, rotation: -2});
     };
 }
 Entity.list = [];
@@ -178,7 +177,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
         if (!source.directional) {
             distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.container.y, 2) + Math.pow(source.position.x - this.container.x, 2));
             rotation = Math.atan2(source.position.y - this.container.y, source.position.x - this.container.x);
-        }else{
+        } else {
             rotation = source.rotation;
             distanceRatio = 1;
         }
@@ -202,18 +201,18 @@ function Ship() {
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
     this.trails = [new Trail(this, new Vector(-30, 0))];
-    this.sprite = new ShadedSprite(this, "ship", {size: 0.35});
+    this.sprite = new ShadedSprite(this, "ship", { size: 0.35 });
 
     this.init = function (type) {
         this.stats = type;
     };
 
     this.update = function (dt) {
-        
-       this.position.x += this.velocity.x * dt;
-       this.position.y += this.velocity.y * dt;
 
-       this.sprite.update({directional: true, rotation: -2});
+        this.position.x += this.velocity.x * dt;
+        this.position.y += this.velocity.y * dt;
+
+        this.sprite.update({ directional: true, rotation: -2 });
     };
 }
 
@@ -645,8 +644,10 @@ function Trail(emitter, offset) {
                 this.heat = Math.max(0, this.heat - deltaTime * this.coolingMultiplier);
                 this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
                 if (this.heat == 0) {
-                    previousPoint.nextPoint = new Point(emitPos, true, this.maxAge * this.heatRatio, this.color);
-                    this.points++;
+                    if (previousPoint) {
+                        previousPoint.nextPoint = new Point(emitPos, true, this.maxAge * this.heatRatio, this.color);
+                        this.points++;
+                    }
                 }
             }
         }

@@ -8,7 +8,7 @@ document.body.appendChild(app.renderer.view);
 app.renderer.view.width = window.innerWidth;
 app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
-app.renderer.backgroundColor = 0x1C2327;
+app.renderer.backgroundColor = 0x191E21;
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
