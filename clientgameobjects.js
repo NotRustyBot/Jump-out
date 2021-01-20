@@ -110,7 +110,6 @@ function Entity(type) {
         this.rotation += this.rotationSpeed * dt;
         this.sprite.update({ directional: true, rotation: -2 });
 
-
     };
 }
 Entity.list = [];
