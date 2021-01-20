@@ -105,7 +105,7 @@ function Entity(type) {
     this.type = type;
     this.id = Entity.list.length;
     Entity.list.push(this);
-    this.sprite = new ShadedSprite(this, "asteroid", { size: 0.35 });
+    this.sprite = new ShadedSprite(this, "asteroid", { size: 1 });
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
         this.sprite.update({ directional: true, rotation: -2 });
@@ -132,11 +132,6 @@ function ShadedSprite(parent, prefix, sizeObject) {
     this.lightMask.anchor.set(0.5);
     this.outlineMask.anchor.set(0.5);
     this.shadow.anchor.set(0.5, 0.09);
-
-    /* DEL THIS */
-    this.dark.scale.set(0.35);
-    this.base.scale.set(0.35);
-    this.outline.scale.set(0.35);
 
     this.lightMask.scale.set(sizeObject.size);
     this.outlineMask.scale.set(sizeObject.size);
@@ -201,7 +196,7 @@ function Ship() {
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
     this.trails = [new Trail(this, new Vector(-60, 0))];
-    this.sprite = new ShadedSprite(this, "ship", { size: 0.35 });
+    this.sprite = new ShadedSprite(this, "ship", { size: 1 });
 
     this.init = function (type) {
         this.stats = type;
