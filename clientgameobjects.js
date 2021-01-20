@@ -286,7 +286,7 @@ function Player(id) {
         Player.players.delete(this.id);
         miniMap.removeChild(this.miniMapMarker);
     }
-    this.lensFlare = new LensFlare();
+    this.lensFlare = new LensFlare(this.ship);
     this.toGlobal = function (vector) {
         //let rv = Vector.fromAngle(this.ship.rotation);
         let cos = Math.cos(this.ship.rotation);
@@ -536,7 +536,8 @@ function Graph(values, scale) {
     };
 }
 
-function LensFlare() {
+function LensFlare(parent) {
+    this.parent = parent;
     this.position = new Vector(0, 0);
     this.sprites = [];
     this.sprites[0] = new PIXI.Sprite(loader.resources.lensflare.texture);
@@ -549,11 +550,12 @@ function LensFlare() {
         app.stage.addChild(sprite);
     });
     this.spriteOffsets = [1, -1.5, -0.7];
-    this.enbaled = true;
+    this.enabled = true;
     this.tint = 0x5599FF;
     this.update = function (pos) {
         this.position = pos.result();
         for (let i = 0; i < this.sprites.length; i++) {
+            this.sprites[i].alpha = this.parent.trails[0].heatRatioNormalised;
             this.sprites[i].x = screen.center.x + this.position.x * this.spriteOffsets[i];
             this.sprites[i].y = screen.center.y + this.position.y * this.spriteOffsets[i];
             this.sprites[i].tint = this.tint;
@@ -589,6 +591,7 @@ function Trail(emitter, offset) {
     this.coolingMultiplier = 3;
     this.heatRatioMap = new Ramp(0.8, 0);
     this.heatRatio = this.heatRatioMap.min;
+    this.heatRatioNormalised = 0;
     this.update = function (deltaTime) {
 
         //console.log(this.points);
@@ -633,11 +636,13 @@ function Trail(emitter, offset) {
         if (this.emit) {
             this.heat = Math.min(this.maxHeat, this.heat + deltaTime * this.heatingMultiplier);
             this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
+            this.heatRatioNormalised = this.heat / this.maxHeat;
         }
         else {
             if (this.heat > 0) {
                 this.heat = Math.max(0, this.heat - deltaTime * this.coolingMultiplier);
                 this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
+                this.heatRatioNormalised = this.heat / this.maxHeat;
                 if (this.heat == 0) {
                     if (previousPoint) {
                         previousPoint.nextPoint = new Point(emitPos, true, this.maxAge * this.heatRatio, this.color);
