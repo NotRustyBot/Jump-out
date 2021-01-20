@@ -105,20 +105,13 @@ function Entity(type) {
     this.type = type;
     this.id = Entity.list.length;
     Entity.list.push(this);
-
+    this.sprite = new ShadedSprite(this, "asteroid", { size: 0.35 });
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
-        this.sprite.rotation = this.rotation;
-        this.sprite.x = this.position.x;
-        this.sprite.y = this.position.y;
+        this.sprite.update({ directional: true, rotation: -2 });
 
 
     };
-    this.sprite = new PIXI.Sprite(loader.resources["entity_" + this.type].texture);
-    this.sprite.x = this.position.x;
-    this.sprite.y = this.position.y;
-    this.sprite.anchor.set(0.5);
-    gameContainer.addChild(this.sprite);
 }
 Entity.list = [];
 
@@ -149,8 +142,8 @@ function ShadedSprite(parent, prefix, sizeObject) {
     this.lightMask.scale.set(sizeObject.size);
     this.outlineMask.scale.set(sizeObject.size);
 
-    this.shadow.scale.set(1, sizeObject.size);
-    this.shadow.alpha = 0.45;
+    this.shadow.scale.set(sizeObject.size, 1);
+    this.shadow.alpha = 0.2;
 
     this.base.mask = this.lightMask;
     this.outline.mask = this.outlineMask;
@@ -179,7 +172,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
         if (!source.directional) {
             distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.container.y, 2) + Math.pow(source.position.x - this.container.x, 2));
             rotation = Math.atan2(source.position.y - this.container.y, source.position.x - this.container.x);
-        }else{
+        } else {
             rotation = source.rotation;
             distanceRatio = 1;
         }
@@ -203,18 +196,18 @@ function Ship() {
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
     this.trails = [new Trail(this, new Vector(-30, 0))];
-    this.sprite = new ShadedSprite(this, "ship", {size: 0.35});
+    this.sprite = new ShadedSprite(this, "ship", { size: 0.35 });
 
     this.init = function (type) {
         this.stats = type;
     };
 
     this.update = function (dt) {
-        
-       this.position.x += this.velocity.x * dt;
-       this.position.y += this.velocity.y * dt;
 
-       this.sprite.update({directional: true, rotation: -2});
+        this.position.x += this.velocity.x * dt;
+        this.position.y += this.velocity.y * dt;
+
+        this.sprite.update({ directional: true, rotation: -2 });
     };
 }
 
