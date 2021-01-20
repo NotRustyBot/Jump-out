@@ -66,8 +66,8 @@ loader.load(start);
 var camera = { x: 0, y: 0, zoom: 0.5 };
 
 var zoomStep = 1.2;
-var minZoom = 0.3;
-var maxZoom = 6;
+var minZoom = 0.25;
+var maxZoom = 1;
 var screen = {
     center: new Vector(window.innerWidth / 2, window.innerHeight / 2),
     width: window.innerWidth,
