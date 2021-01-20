@@ -638,8 +638,10 @@ function Trail(emitter, offset) {
                 this.heat = Math.max(0, this.heat - deltaTime * this.coolingMultiplier);
                 this.heatRatio = this.heatRatioMap.evaluate(this.heat / this.maxHeat);
                 if (this.heat == 0) {
-                    previousPoint.nextPoint = new Point(emitPos, true, this.maxAge * this.heatRatio, this.color);
-                    this.points++;
+                    if (previousPoint) {
+                        previousPoint.nextPoint = new Point(emitPos, true, this.maxAge * this.heatRatio, this.color);
+                        this.points++;
+                    }
                 }
             }
         }
