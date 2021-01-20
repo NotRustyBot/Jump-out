@@ -97,7 +97,7 @@ var running = false;
 
 //GAS
 var gasLoaded = false;
-var gasParticleSpacing = 1000;
+var gasParticleSpacing = 400;
 var gasParticleDisplayAmount = 1; //DOES NOT WORK
 var gasCount = 0;
 
@@ -182,13 +182,13 @@ function update() {
         sendControls();
     }
 }
-
+let gasHere = 0;
 
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\n    Gas: " + gasCount;
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
 
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
@@ -415,12 +415,12 @@ function parseGas(view) {
     let w = view.getUint16();
     let h = view.getUint16();
     let bytes = 4;
-    for (let y = 0; y < h; y++) {
-        Universe.gasMap[y] = [];
-        for (let x = 0; x < w; x++) {
+    for (let x = 0; x < w; x++) {
+        Universe.gasMap[x] = [];
+        for (let y = 0; y < h; y++) {
             const e = view.getUint8();
             bytes++;
-            Universe.gasMap[y][x] = e;
+            Universe.gasMap[x][y] = e;
         }
     }
 
@@ -669,9 +669,11 @@ function gasParticleChunksDisplay() {
         let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
         let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         let avalible = [];
+        gasHere = Universe.gasMap[gasPosX][gasPosY];
 
         for (let i = 0; i < gasParticles.length; i++) {
             const g = gasParticles[i];
+
             let gX = Math.floor(g.x / gasParticleSpacing);
             let gY = Math.floor(g.y / gasParticleSpacing);
             if (gX >= gasPosX + gasCamWidth / 2 ||
@@ -683,9 +685,8 @@ function gasParticleChunksDisplay() {
                 gasDisplay[gX][gY] = false;
             } else {
                 g.rotation += 0.03 * g.alpha + 0.008;
-                g.alpha = Universe.gasMap[gX][gY] / 100;
+                g.alpha = Universe.gasMap[gX][gY]/100;
             }
-
         }
 
         for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
@@ -694,7 +695,7 @@ function gasParticleChunksDisplay() {
                 if (!gasDisplay[px][py]) {
                     let g = avalible.pop();
                     if (g != undefined) {
-                        let e = Universe.gasMap[py][px];
+                        let e = Universe.gasMap[px][py];
                         gasDisplay[px][py] = true;
                         g.alpha = e / 100;
                         g.tint = gasColorMap.evaluate(e / 100);
@@ -734,7 +735,7 @@ function generateGas() {
 
 
         gasDisplay[i] = [];
-        for (let y = 0; y < 100; y++) {
+        for (let y = 0; y < 1000; y++) {
             gasDisplay[i][y] = false;
         }
         gasCount++;
