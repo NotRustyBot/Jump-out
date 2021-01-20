@@ -235,12 +235,12 @@ function updateParticles(deltaTime) {
 
         Player.players.forEach(player => {
             if (player.ship.control.y == 1) {
-                player.lensFlare.enabled = true;
+                //player.lensFlare.enabled = true;
             }
             else {
-                player.lensFlare.enabled = false;
+                //player.lensFlare.enabled = false;
             }
-            if (player.ship.afterBurnerUsed == 1 && player.ship.control.y == 1) {
+            if (player.ship.afterBurnerUsed == 1) {
                 player.lensFlare.tint = 0xFF33AA;
             }
             else {
