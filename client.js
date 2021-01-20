@@ -685,6 +685,7 @@ function gasParticleChunksDisplay() {
             ) {
                 avalible.push(g);
                 gasDisplay[gX][gY] = false;
+                g.alpha = 0;
             } else {
                 g.rotation += 0.03 * g.alpha + 0.008;
                 g.alpha = Universe.gasMap[gX][gY]/100;
