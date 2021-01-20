@@ -715,7 +715,7 @@ function generateGas() {
 
     document.getElementById("loadingBar").style.transition = "width .2s";
 
-    gasContainer = new PIXI.ParticleContainer(1000, {
+    gasContainer = new PIXI.ParticleContainer(10000, {
         scale: true,
         position: true,
         rotation: true,
@@ -724,7 +724,7 @@ function generateGas() {
 
     gameContainer.addChild(gasContainer);
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 10000; i++) {
         let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
 
         gasParticles[i] = gasParticle;
@@ -735,12 +735,14 @@ function generateGas() {
 
         gasContainer.addChild(gasParticle);
 
-
-        gasDisplay[i] = [];
-        for (let y = 0; y < 1000; y++) {
-            gasDisplay[i][y] = false;
-        }
         gasCount++;
+    }
+
+    for (let x = 0; x < 1000; x++) {
+        gasDisplay[x] = [];
+        for (let y = 0; y < 1000; y++) {
+            gasDisplay[x][y] = false;
+        }
     }
 
     closeLoadingScreen();
