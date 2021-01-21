@@ -1,3 +1,4 @@
+
 //#region věci
 function Vector(x, y) {
     this.x = x;
@@ -98,26 +99,33 @@ ShipType.init();
 var Universe = {};
 Universe.gasMap = [];
 
-function Entity(type) {
+let objectDictionary = [];
+objectDictionary[1] = {name: "asteroid", size: 3};
+objectDictionary[2] = {name: "letadlo", size: 5};
+objectDictionary[101] = {name: "r300", size: 3};
+
+function Entity(type, id) {
     this.position = new Vector(0, 0);
     this.rotation = 0;
     this.rotationSpeed = 0;
     this.type = type;
-    this.id = Entity.list.length;
-    Entity.list.push(this);
-    this.sprite = new ShadedSprite(this, "asteroid", { size: 2 });
+    this.id = id;
+    Entity.list.set(this.id, this);
+    this.sprite = new ShadedSprite(this, objectDictionary[this.type].name, objectDictionary[this.type]);
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
-        this.sprite.update({ directional: true, rotation: -2 });
+        this.sprite.update({ directional: true, rotation: sunAngle });
     };
 
     this.remove = function(){
         this.sprite.remove();
-        Entity.list.splice(this.id, 1);
+        Entity.list.delete(this.id); 
     }
 }
-Entity.list = [];
+Entity.list = new Map();
 
+
+let sunAngle = 0;
 
 function ShadedSprite(parent, prefix, sizeObject) {
     this.container = new PIXI.Container();
@@ -216,7 +224,7 @@ function Ship() {
         this.position.x += this.velocity.x * dt;
         this.position.y += this.velocity.y * dt;
 
-        this.sprite.update({ directional: true, rotation: -2 });
+        this.sprite.update({ directional: true, rotation: sunAngle });
     };
 }
 

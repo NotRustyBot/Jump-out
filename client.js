@@ -36,14 +36,15 @@ loader
     .add("lensflare1", "images/lensflare1.png")
     .add("lensflare2", "images/lensflare2.png")
     .add("beam", "images/beam.png")
-    .add("circle_r300", "images/circle-r300.png")
+    .add("r300_base", "images/entity/r300_base.png")
+    .add("r300_dark", "images/entity/r300_dark.png")
+    .add("r300_outline", "images/entity/r300_outline.png")
     .add("square600", "images/square600.png")
     .add("shape", "images/shape.png")
-    .add("entity_1", "images/entity/1.png")
-    .add("entity_2", "images/entity/2.png")
-    .add("entity_3", "images/entity/3.png")
+    .add("letadlo_base", "images/entity/letadlo_base.png")
+    .add("letadlo_dark", "images/entity/letadlo_dark.png")
+    .add("letadlo_outline", "images/entity/letadlo_outline.png")
     .add("minimap", "images/minimap/minimap.png")
-    .add("entity_101", "images/entity/101.png")
     .add("marker1", "images/minimap/marker1.png")
     .add("marker2", "images/minimap/marker2.png")
     .add("ship_base", "images/ship_base.png")
@@ -207,6 +208,8 @@ function graphicsUpdate(deltaTimeFactor) {
 
         //gasParticleContainers[5][5].visible = true;
         gasParticleChunksDisplay();
+
+        sunAngle += deltaTime*0.1;
 
     }
 }
@@ -485,7 +488,7 @@ function parseEntitySetup(view) { // tady se děje init
     for (let i = 0; i < size; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.EntitySetup);
-        let entity = new Entity(temp.type);
+        let entity = new Entity(temp.type, temp.id);
         Datagrams.EntitySetup.transferData(entity, temp);
         entity.update(0);
     }
@@ -496,7 +499,7 @@ function parseProximity(view) { // tady se děje update
     for (let i = 0; i < size; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.EntitySetup);
-        let entity = Entity.list[temp.id];
+        let entity = Entity.list.get(temp.id);
         if (entity != undefined) {
             Datagrams.EntitySetup.transferData(entity, temp);
             entity.update(0);
@@ -509,8 +512,7 @@ function parseProximity(view) { // tady se děje update
 function parseEntityRemoved(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.EnitiyRemove);
-    console.log(temp);
-    Entity.list[temp.id].remove();
+    Entity.list.get(temp.id).remove();
 }
 
 function parseGasUpdate(view) {
@@ -658,13 +660,14 @@ window.addEventListener("wheel", e => {
 
 let gasCamWidth = 2*Math.floor(screen.width/gasParticleSpacing/2/camera.zoom+5);
 let gasCamHeight = 2*Math.floor(screen.height/gasParticleSpacing/2/camera.zoom+5);
-let gasColorMap = new ColorRamp(0xddd2f2, 0xbf5eff);
+let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 let gasContainer;
 let gasParticles = [];
 let gasDisplay = [];
 
 function gasParticleChunksDisplay() {
     if (gasLoaded) {
+
         gasCamWidth = 2*Math.floor(screen.width/gasParticleSpacing/2/camera.zoom+5);
         gasCamHeight = 2*Math.floor(screen.height/gasParticleSpacing/2/camera.zoom+5);
         let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
@@ -684,10 +687,9 @@ function gasParticleChunksDisplay() {
             ) {
                 avalible.push(g);
                 gasDisplay[gX][gY] = false;
-                g.visible = false;
             } else {
                 g.rotation += 0.03 * g.alpha + 0.008;
-                g.alpha = Universe.gasMap[gX][gY]/100;
+                g.alpha = Universe.gasMap[gX][gY]/200 +0.5;
                 gasDisplay[gX][gY] = true;
             }
         }
@@ -700,8 +702,7 @@ function gasParticleChunksDisplay() {
                     if (g != undefined) {
                         let e = Universe.gasMap[px][py];
                         gasDisplay[px][py] = true;
-                        g.visible = true;
-                        g.alpha = e / 100;
+                        g.alpha = e / 200 +0.5;
                         g.tint = gasColorMap.evaluate(e / 100);
                         g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random(), py * gasParticleSpacing + gasParticleSpacing * Math.random());
                     }
@@ -717,21 +718,23 @@ function generateGas() {
 
     document.getElementById("loadingBar").style.transition = "width .2s";
 
-    gasContainer = new PIXI.ParticleContainer(10000, {
+    gasContainer = new PIXI.Container(10000, {
         scale: true,
         position: true,
         rotation: true,
         tint: true,
     });
 
+    gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
+
     gameContainer.addChild(gasContainer);
 
     for (let i = 0; i < 10000; i++) {
-        let gasParticle = new PIXI.Sprite(loader.resources.kour7.texture);
+        let gasParticle = new PIXI.Sprite(loader.resources.smooth.texture);
 
         gasParticles[i] = gasParticle;
 
-        gasParticle.anchor.set(0.5);
+        gasParticle.anchor.set(0.6);
         gasParticle.scale.set(6);
         gasParticle.rotation = Math.random() * 6.28;
 
