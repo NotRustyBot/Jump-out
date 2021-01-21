@@ -109,8 +109,12 @@ function Entity(type) {
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
         this.sprite.update({ directional: true, rotation: -2 });
-
     };
+
+    this.remove = function(){
+        this.sprite.remove();
+        Entity.list.splice(this.id, 1);
+    }
 }
 Entity.list = [];
 
@@ -183,6 +187,11 @@ function ShadedSprite(parent, prefix, sizeObject) {
         this.lightMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);
         this.outlineMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);
         this.shadow.rotation = rotation + Math.PI / 2;
+    }
+
+    this.remove = function(){
+        this.container.destroy();
+        console.log("reee(moved)");
     }
 }
 

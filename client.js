@@ -509,7 +509,8 @@ function parseProximity(view) { // tady se děje update
 function parseEntityRemoved(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.EnitiyRemove);
-    Entity.list.splice(temp.id, 1);
+    console.log(temp);
+    Entity.list[temp.id].remove();
 }
 
 function parseGasUpdate(view) {
@@ -541,8 +542,6 @@ function parseActionReply(view) {
     let type = view.getUint8();
     view.index--;
     view.deserealize(temp, ReplyData[type]);
-
-    console.log(temp);
 }
 
 let textToDisplay = "";
