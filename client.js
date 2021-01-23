@@ -688,8 +688,10 @@ function gasParticleChunksDisplay() {
                 avalible.push(g);
                 gasDisplay[gX][gY] = false;
             } else {
+                let e = Universe.gasMap[gX][gY];
+                g.alpha = e /200 + 0.5;
                 g.rotation += 0.03 * g.alpha + 0.008;
-                g.alpha = Universe.gasMap[gX][gY]/200 +0.5;
+                g.tint = gasColorMap.evaluate(e / 100);
                 gasDisplay[gX][gY] = true;
             }
         }
@@ -702,7 +704,7 @@ function gasParticleChunksDisplay() {
                     if (g != undefined) {
                         let e = Universe.gasMap[px][py];
                         gasDisplay[px][py] = true;
-                        g.alpha = e / 200 +0.5;
+                        g.alpha = e /200 + 0.5;
                         g.tint = gasColorMap.evaluate(e / 100);
                         g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random(), py * gasParticleSpacing + gasParticleSpacing * Math.random());
                     }
