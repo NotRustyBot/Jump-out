@@ -736,7 +736,7 @@ function generateGas() {
 
         gasParticles[i] = gasParticle;
 
-        gasParticle.anchor.set(0.6);
+        gasParticle.anchor.set(0.53);
         gasParticle.scale.set(6);
         gasParticle.rotation = Math.random() * 6.28;
 
