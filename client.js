@@ -1,3 +1,5 @@
+const { Datagrams } = require("./datagram");
+
 //#region PIXI INIT
 let app = new PIXI.Application({
     antialias: true,
@@ -730,7 +732,6 @@ function generateGas() {
     gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 
     gameContainer.addChild(gasContainer);
-
     for (let i = 0; i < 10000; i++) {
         let gasParticle = new PIXI.Sprite(loader.resources.smooth.texture);
 
