@@ -1,5 +1,3 @@
-const { Datagrams } = require("./datagram");
-
 //#region PIXI INIT
 let app = new PIXI.Application({
     antialias: true,
@@ -555,7 +553,7 @@ function parseDebug(view) {
     textToDisplay = temp.data;
 }
 
-const buffer = new ArrayBuffer(100);
+const buffer = new ArrayBuffer(1000);
 function sendControls() {
     const view = new AutoView(buffer);
     view.setUint8(1);
@@ -574,6 +572,12 @@ function sendControls() {
     }
     actionID = 0;
 
+    if(serverCommand.length > 0){
+        view.setUint8(clientHeaders.serverConsole);
+        view.serialize({ command: serverCommand }, Datagrams.ServerConsole);
+        serverCommand = "";
+    }
+
     connection.send(buffer.slice(0, view.index));
     //console.log(buffer);
 }
@@ -585,6 +589,11 @@ function sendInit() {
     view.serialize(playerSettings, Datagrams.playerSettings);
 
     connection.send(buffer.slice(0, view.index));
+}
+
+let serverCommand = ""
+function serverExecute(command) {
+    serverCommand = command;
 }
 
 //#endregion

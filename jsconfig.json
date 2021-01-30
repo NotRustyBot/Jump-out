@@ -4,7 +4,6 @@
     },
     "files": [
         "client.js",
-        "pixi.js",
         "datagram.js",
         "clientgameobjects.js",
       ]

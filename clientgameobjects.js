@@ -103,6 +103,7 @@ let objectDictionary = [];
 objectDictionary[1] = {name: "asteroid", size: 3};
 objectDictionary[2] = {name: "letadlo", size: 5};
 objectDictionary[101] = {name: "r300", size: 3};
+objectDictionary[102] = {name: "r300", size: 3};
 
 function Entity(type, id) {
     this.position = new Vector(0, 0);
