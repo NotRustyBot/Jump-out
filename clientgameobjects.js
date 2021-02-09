@@ -102,6 +102,7 @@ Universe.gasMap = [];
 let objectDictionary = [];
 objectDictionary[1] = {name: "asteroid", size: 3};
 objectDictionary[2] = {name: "letadlo", size: 5};
+objectDictionary[3] = {name: "letadlo", size: 5};
 objectDictionary[101] = {name: "r300", size: 3};
 objectDictionary[102] = {name: "r300", size: 3};
 
@@ -200,7 +201,6 @@ function ShadedSprite(parent, prefix, sizeObject) {
 
     this.remove = function(){
         this.container.destroy();
-        console.log("reee(moved)");
     }
 }
 

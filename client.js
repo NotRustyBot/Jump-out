@@ -555,6 +555,7 @@ function parseDebug(view) {
 
 const buffer = new ArrayBuffer(1000);
 function sendControls() {
+    handleInput();
     const view = new AutoView(buffer);
     view.setUint8(1);
 
@@ -601,52 +602,38 @@ function serverExecute(command) {
 //#region INPUT
 let controlVector = { x: 0, y: 0, afterBurner: 0 };
 let actionID = 0;
+let keyDown = {};
+
+function handleInput(){
+    controlVector.x = 0;
+    controlVector.y = 0;
+    controlVector.afterBurner = 0;
+
+    if (keyDown.s) controlVector.y = -1;
+    if (keyDown.w) controlVector.y = 1;;
+    if (keyDown.d) controlVector.x = 1;
+    if (keyDown.a) controlVector.x = -1;
+    if (keyDown.a) controlVector.x = -1;
+    if (keyDown.shift) controlVector.afterBurner = 1;
+
+    if (keyDown.f){
+        actionID = 1;
+        keyDown.f = false;
+    } else if (keyDown.e){
+        actionID = 2;
+        keyDown.f = false;
+    } 
+
+}
+
 window.addEventListener("keydown", function (e) {
     let key = e.key.toLocaleLowerCase();
-    switch (key) {
-        case "w":
-            controlVector.y = 1;
-            break;
-        case "s":
-            controlVector.y = -1;
-            break;
-        case "d":
-            controlVector.x = 1;
-            break;
-        case "a":
-            controlVector.x = -1;
-            break;
-        case "shift":
-            controlVector.afterBurner = 1;
-            break;
-        case "f":
-            actionID = 1;
-            break;
-        case "e":
-            actionID = 2;
-            break;
-        default:
-            break;
-    }
+    keyDown[key] = true;
 });
 
 window.addEventListener("keyup", function (e) {
     let key = e.key.toLocaleLowerCase();
-    switch (key) {
-        case "w":
-        case "s":
-            controlVector.y = 0;
-            break;
-        case "d":
-        case "a":
-            controlVector.x = 0;
-            break;
-        case "shift":
-            controlVector.afterBurner = 0;
-            break;
-        default:
-            break;
-    }
+    keyDown[key] = false;
 });
 
 window.addEventListener("wheel", e => {
