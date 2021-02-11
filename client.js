@@ -15,6 +15,14 @@ window.addEventListener("resize", function () {
     screen.center = new Vector(window.innerWidth / 2, window.innerHeight / 2);
     screen.width = window.innerWidth;
     screen.height = window.innerHeight;
+
+    vsRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h };
+    virtualScreen.zoomDiff = (vsRatio.w + vsRatio.h) / 2;
+
+    minZoom = virtualScreen.minZoom * virtualScreen.zoomDiff;
+    maxZoom = virtualScreen.maxZoom * virtualScreen.zoomDiff;
+
+    console.log(virtualScreen.zoomDiff);
 });
 //#endregion
 
@@ -65,11 +73,17 @@ loader.load(start);
 //#region INIT VARIABLES
 
 //CAMERA INIT
-var camera = { x: 0, y: 0, zoom: 0.5 };
+
 
 var zoomStep = 1.2;
 var minZoom = 0.15;
 var maxZoom = 1;
+
+var virtualScreen = { w: 2560, h: 1440, minZoom: minZoom, maxZoom: maxZoom };
+var vsRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h};
+virtualScreen.zoomDiff = (vsRatio.w + vsRatio.h) / 2;
+var camera = { x: 0, y: 0, zoom: 0.5 };
+
 var screen = {
     center: new Vector(window.innerWidth / 2, window.innerHeight / 2),
     width: window.innerWidth,
@@ -174,6 +188,13 @@ function start() {
     loaded = true;
     console.log("LOADED");
     connect();
+    vsRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h };
+    virtualScreen.zoomDiff = (vsRatio.w + vsRatio.h) / 2;
+
+    minZoom = virtualScreen.minZoom * virtualScreen.zoomDiff;
+    maxZoom = virtualScreen.maxZoom * virtualScreen.zoomDiff;
+
+    console.log(virtualScreen.zoomDiff);
 }
 
 //#region UPDATE
@@ -209,7 +230,7 @@ function graphicsUpdate(deltaTimeFactor) {
         //gasParticleContainers[5][5].visible = true;
         gasParticleChunksDisplay();
 
-        sunAngle += deltaTime*0.1;
+        sunAngle += deltaTime * 0.1;
 
     }
 }
@@ -231,6 +252,9 @@ function updateCamera(deltaTime) {
     gameContainer.scale.set(camera.zoom);
     gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
     gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
+
+    if (camera.zoom > maxZoom) camera.zoom = maxZoom;
+    if (camera.zoom < minZoom) camera.zoom = minZoom;
 }
 
 function updateParticles(deltaTime) {
@@ -573,7 +597,7 @@ function sendControls() {
     }
     actionID = 0;
 
-    if(serverCommand.length > 0){
+    if (serverCommand.length > 0) {
         view.setUint8(clientHeaders.serverConsole);
         view.serialize({ command: serverCommand }, Datagrams.ServerConsole);
         serverCommand = "";
@@ -604,7 +628,7 @@ let controlVector = { x: 0, y: 0, afterBurner: 0 };
 let actionID = 0;
 let keyDown = {};
 
-function handleInput(){
+function handleInput() {
     controlVector.x = 0;
     controlVector.y = 0;
     controlVector.afterBurner = 0;
@@ -616,13 +640,13 @@ function handleInput(){
     if (keyDown.a) controlVector.x = -1;
     if (keyDown.shift) controlVector.afterBurner = 1;
 
-    if (keyDown.f){
+    if (keyDown.f) {
         actionID = 1;
         keyDown.f = false;
-    } else if (keyDown.e){
+    } else if (keyDown.e) {
         actionID = 2;
         keyDown.f = false;
-    } 
+    }
 
 }
 
@@ -650,14 +674,17 @@ window.addEventListener("wheel", e => {
         startZoom = zoom;
     }*/
     camera.zoom = targetZoom;
+
+    if (camera.zoom > maxZoom) camera.zoom = maxZoom;
+    if (camera.zoom < minZoom) camera.zoom = minZoom;
 });
 
 //#endregion
 
 //#region GAS
 
-let gasCamWidth = 2*Math.floor(screen.width/gasParticleSpacing/2/camera.zoom+5);
-let gasCamHeight = 2*Math.floor(screen.height/gasParticleSpacing/2/camera.zoom+5);
+let gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
+let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
 let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 let gasContainer;
 let gasParticles = [];
@@ -666,8 +693,8 @@ let gasDisplay = [];
 function gasParticleChunksDisplay() {
     if (gasLoaded) {
 
-        gasCamWidth = 2*Math.floor(screen.width/gasParticleSpacing/2/camera.zoom+5);
-        gasCamHeight = 2*Math.floor(screen.height/gasParticleSpacing/2/camera.zoom+5);
+        gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
+        gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
         let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
         let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         let avalible = [];
@@ -687,7 +714,7 @@ function gasParticleChunksDisplay() {
                 gasDisplay[gX][gY] = false;
             } else {
                 let e = Universe.gasMap[gX][gY];
-                g.alpha = e /200 + 0.5;
+                g.alpha = e / 200 + 0.5;
                 g.rotation += 0.03 * g.alpha + 0.008;
                 g.tint = gasColorMap.evaluate(e / 100);
                 gasDisplay[gX][gY] = true;
@@ -702,7 +729,7 @@ function gasParticleChunksDisplay() {
                     if (g != undefined) {
                         let e = Universe.gasMap[px][py];
                         gasDisplay[px][py] = true;
-                        g.alpha = e /200 + 0.5;
+                        g.alpha = e / 200 + 0.5;
                         g.tint = gasColorMap.evaluate(e / 100);
                         g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random(), py * gasParticleSpacing + gasParticleSpacing * Math.random());
                     }
