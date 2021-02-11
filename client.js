@@ -22,7 +22,7 @@ window.addEventListener("resize", function () {
     minZoom = virtualScreen.minZoom * virtualScreen.zoomDiff;
     maxZoom = virtualScreen.maxZoom * virtualScreen.zoomDiff;
 
-    console.log(virtualScreen.zoomDiff);
+
 });
 //#endregion
 
@@ -193,8 +193,6 @@ function start() {
 
     minZoom = virtualScreen.minZoom * virtualScreen.zoomDiff;
     maxZoom = virtualScreen.maxZoom * virtualScreen.zoomDiff;
-
-    console.log(virtualScreen.zoomDiff);
 }
 
 //#region UPDATE
