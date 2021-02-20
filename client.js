@@ -1,3 +1,4 @@
+
 //#region PIXI INIT
 let app = new PIXI.Application({
     antialias: true,
@@ -16,8 +17,8 @@ window.addEventListener("resize", function () {
     screen.width = window.innerWidth;
     screen.height = window.innerHeight;
 
-    vsRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h };
-    virtualScreen.zoomDiff = (vsRatio.w + vsRatio.h) / 2;
+    virtualScreenRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h };
+    virtualScreen.zoomDiff = (virtualScreenRatio.w + virtualScreenRatio.h) / 2;
 
     minZoom = virtualScreen.minZoom * virtualScreen.zoomDiff;
     maxZoom = virtualScreen.maxZoom * virtualScreen.zoomDiff;
@@ -80,8 +81,8 @@ var minZoom = 0.15;
 var maxZoom = 1;
 
 var virtualScreen = { w: 2560, h: 1440, minZoom: minZoom, maxZoom: maxZoom };
-var vsRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h};
-virtualScreen.zoomDiff = (vsRatio.w + vsRatio.h) / 2;
+var virtualScreenRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h};
+virtualScreen.zoomDiff = (virtualScreenRatio.w + virtualScreenRatio.h) / 2;
 var camera = { x: 0, y: 0, zoom: 0.5 };
 
 var screen = {
@@ -188,8 +189,8 @@ function start() {
     loaded = true;
     console.log("LOADED");
     connect();
-    vsRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h };
-    virtualScreen.zoomDiff = (vsRatio.w + vsRatio.h) / 2;
+    virtualScreenRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h };
+    virtualScreen.zoomDiff = (virtualScreenRatio.w + virtualScreenRatio.h) / 2;
 
     minZoom = virtualScreen.minZoom * virtualScreen.zoomDiff;
     maxZoom = virtualScreen.maxZoom * virtualScreen.zoomDiff;
@@ -420,13 +421,18 @@ function parseMessage(message) {
                 case serverHeaders.gasUpdate:
                     parseGasUpdate(view);
                     break;
+                case serverHeaders.itemCreate:
+                    parseItemCreate(view);
+                    break;
+                case serverHeaders.itemRemove:
+                    parseItemCreate(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
             parseInit(view);
         } else if (messageType == serverHeaders.gasData) {
             parseGas(view);
-
         }
     }
 
@@ -568,6 +574,18 @@ function parseActionReply(view) {
     view.deserealize(temp, ReplyData[type]);
 }
 
+function parseItemCreate(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.ItemCreate);
+    //id, position, item, stack
+}
+
+function parseItemRemove(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.ItemRemove);
+    //id
+}
+
 let textToDisplay = "";
 function parseDebug(view) {
     let temp = {};
@@ -632,9 +650,8 @@ function handleInput() {
     controlVector.afterBurner = 0;
 
     if (keyDown.s) controlVector.y = -1;
-    if (keyDown.w) controlVector.y = 1;;
+    if (keyDown.w) controlVector.y = 1;
     if (keyDown.d) controlVector.x = 1;
-    if (keyDown.a) controlVector.x = -1;
     if (keyDown.a) controlVector.x = -1;
     if (keyDown.shift) controlVector.afterBurner = 1;
 
