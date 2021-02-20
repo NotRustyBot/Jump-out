@@ -81,7 +81,7 @@ var minZoom = 0.15;
 var maxZoom = 1;
 
 var virtualScreen = { w: 2560, h: 1440, minZoom: minZoom, maxZoom: maxZoom };
-var virtualScreenRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h};
+var virtualScreenRatio = { w: window.innerWidth / virtualScreen.w, h: window.innerHeight / virtualScreen.h };
 virtualScreen.zoomDiff = (virtualScreenRatio.w + virtualScreenRatio.h) / 2;
 var camera = { x: 0, y: 0, zoom: 0.5 };
 
@@ -532,7 +532,7 @@ function parseProximity(view) { // tady se děje update
             Datagrams.EntitySetup.transferData(entity, temp);
             entity.update(0);
         } else {
-            //console.log(temp.id);
+            console.log(temp.id);
         }
     }
 }

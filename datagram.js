@@ -358,14 +358,14 @@ SlotInfo.add(types.int16, "stack");
 Datagrams.SlotInfo = SlotInfo;
 
 let ItemCreate = new Datagram();
-ItemCreated.add(types.vector32, "position");
-ItemCreated.add(types.uint16, "id");
-ItemCreated.add(types.int16, "item");
-ItemCreated.add(types.int16, "stack");
+ItemCreate.add(types.vector32, "position");
+ItemCreate.add(types.uint16, "id");
+ItemCreate.add(types.int16, "item");
+ItemCreate.add(types.int16, "stack");
 Datagrams.ItemCreate = ItemCreate;
 
 let ItemRemove = new Datagram();
-ItemCreated.add(types.uint16, "id");
+ItemRemove.add(types.uint16, "id");
 Datagrams.ItemRemove = ItemRemove;
 
 exports.Datagrams = Datagrams;
