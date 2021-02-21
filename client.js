@@ -425,7 +425,10 @@ function parseMessage(message) {
                     parseItemCreate(view);
                     break;
                 case serverHeaders.itemRemove:
-                    parseItemCreate(view);
+                    parseItemRemove(view);
+                    break;
+                case serverHeaders.inventoryChange:
+                    parseInventoryChange(view);
                     break;
             }
         }
@@ -476,6 +479,8 @@ function parsePlayer(view) {
     }
     else {
         console.log("Undefined player update with ID " + id);
+        console.log(view.index);
+        console.log(view.view.buffer);
     }
 }
 
@@ -584,6 +589,12 @@ function parseItemRemove(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemRemove);
     //id
+}
+
+function parseInventoryChange(view){
+    let temp = {};
+    view.deserealize(temp, Datagrams.InventoryChange);
+    //shipId, slot, item, stack
 }
 
 let textToDisplay = "";
