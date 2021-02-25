@@ -150,14 +150,13 @@ function ShadedSprite(parent, prefix, sizeObject) {
     this.lightMask.scale.set(sizeObject.size);
     this.outlineMask.scale.set(sizeObject.size);
 
-    this.shadow.scale.set(sizeObject.size / 2, 1);
+    this.shadow.scale.set(sizeObject.size / 1.5, 1);
     this.shadow.alpha = 0.2;
 
     this.base.mask = this.lightMask;
     this.outline.mask = this.outlineMask;
 
     this.container.addChild(
-        this.shadow,
         this.dark,
         this.base,
         this.outline,
@@ -165,7 +164,8 @@ function ShadedSprite(parent, prefix, sizeObject) {
         this.outlineMask
     );
 
-    gameContainer.addChild(this.container);
+    entityContainer.addChild(this.container);
+    shadowContainer.addChild(this.shadow);
 
     this.update = function (source) {
         if (!isOnScreen(this.parent.position, 100)) {
@@ -176,6 +176,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
         }
 
         this.container.position.set(this.parent.position.x, this.parent.position.y);
+        this.shadow.position.set(this.parent.position.x, this.parent.position.y);
 
         this.dark.rotation = (this.parent.rotation);
         this.base.rotation = (this.parent.rotation);
@@ -201,6 +202,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
 
     this.remove = function () {
         this.container.destroy();
+        this.shadow.destroy();
     }
 }
 
@@ -293,13 +295,13 @@ function Player(id) {
         lifetime: new Ramp(40, 10),
         rotationSpeed: new Ramp(-2, 2)
     });*/
-    gameContainer.addChild(this.sprite);
+    //entityContainer.addChild(this.sprite);
     this.nameText = new PIXI.Text(this.nick + this.id, { fontFamily: "Montserrat", fontSize: 30, fill: 0xFFFFFF, align: "center" });
-    gameContainer.addChild(this.nameText);
+    effectsContainer.addChild(this.nameText);
     this.nameText.anchor.set(0.5);
     this.delete = function () {
-        gameContainer.removeChild(this.sprite);
-        gameContainer.removeChild(this.nameText);
+        //entityContainer.removeChild(this.sprite);
+        effectsContainer.removeChild(this.nameText);
         this.lensFlare.delete();
         this.particleSystems.forEach(ps => {
             ps.delete();
@@ -351,6 +353,7 @@ function Particle(pos, vel, rot, lifetime, texture, rotSpeed, colorRamp) {
 }
 
 function ParticleSystem(settings) {
+    this.age = 0;
     this.emitBuildup = 0;
     this.particles = [];
     this.emitter = {
@@ -362,19 +365,14 @@ function ParticleSystem(settings) {
         oldRotation: 0,
         olderRotation: 0,
     };
-    this.container = new PIXI.ParticleContainer(10000, {
-        scale: true,
-        position: true,
-        rotation: true,
-        tint: true,
-    });
-    //this.container = new PIXI.Container();
-    //TODO: WHY BROKEN UPDATE WITH PARTICLECONTAINER?????????
-    //this.container.blendMode = PIXI.BLEND_MODES.SCREEN;
-    gameContainer.addChild(this.container);
+
+    ParticleSystem.particleSystems.push(this);
     if (settings != null) this.settings = settings;
     else {
         this.settings = {
+            container:null,
+            infinite: true,
+            duration: 1,
             offset: new Vector(0, 0),
             enabled: true,
             texture: loader.resources.spark.texture,
@@ -393,65 +391,83 @@ function ParticleSystem(settings) {
             rotationSpeed: new Ramp(0, 0),
         };
     }
+    if (this.settings.container == null) {
+        this.container = new PIXI.ParticleContainer(10000, {
+            scale: true,
+            position: true,
+            rotation: true,
+            tint: true,
+        });
+        //this.container = new PIXI.Container();
+        //TODO: WHY BROKEN UPDATE WITH PARTICLECONTAINER?????????
+        //this.container.blendMode = PIXI.BLEND_MODES.SCREEN;
+        effectsContainer.addChild(this.container);
+    }
+    else {
+        this.container = this.settings.container;
+    }
     this.update = function (deltaTime) {
         if (
             this.settings.enabled &&
             this.particles.length < this.settings.maxParticles
         ) {
-            this.emitBuildup += this.settings.emitRate * deltaTime;
-            /*let testSprite = new PIXI.Sprite(this.settings.texture);
-            this.container.addChild(testSprite);
-            testSprite.destroy();*/
-            //this.container.containerUpdateTransform();
-            let thisFrameBuildup = this.emitBuildup;
-            //console.log(thisFrameBuildup);
-            while (this.emitBuildup > 1) {
-                this.emitBuildup--;
-                let buildupRatio = this.emitBuildup / thisFrameBuildup;
-                let newP = new Particle(
-                    this.emitter.position.lerp(
-                        this.emitter.oldPosition,
-                        1 - buildupRatio
-                    ),
-                    this.emitter.velocity
-                        .result()
-                        .mult(this.settings.inheritVelocity)
-                        .add(
-                            new Vector(
-                                0.5 - Math.random(),
-                                0.5 - Math.random()
-                            ).mult(this.settings.randomVelocity)
-                        )
-                        .add(
-                            Vector.fromAngle(
-                                new Ramp(
-                                    this.emitter.oldRotation,
-                                    this.emitter.rotation
-                                ).evaluate(buildupRatio)
-                            ).mult(this.settings.inheritRotation)
+            this.age += deltaTime;
+            if (this.settings.infinite || this.age < this.settings.duration) {
+                this.emitBuildup += this.settings.emitRate * deltaTime;
+                /*let testSprite = new PIXI.Sprite(this.settings.texture);
+                this.container.addChild(testSprite);
+                testSprite.destroy();*/
+                //this.container.containerUpdateTransform();
+                let thisFrameBuildup = this.emitBuildup;
+                //console.log(thisFrameBuildup);
+                while (this.emitBuildup > 1) {
+                    this.emitBuildup--;
+                    let buildupRatio = this.emitBuildup / thisFrameBuildup;
+                    let newP = new Particle(
+                        this.emitter.position.lerp(
+                            this.emitter.oldPosition,
+                            1 - buildupRatio
                         ),
+                        this.emitter.velocity
+                            .result()
+                            .mult(this.settings.inheritVelocity)
+                            .add(
+                                new Vector(
+                                    0.5 - Math.random(),
+                                    0.5 - Math.random()
+                                ).mult(this.settings.randomVelocity)
+                            )
+                            .add(
+                                Vector.fromAngle(
+                                    new Ramp(
+                                        this.emitter.oldRotation,
+                                        this.emitter.rotation
+                                    ).evaluate(buildupRatio)
+                                ).mult(this.settings.inheritRotation)
+                            ),
 
-                    0,
-                    this.settings.lifetime.evaluate(Math.random()),
-                    this.settings.texture,
-                    this.settings.rotationSpeed.evaluate(Math.random()),
-                    this.settings.color.copy()
-                );
-                newP.velocity = Vector.fromAngle(newP.velocityAngle).mult(
-                    this.settings.velocity.min
-                );
-                newP.position.add(
-                    newP.velocity
-                        .result()
-                        .mult(deltaTime)
-                        .lerp(Vector.zero(), buildupRatio)
-                );
-                if (this.settings.rotateToVelocity)
-                    newP.rotation = newP.velocityAngle;
-                if (this.settings.randomRotation)
-                    newP.rotation = Math.random() * 6.28;
-                this.particles.push(newP);
-                this.container.addChild(newP.sprite);
+                        0,
+                        this.settings.lifetime.evaluate(Math.random()),
+                        this.settings.texture,
+                        this.settings.rotationSpeed.evaluate(Math.random()),
+                        this.settings.color.copy()
+                    );
+                    newP.velocity = Vector.fromAngle(newP.velocityAngle).mult(
+                        this.settings.velocity.min
+                    );
+                    newP.position.add(
+                        newP.velocity
+                            .result()
+                            .mult(deltaTime)
+                            .lerp(Vector.zero(), buildupRatio)
+                    );
+                    if (this.settings.rotateToVelocity)
+                        newP.rotation = newP.velocityAngle;
+                    if (this.settings.randomRotation)
+                        newP.rotation = Math.random() * 6.28;
+                    this.particles.push(newP);
+                    this.container.addChild(newP.sprite);
+                }
             }
         }
 
@@ -477,6 +493,9 @@ function ParticleSystem(settings) {
                 i--;
             }
         }
+        if (!this.settings.infinite && this.age > this.settings.duration + this.settings.lifetime.max) {
+            this.delete();
+        }
     };
     this.setEmitter = function (position, velocity, rotation) {
         this.emitter.velocity = velocity;
@@ -501,9 +520,11 @@ function ParticleSystem(settings) {
         this.emitter.position = obj.position.result().add(this.settings.offset.rotate(this.emitter.rotation));
     };
     this.delete = function () {
-        gameContainer.removeChild(this.container);
+        if(this.settings.container == null)effectsContainer.removeChild(this.container);
+        ParticleSystem.particleSystems.splice(ParticleSystem.particleSystems.indexOf(this), 1);
     };
 }
+ParticleSystem.particleSystems = [];
 
 function Ramp(min, max) {
     this.min = min;

@@ -9,7 +9,8 @@ document.body.appendChild(app.renderer.view);
 app.renderer.view.width = window.innerWidth;
 app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
-app.renderer.backgroundColor = 0x161A1C;
+//app.renderer.backgroundColor = 0x161A1C;
+app.renderer.backgroundColor = 0x000000;
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -64,7 +65,7 @@ loader
     .add("asteroid_outline", "images/asteroid_outline.png")
     .add("lightMask", "images/mask_base.png")
     .add("outlineMask", "images/mask_outline.png")
-    .add("shadow", "images/shadow.png")
+    .add("shadow", "images/shadow2.png")
     .add("smooth", "images/smooth.png")
     ;
 loader.onProgress.add(loadingProgress);
@@ -103,7 +104,33 @@ isOnScreen = function (position, size) {
 
 //CONTAINER INIT
 var gameContainer = new PIXI.Container();
+var bgContainer = new PIXI.Container();
+var entityContainer = new PIXI.Container();
+var shadowContainer = new PIXI.Container();
+var effectsContainer = new PIXI.Container();
 var guiContainer = new PIXI.Container();
+
+var collisionContainer = new PIXI.ParticleContainer(10000, {
+    scale: true,
+    position: true,
+    rotation: true,
+    tint: true,
+});
+
+var gasContainer = new PIXI.Container(10000, {
+    scale: true,
+    position: true,
+    rotation: true,
+    tint: true,
+});
+gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
+
+gameContainer.addChild(bgContainer);
+gameContainer.addChild(entityContainer);
+gameContainer.addChild(gasContainer);
+gameContainer.addChild(shadowContainer);
+gameContainer.addChild(effectsContainer);
+effectsContainer.addChild(collisionContainer);
 
 //GAME VARIABLES
 var connection;
@@ -117,6 +144,10 @@ var gasParticleSpacing = 400;
 var gasParticleDisplayAmount = 1; //DOES NOT WORK
 var gasCount = 0;
 
+
+
+
+
 //LOCAL PLAYER
 var localPlayer;
 var playerSprite, playerLight;
@@ -127,7 +158,7 @@ const fps = 60;
 
 //GRAPHICS
 var graphics = new PIXI.Graphics();
-gameContainer.addChild(graphics);
+bgContainer.addChild(graphics);
 //#endregion
 
 //#region LOADING SCREEN
@@ -322,6 +353,10 @@ function updateParticles(deltaTime) {
             //particleSystem2.updateEmitter((player.ship));
             //particleSystem2.update(deltaTime);
 */
+        });
+
+        ParticleSystem.particleSystems.forEach(ps => {
+            ps.update(deltaTime);
         });
 
 
@@ -569,6 +604,33 @@ function parseLeftPlayers(view) {
 function parseCollision(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.CollisionEvent);
+    let ship = Player.players.get(temp.shipId).ship;
+    let speed = ship.velocity.length() / 800;
+    //console.log(speed);
+    let p = new ParticleSystem({
+        container: collisionContainer,
+        infinite: false,
+        duration: 0.1,
+        offset: new Vector(0, 0),
+        enabled: true,
+        texture: loader.resources.spark.texture,
+        maxParticles: 50 * speed,
+        emitRate: 500 * speed,
+        inheritVelocity: 0.03,
+        inheritRotation: 0,
+        rotateToVelocity: true,
+        randomRotation: false,
+        randomVelocity: 50,
+        scale: new Ramp(3, 0),
+        alpha: new Ramp(1, 0),
+        velocity: new Ramp(400 + 500 * speed, 0),
+        color: new ColorRamp(0xffdd88, 0xff9911),
+        lifetime: new Ramp(0.1, 0.5 + 0.5 * speed),
+        rotationSpeed: new Ramp(0, 0),
+    });
+    p.setEmitter(temp.position, ship.velocity, ship.rotation);
+    //Player.players.get(temp.shipId).ship.rotation
+    p.emitter.oldPosition = p.emitter.position;
     //particles go here
 }
 
@@ -591,7 +653,7 @@ function parseItemRemove(view) {
     //id
 }
 
-function parseInventoryChange(view){
+function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
     //shipId, slot, item, stack
@@ -712,7 +774,6 @@ window.addEventListener("wheel", e => {
 let gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
 let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
 let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
-let gasContainer;
 let gasParticles = [];
 let gasDisplay = [];
 
@@ -771,16 +832,7 @@ function generateGas() {
 
     document.getElementById("loadingBar").style.transition = "width .2s";
 
-    gasContainer = new PIXI.Container(10000, {
-        scale: true,
-        position: true,
-        rotation: true,
-        tint: true,
-    });
 
-    gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
-
-    gameContainer.addChild(gasContainer);
     for (let i = 0; i < 10000; i++) {
         let gasParticle = new PIXI.Sprite(loader.resources.smooth.texture);
 
