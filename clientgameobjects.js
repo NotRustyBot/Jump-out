@@ -100,11 +100,11 @@ var Universe = {};
 Universe.gasMap = [];
 
 let objectDictionary = [];
-objectDictionary[1] = {name: "asteroid", size: 3};
-objectDictionary[2] = {name: "letadlo", size: 5};
-objectDictionary[3] = {name: "letadlo", size: 5};
-objectDictionary[101] = {name: "r300", size: 3};
-objectDictionary[102] = {name: "r300", size: 3};
+objectDictionary[1] = { name: "asteroid", size: 3 };
+objectDictionary[2] = { name: "letadlo", size: 5 };
+objectDictionary[3] = { name: "letadlo", size: 5 };
+objectDictionary[101] = { name: "r300", size: 3 };
+objectDictionary[102] = { name: "r300", size: 3 };
 
 function Entity(type, id) {
     this.position = new Vector(0, 0);
@@ -119,9 +119,9 @@ function Entity(type, id) {
         this.sprite.update({ directional: true, rotation: sunAngle });
     };
 
-    this.remove = function(){
+    this.remove = function () {
         this.sprite.remove();
-        Entity.list.delete(this.id); 
+        Entity.list.delete(this.id);
     }
 }
 Entity.list = new Map();
@@ -150,7 +150,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
     this.lightMask.scale.set(sizeObject.size);
     this.outlineMask.scale.set(sizeObject.size);
 
-    this.shadow.scale.set(sizeObject.size/2, 1);
+    this.shadow.scale.set(sizeObject.size / 2, 1);
     this.shadow.alpha = 0.2;
 
     this.base.mask = this.lightMask;
@@ -168,10 +168,10 @@ function ShadedSprite(parent, prefix, sizeObject) {
     gameContainer.addChild(this.container);
 
     this.update = function (source) {
-        if(!isOnScreen(this.parent.position, 100)){
+        if (!isOnScreen(this.parent.position, 100)) {
             this.container.visible = false
             return;
-        }else{
+        } else {
             this.container.visible = true
         }
 
@@ -199,7 +199,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
         this.shadow.rotation = rotation + Math.PI / 2;
     }
 
-    this.remove = function(){
+    this.remove = function () {
         this.container.destroy();
     }
 }
@@ -210,6 +210,7 @@ function Ship() {
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.rotation = 0;
+    this.rotationSpeed = 0;
     this.control = new Vector(0, 0);
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
@@ -224,6 +225,8 @@ function Ship() {
 
         this.position.x += this.velocity.x * dt;
         this.position.y += this.velocity.y * dt;
+
+        this.rotation += this.rotationSpeed * dt;
 
         this.sprite.update({ directional: true, rotation: sunAngle });
     };
