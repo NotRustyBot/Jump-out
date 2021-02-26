@@ -10,7 +10,7 @@ app.renderer.view.width = window.innerWidth;
 app.renderer.view.height = window.innerHeight;
 app.renderer.resize(window.innerWidth, window.innerHeight);
 //app.renderer.backgroundColor = 0x161A1C;
-app.renderer.backgroundColor = 0x000000;
+app.renderer.backgroundColor = 0x1C2327;
 
 window.addEventListener("resize", function () {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -76,7 +76,6 @@ loader.load(start);
 
 //CAMERA INIT
 
-
 var zoomStep = 1.2;
 var minZoom = 0.15;
 var maxZoom = 1;
@@ -106,6 +105,7 @@ isOnScreen = function (position, size) {
 var gameContainer = new PIXI.Container();
 var bgContainer = new PIXI.Container();
 var entityContainer = new PIXI.Container();
+var playerContainer = new PIXI.Container();
 var shadowContainer = new PIXI.Container();
 var effectsContainer = new PIXI.Container();
 var guiContainer = new PIXI.Container();
@@ -127,6 +127,7 @@ gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 
 gameContainer.addChild(bgContainer);
 gameContainer.addChild(entityContainer);
+gameContainer.addChild(playerContainer);
 gameContainer.addChild(gasContainer);
 gameContainer.addChild(shadowContainer);
 gameContainer.addChild(effectsContainer);
@@ -182,6 +183,7 @@ function closeLoadingScreen() {
 var fpsText = new PIXI.Text();
 fpsText.style.fill = 0xFFFFFF;
 fpsText.style.fontFamily = "Overpass Mono";
+fpsText.position.set(110,10);
 guiContainer.addChild(fpsText);
 
 
@@ -236,11 +238,27 @@ function update() {
 }
 let gasHere = 0;
 
+let averageFPS = [];
+
+for (let i = 0; i < 60; i++) {
+    averageFPS.push(0);
+}
+
+function arrayAverage(array){
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+        sum += array[i];
+    }
+    return sum/array.length;    
+}
+
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
+        averageFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nMin FPS: " + app.ticker.minFPS + "\nMax FPS: " + app.ticker.maxFPS + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        averageFPS.shift();
 
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
@@ -773,7 +791,8 @@ window.addEventListener("wheel", e => {
 
 let gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
 let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
-let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
+//let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
+let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
 let gasParticles = [];
 let gasDisplay = [];
 
@@ -799,12 +818,14 @@ function gasParticleChunksDisplay() {
             ) {
                 avalible.push(g);
                 gasDisplay[gX][gY] = false;
+                g.visible = false;
             } else {
                 let e = Universe.gasMap[gX][gY];
                 g.alpha = e / 200 + 0.5;
                 g.rotation += 0.03 * g.alpha + 0.008;
                 g.tint = gasColorMap.evaluate(e / 100);
                 gasDisplay[gX][gY] = true;
+                g.visible = true;
             }
         }
 
@@ -817,6 +838,7 @@ function gasParticleChunksDisplay() {
                         let e = Universe.gasMap[px][py];
                         gasDisplay[px][py] = true;
                         g.alpha = e / 200 + 0.5;
+                        g.visible = true;
                         g.tint = gasColorMap.evaluate(e / 100);
                         g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random(), py * gasParticleSpacing + gasParticleSpacing * Math.random());
                     }
@@ -833,7 +855,7 @@ function generateGas() {
     document.getElementById("loadingBar").style.transition = "width .2s";
 
 
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 2000; i++) {
         let gasParticle = new PIXI.Sprite(loader.resources.smooth.texture);
 
         gasParticles[i] = gasParticle;

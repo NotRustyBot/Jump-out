@@ -164,7 +164,12 @@ function ShadedSprite(parent, prefix, sizeObject) {
         this.outlineMask
     );
 
-    entityContainer.addChild(this.container);
+    if(prefix == "ship"){
+        playerContainerw.addChild(this.container);
+    }
+    else {
+        entityContainer.addChild(this.container);
+    }
     shadowContainer.addChild(this.shadow);
 
     this.update = function (source) {

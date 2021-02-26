@@ -1,73 +1,85 @@
-
 <!DOCTYPE html>
 <html lang="en">
-    
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0,target-densitydpi=device-dpi, user-scalable=no">
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@300&display=swap" rel="stylesheet">
-        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-        <link rel="icon" href="favicon.ico" type="image/x-icon">
-        <title>Jumpout</title>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0,target-densitydpi=device-dpi, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@300&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <title>Jumpout</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-        }
 
-        #loadingBarContainer {
-            position: absolute;
-            height: 100vh;
-            width: 100vw;
-            background: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: white;
-            transition: opacity 1s;
-        }
-
-        #loadingBarContainer span {
-            font-family: Montserrat, sans-serif;
-            font-weight: 100;
-            letter-spacing: 0.5em;
-            text-align: center;
-            font-size: 2em;
-            margin-right: -0.5em;
-            margin-bottom: 15px;
-        }
-
-        #loadingBar {
-            transition:width .2s;
-            height: 100%;
-            width: 0%;
-            background: rgb(38, 159, 240);
-            border-radius: 100px;
-        }
-
-        #loadingBarBG {
-            height: 2px;
-            width: 400px;
-            padding: 0px;
-            top: 50px;
-            left: 50px;
-            background: rgb(122, 122, 122);
-            border-radius: 100px;
-            border: 0px solid rgb(190, 190, 190)
-        }
     </style>
-    <title>Document</title>
 </head>
 
 <body>
+    
     <div id="loadingBarContainer"><span id="loadingStatus">LOADING</span>
         <div id="loadingBarBG">
             <div id="loadingBar"></div>
+        </div>
+    </div>
+    
+    <div id="guiContainer">
+        <div class="guiPanel" style="border-radius: 20px 0 0 0;">
+            <div class="guiBar">
+                <h1>MAP</h1>
+                <div><img src="images/ui/fullscreen.png"><img src="images/ui/minimize.png"></div>
+            </div>
+            <div class="guiPanelContent center">
+                <div id="minimapContainer">
+                    <canvas id="minimap"></canvas>
+                </div>
+            </div>
+        </div>
+<!--
+        <div class="guiPanel shadow" style="left:500px;top:500px;width:800px;height:600px;">
+            <div class="guiBar">
+                <h1>WINDOW</h1>
+                <div><img src="images/ui/cross.png"></div>
+            </div>
+            <div class="guiPanelContent">
+                Suspendisse eu tincidunt ante. Maecenas hendrerit lorem nec egestas ullamcorper. Praesent a orci dui.
+                Etiam varius sodales justo eget commodo. Nam imperdiet blandit augue id malesuada. Etiam egestas, justo
+                et posuere euismod, tellus neque consectetur ipsum, eget porta metus nibh at odio. Etiam purus elit,
+                dictum vel semper sed, dictum nec felis. Fusce viverra erat metus, a malesuada ipsum mattis sed. Nulla
+                nec ornare elit. Integer vitae tellus non felis fringilla ultricies ut et magna. Aenean gravida ut
+                tellus sit amet efficitur. Suspendisse potenti. Nunc consequat nisl id malesuada euismod. Donec eget
+                malesuada odio. Vivamus suscipit a ante non ultrices. Aliquam eu tristique tellus.
+                <br>
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit. A error, tenetur, sunt esse quidem quam
+                laborum similique unde necessitatibus neque, consectetur rem dolorum odio autem tempore eum alias
+                quibusdam ipsam.
+            </div>
+        </div>
+        -->
+        <div class="guiPanel" style="border-radius: 0 0 20px 0;left:0;top:0;width:100px;height:fit-content;">
+            <div class="guiPanelContent vertical noPadding" style="height:auto;">
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+            </div>
+        </div>
+
+        <div class="guiPanel" style="border-radius: 0 20px 0 0;left:0;bottom:0;width:300px;height:500px;flex-direction: row-reverse;">
+            <div class="guiBar vertical" style="height: 100%;width:70px;flex-direction: column-reverse;">
+                <h1 style="writing-mode: vertical-lr; padding:25px 0 0 0; transform:rotate(180deg);">POWER CELLS</h1>
+                <div style="margin:10px 0 10px 0;"><img src="images/ui/minimize.png" style="transform: rotate(90deg);"></div>
+            </div>
+            <div class="guiPanelContent vertical noPadding" style="height:auto;">
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+            </div>
+            
         </div>
     </div>
 </body>
@@ -78,5 +90,6 @@
 <script type="text/javascript" src="clientgameobjects.js"></script>
 <script type="text/javascript" src="datagram.js"></script>
 <script type="text/javascript" src="client.js"></script>
+
 
 </html>

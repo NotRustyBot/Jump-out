@@ -1,0 +1,156 @@
+* {
+    user-select: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #1C2327;
+}
+
+#loadingBarContainer {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    transition: opacity 1s;
+    z-index: 100;
+}
+
+#loadingBarContainer span {
+    font-family: Montserrat, sans-serif;
+    font-weight: 100;
+    letter-spacing: 0.5em;
+    text-align: center;
+    font-size: 2em;
+    margin-right: -0.5em;
+    margin-bottom: 15px;
+}
+
+#loadingBar {
+    transition: width .2s;
+    height: 100%;
+    width: 0%;
+    background: rgb(38, 159, 240);
+    border-radius: 100px;
+}
+
+#loadingBarBG {
+    height: 2px;
+    width: 400px;
+    padding: 0px;
+    top: 50px;
+    left: 50px;
+    background: rgb(122, 122, 122);
+    border-radius: 100px;
+    border: 0px solid rgb(190, 190, 190)
+}
+
+#guiContainer {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+}
+
+.guiPanel {
+    font-family: Montserrat, sans-serif;
+    color: white;
+    width: 400px;
+    height: 470px;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    background: #181818;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.guiBar {
+    width: 100%;
+    height: 70px;
+    /*background-color: #252525;*/
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.guiBar h1 {
+    margin: 0;
+    padding-left: 25px;
+    line-height: 70px;
+    font-size: 30px;
+}
+
+.guiBar>div {
+    /*background-color: #333333;*/
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin:0 10px 0 10px;
+}
+
+.guiBar>div img {
+    width: 30px;
+    height: 30px;
+    margin:10px;
+}
+
+.guiPanelContent {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    padding: 0 25px 25px 25px;
+    box-sizing: border-box;
+}
+
+.center {
+    justify-content: center;
+    align-items: center;
+}
+
+.vertical {
+    flex-direction: column;
+}
+
+.horizontal {
+    flex-direction: row;
+}
+
+.noPadding {
+    padding: 0;
+}
+
+.shadow {
+    box-shadow: 0px 60px 100px rgba(0, 0, 0, .2);
+}
+
+#minimapContainer {
+    width: 350px;
+    height: 350px;
+    border: 1px solid #626262;
+    border-radius: 100%;
+}
+
+.bigIconButton {
+    width: 100%;
+    height: 100px;
+    background: #181818;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color .2s;
+}
+
+.bigIconButton:hover {
+    background: #353535;
+}
