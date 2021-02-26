@@ -165,7 +165,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
     );
 
     if(prefix == "ship"){
-        playerContainerw.addChild(this.container);
+        playerContainer.addChild(this.container);
     }
     else {
         entityContainer.addChild(this.container);
