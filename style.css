@@ -12,7 +12,7 @@ body {
 }
 
 #loadingBarContainer {
-    display: none !important;
+    /*display: none !important;*/
 
     position: absolute;
     height: 100vh;
