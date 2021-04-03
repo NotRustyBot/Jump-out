@@ -26,6 +26,7 @@ window.addEventListener("resize", function () {
 
 
 });
+
 //#endregion
 
 //#region LOADER
@@ -125,7 +126,7 @@ var gasContainer = new PIXI.Container(10000, {
     rotation: true,
     tint: true,
 });
-gasContainer.filters = [new PIXI.filters.AlphaFilter(0)];
+gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 
 gameContainer.addChild(bgContainer);
 gameContainer.addChild(entityContainer);
@@ -163,7 +164,24 @@ const fps = 60;
 //GRAPHICS
 var graphics = new PIXI.Graphics();
 playerEffectsContainer.addChild(graphics);
+//effectsContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 //graphics.blendMode = PIXI.BLEND_MODES.ADD;
+
+
+//GAUGES
+let gauges = {
+    shield:document.getElementById("gaugeShield"),
+    hull:document.getElementById("gaugeHull"),
+    fuel:document.getElementById("gaugeFuel"),
+    cargo:document.getElementById("gaugeCargo"),
+}
+let gaugeNumbers = {
+    shield:document.getElementById("numberShield"),
+    hull:document.getElementById("numberHull"),
+    fuel:document.getElementById("numberFuel"),
+    cargo:document.getElementById("numberCargo"),
+}
+
 //#endregion
 
 //#region LOADING SCREEN
@@ -313,17 +331,19 @@ function updateParticles(deltaTime) {
     if (running) {
 
         Player.players.forEach(player => {
-            if (player.ship.control.y == 1) {
-                //player.lensFlare.enabled = true;
-            }
-            else {
-                //player.lensFlare.enabled = false;
-            }
-            if (player.ship.afterBurnerUsed == 1) {
-                player.lensFlare.tint = 0xFF33AA;
-            }
-            else {
-                player.lensFlare.tint = 0x22CCFF;
+            if (player.lensFlare) {
+                if (player.ship.control.y == 1) {
+                    //player.lensFlare.enabled = true;
+                }
+                else {
+                    //player.lensFlare.enabled = false;
+                }
+                if (player.ship.afterBurnerUsed == 1) {
+                    player.lensFlare.tint = 0xFF33AA;
+                }
+                else {
+                    player.lensFlare.tint = 0x22CCFF;
+                }
             }
             /*
             let particleSystem = player.particleSystems[0];
@@ -405,6 +425,22 @@ function updateGui(deltaTime) {
     mapGraphics.lineStyle(0, 0x000000);
     mapGraphics.drawStar(localPlayer.ship.position.x * miniMapZoom, localPlayer.ship.position.y * miniMapZoom, 3, 6, 3, localPlayer.ship.rotation + Math.PI / 2);
     mapGraphics.endFill();
+
+    let shieldRatio = 75;
+    let hullRatio = 75;
+    let fuelRatio = localPlayer.ship.afterBurnerFuel/6;
+    let cargoRatio = 0;
+
+    gauges.shield.style.width = shieldRatio+"%";
+    gauges.hull.style.width = hullRatio+"%";
+    gauges.fuel.style.width = fuelRatio+"%";
+    gauges.cargo.style.width = cargoRatio+"%";
+
+    gaugeNumbers.shield.innerHTML = shieldRatio.toFixed(0);
+    gaugeNumbers.hull.innerHTML = hullRatio.toFixed(0);
+    gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
+    gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
+
 }
 
 //#endregion
@@ -809,6 +845,17 @@ let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camer
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
 let gasColorMap = new ColorGraph([0x161A1C, 0xa04060]);
+gasColorMap =  new ColorGraph([0x006d77,0x83c5be,0xedf6f9,0xffddd2,0xe29578,]);
+
+gasColorMap =  new ColorGraph([0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,]);
+
+gasColorMap =  new ColorGraph([0x397367,0x63ccca,0x5da399,0x42858c,0x35393c,]);
+
+//gasColorMap = new ColorGraph([0x000000,0x3d2645,0x832161,0xda4167,0xf0eff4]);
+
+//gasColorMap = new ColorGraph([0xedcb96,0xf7c4a5,0x9e7682,0x605770,0x4d4861]);
+
+
 let gasParticles = [];
 let gasDisplay = [];
 

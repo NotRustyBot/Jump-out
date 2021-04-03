@@ -4,6 +4,7 @@ const minimap_canvas = document.getElementById("minimap");
 
 const min_powercells = document.getElementById("minimize-powercells");
 const powercells = document.getElementsByClassName("powercells")[0];
+const gauges = document.getElementsByClassName("gauges")[0];
 
 min_minimap.addEventListener("click", () =>{
     minimap.classList.toggle("minimized");
@@ -27,3 +28,4 @@ for (let i = 0; i < 50*50; i++) {
 function UpdateMinimap() {
     //pixi_minimap
 }
+    gauges.classList.toggle("minimized");

@@ -235,3 +235,61 @@ body {
 .cells-icons {
     height: auto;
 }
+
+.gauges {
+    position: absolute;
+    display:flex;
+    height:auto;
+    width:500px;
+    left:300px;
+    bottom:0;
+    padding:30px;
+    transition: margin-left 0.3s;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.gauges.minimized{
+    margin-left:-230px;
+}
+
+.gauges > div {
+    display:flex;
+    height:50px;
+    width:100%;
+    margin:10px 0 10px 0;
+    align-items: center;
+}
+.gauge {
+    background-color: rgba(255, 255, 255,.2);
+    flex-grow: 1;
+    height:10px;
+    border-radius: 10px;
+    margin:0 10px 0 10px;
+}
+.gauge > div {
+    width:75%;
+    height:100%;
+    background-color:white;
+    border-radius: 10px;
+
+}
+.gauges span {
+    width:80px;
+    font-family: Montserrat, sans-serif;
+    font-size: 2em;
+    color: white;
+    margin-left:10px;
+}
+#gaugeShield {
+    background: #00C2FF;
+}
+#gaugeHull {
+    background: #FFFFFF;
+}
+#gaugeFuel {
+    background: #F97327;
+}
+#gaugeCargo {
+    background: #ACACAC;
+}
