@@ -224,6 +224,15 @@ var mapGraphics = new PIXI.Graphics();
 
 //#endregion
 
+/*
+var glitchSprite = PIXI.Sprite.from("images/glitch.png");
+var glitchEffect = new PIXI.filters.DisplacementFilter(glitchSprite,1);
+app.stage.filters = [glitchEffect];
+glitchEffect.scale.x = 0;
+glitchEffect.scale.y = -40;
+*/
+
+
 function start() {
     loadingStatus.textContent = "CONNECTING";
 
@@ -273,7 +282,6 @@ function arrayAverage(array) {
     }
     return sum / array.length;
 }
-
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
         averageFPS.push(app.ticker.FPS);
@@ -301,6 +309,7 @@ function graphicsUpdate(deltaTimeFactor) {
         gasParticleChunksDisplay();
 
         sunAngle += deltaTime * 0.1;
+        //glitchEffect.scale.x = (Math.random()-0.5)*160;
 
     }
 }
@@ -574,6 +583,7 @@ function parsePlayer(view) {
         view.deserealize(ship, Datagrams.shipUpdate);
 
         Datagrams.shipUpdate.transferData(player.ship, ship);
+        
     }
     else {
         console.log("Undefined player update with ID " + id);
@@ -596,6 +606,7 @@ function parseInit(view) {
         let pl = new Player(p.id);
         Datagrams.initPlayer.transferData(pl, p);
     }
+    
 
     running = true;
 
