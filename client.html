@@ -25,7 +25,8 @@
     </div>
     
     <div id="guiContainer">
-        <div class="guiPanel map">
+        <div id="tooltip">Tooltip</div>
+        <div class="guiPanel map tooltip" data-tooltip-name="Map">
             <div class="guiBar">
                 <h1>MAP</h1>
                 <div><img src="images/ui/fullscreen.png"><img id="minimize-minimap" src="images/ui/minimize.png"></div>
@@ -59,15 +60,15 @@
         -->
         <div class="guiPanel menus">
             <div class="guiPanelContent vertical noPadding">
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" data-tooltip-name="Ship Info"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" data-tooltip-name="Inventory"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" data-tooltip-name="Buildings"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" data-tooltip-name="Clues"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img src="images/ui/cross.png"></div>
             </div>
         </div>
 
-        <div class="guiPanel powercells">
+        <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management">
             <div class="guiBar vertical cells-bar">
                 <h1>POWER CELLS</h1>
                 <div><img id="minimize-powercells" src="images/ui/minimize.png"></div>
@@ -82,10 +83,10 @@
             
         </div>
         <div class="gauges">
-            <div><img src="images/ui/iconShield.png"><div class="gauge"><div id="gaugeShield"></div></div><span id="numberShield">75</span></div>
-            <div><img src="images/ui/iconHull.png"><div class="gauge"><div id="gaugeHull"></div></div><span id="numberHull">75</span></div>
-            <div><img src="images/ui/iconFuel.png"><div class="gauge"><div id="gaugeFuel"></div></div><span id="numberFuel">100</span></div>
-            <div><img src="images/ui/iconCargo.png"><div class="gauge"><div id="gaugeCargo"></div></div><span id="numberCargo">100</span></div>
+            <div class="tooltip" data-tooltip-name="Shield Integrity"><img src="images/ui/iconShield.png"><div class="gauge"><div id="gaugeShield"></div></div><h1 id="numberShield">75</h1></div>
+            <div class="tooltip" data-tooltip-name="Hull Integrity"><img src="images/ui/iconHull.png"><div class="gauge"><div id="gaugeHull"></div></div><h1 id="numberHull">75</h1></div>
+            <div class="tooltip" data-tooltip-name="Remaining Fuel"><img src="images/ui/iconFuel.png"><div class="gauge"><div id="gaugeFuel"></div></div><h1 id="numberFuel">100</h1></div>
+            <div class="tooltip" data-tooltip-name="Cargo Load"><img src="images/ui/iconCargo.png"><div class="gauge"><div id="gaugeCargo"></div></div><h1 id="numberCargo">100</h1></div>
         </div>
     </div>
 </body>

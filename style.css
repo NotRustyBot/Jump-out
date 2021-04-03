@@ -91,6 +91,7 @@ body {
     padding-left: 25px;
     line-height: 70px;
     font-size: 30px;
+    letter-spacing: 0.15em;
 }
 
 .guiBar > div {
@@ -274,12 +275,13 @@ body {
     border-radius: 10px;
 
 }
-.gauges span {
+.gauges h1 {
     width:80px;
     font-family: Montserrat, sans-serif;
     font-size: 2em;
     color: white;
     margin-left:10px;
+    font-weight: bold;
 }
 #gaugeShield {
     background: #00C2FF;
@@ -292,4 +294,26 @@ body {
 }
 #gaugeCargo {
     background: #ACACAC;
+}
+
+.tooltip {
+
+}
+
+#tooltip {
+    z-index:100;
+    position:absolute;
+    background: #202020;
+    /*display:none;*/
+    opacity:0;
+    margin-left:10px;
+    margin-top:10px;
+    border-radius: 20px;
+    box-shadow: 0px 19px 60px rgba(0, 0, 0, 0.5);
+    padding:20px;
+    color:white;
+    font-family: Montserrat, sans-serif;
+    font-size: 20px;
+    transition: opacity .2s;
+
 }
