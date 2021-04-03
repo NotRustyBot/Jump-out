@@ -310,10 +310,28 @@ body {
     margin-top:10px;
     border-radius: 20px;
     box-shadow: 0px 19px 60px rgba(0, 0, 0, 0.5);
-    padding:20px;
+    padding:22px;
     color:white;
-    font-family: Montserrat, sans-serif;
-    font-size: 20px;
+    max-width:400px;
+    
     transition: opacity .2s;
-
+    font-family: Montserrat, sans-serif;
+    
+}
+#tooltip > #tooltipName {
+    line-height: unset;
+    font-size: 18px;
+    font-weight:normal;
+    padding:0;
+    margin:0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+#tooltip > #tooltipDesc {
+    color: #A0A0A0;
+    font-size: 18px;
+    margin-top:5px;
+    padding-top:5px;
+    line-height: 25px;
+    /*border-top: 1px solid rgba(255, 255, 255, 0.5);*/
 }
