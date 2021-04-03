@@ -313,17 +313,19 @@ function updateParticles(deltaTime) {
     if (running) {
 
         Player.players.forEach(player => {
-            if (player.ship.control.y == 1) {
-                //player.lensFlare.enabled = true;
-            }
-            else {
-                //player.lensFlare.enabled = false;
-            }
-            if (player.ship.afterBurnerUsed == 1) {
-                player.lensFlare.tint = 0xFF33AA;
-            }
-            else {
-                player.lensFlare.tint = 0x22CCFF;
+            if (player.lensFlare) {
+                if (player.ship.control.y == 1) {
+                    //player.lensFlare.enabled = true;
+                }
+                else {
+                    //player.lensFlare.enabled = false;
+                }
+                if (player.ship.afterBurnerUsed == 1) {
+                    player.lensFlare.tint = 0xFF33AA;
+                }
+                else {
+                    player.lensFlare.tint = 0x22CCFF;
+                }
             }
             /*
             let particleSystem = player.particleSystems[0];
@@ -836,7 +838,7 @@ function gasParticleChunksDisplay() {
             }
         }
 
-        
+
         for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
             for (let py = Math.max(gasPosY - gasCamHeight / 2, 0); py < gasPosY + gasCamHeight / 2; py++) {
 

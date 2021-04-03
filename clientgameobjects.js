@@ -586,6 +586,9 @@ function Graph(values, scale) {
 
 function ColorGraph(colorValues) {
 
+    this.min = colorValues[0];
+    this.max = colorValues[colorValues.length-1];
+
     let blueValues = [];
     let greenValues = [];
     let redValues = [];
@@ -656,13 +659,17 @@ function Trail(emitter, offset) {
     playerEffectsContainer.addChild(this.engineFlame);
     this.emit = false;
     this.offset = offset ?? Vector.zero();
-    this.color = new ColorRamp(0x6ae2f2, 0x5f2eff);
+    /*this.color = new ColorRamp(0x6ae2f2, 0x5f2eff);
     this.boostColor = new ColorRamp(0xffffee, 0xff0077);
-    this.baseColor = new ColorRamp(0xaaffff, 0x003388);
+    this.baseColor = new ColorRamp(0xaaffff, 0x003388);*/
+    this.color = new ColorGraph([0x6ae2f2, 0x5f2eff]);
+    this.boostColor = new ColorGraph([0xffffff,0xff5599,0xff5599,0xaa2299, 0x990055]);
+    this.baseColor = new ColorGraph([0xffffff,0x007788,0x004488,0x223377, 0x112255]);
     this.emitter = emitter;
     this.firstPoint = null;
     //this.scale = new Ramp(10, 0);
-    this.scale = new Graph([30,20,13,9.6,6.7,4.6,3,1.8,0.8,0])
+    this.scale = new Graph([30,20,13,9.6,6.7,4.6,3,1.8,0.8,0]);
+    this.scale = new Graph([0,0]);
     this.maxAge = 1;
     this.framesPerEmit = 2;
     this.framesFromEmit = 0;
@@ -686,7 +693,7 @@ function Trail(emitter, offset) {
         this.engineFlame.rotation = this.emitter.rotation;
         this.engineFlame.scale.x = (1-0.5*Math.random())*this.heatRatioNormalised;
         this.engineFlame.alpha = this.heatRatioNormalised;
-        this.engineFlame.tint = this.color.evaluate(0.8);
+        this.engineFlame.tint = this.color.evaluate(0.5);
         
 
         while (point != null) {
