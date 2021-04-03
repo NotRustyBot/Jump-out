@@ -487,6 +487,9 @@ function parseMessage(message) {
                 case serverHeaders.inventoryChange:
                     parseInventoryChange(view);
                     break;
+                case serverHeaders.gasScan:
+                    parseGasScan(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -688,6 +691,14 @@ function parseDebug(view) {
     textToDisplay = temp.data;
 }
 
+
+let scannedGas = [];
+function parseGasScan(view){
+    let temp = {};
+    view.deserealize(temp, Datagrams.GasScan);
+    scannedGas[temp.x * 1000 + temp.y] = temp.gas;
+}
+
 const buffer = new ArrayBuffer(1000);
 function sendControls() {
     handleInput();
@@ -836,7 +847,7 @@ function gasParticleChunksDisplay() {
             }
         }
 
-        
+
         for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
             for (let py = Math.max(gasPosY - gasCamHeight / 2, 0); py < gasPosY + gasCamHeight / 2; py++) {
 
