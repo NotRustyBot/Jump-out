@@ -28,7 +28,7 @@
         <div class="guiPanel map">
             <div class="guiBar">
                 <h1>MAP</h1>
-                <div><img src="images/ui/fullscreen.png"><img src="images/ui/minimize.png"></div>
+                <div><img src="images/ui/fullscreen.png"><img id="minimize-minimap" src="images/ui/minimize.png"></div>
             </div>
             <div class="guiPanelContent center">
                 <div id="minimapContainer">
@@ -67,10 +67,10 @@
             </div>
         </div>
 
-        <div class="guiPanel power-cells">
+        <div class="guiPanel powercells">
             <div class="guiBar vertical cells-bar">
                 <h1>POWER CELLS</h1>
-                <div><img src="images/ui/minimize.png"></div>
+                <div><img id="minimize-powercells" src="images/ui/minimize.png"></div>
             </div>
             <div class="guiPanelContent vertical noPadding cells-icons">
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
@@ -83,7 +83,8 @@
         </div>
     </div>
 </body>
-
+<!--
+    -->
 <script src="pixi.js"></script>
 <script src="https://pixijs.io/examples/pixi-plugins/pixi-dragonbones.js"></script>
 <script>let exports = {}; </script>
@@ -91,5 +92,6 @@
 <script type="text/javascript" src="datagram.js"></script>
 <script type="text/javascript" src="client.js"></script>
 
+<script type="text/javascript" src="ui.js"></script>
 
 </html>
