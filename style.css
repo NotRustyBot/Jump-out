@@ -105,7 +105,7 @@ body {
 .guiBar > div img {
     width: 30px;
     height: 30px;
-    margin: 10px;
+    padding: 10px;
 }
 
 .guiPanelContent {
@@ -169,7 +169,6 @@ body {
 
 #minimize-minimap{
     transform: scaleY(1);
-    transition: transform 0.3s;
 }
 
 .minimized #minimize-minimap{
@@ -209,12 +208,10 @@ body {
 
 #minimize-powercells{
     transform: scaleX(1) rotate(90deg);;
-    transition: transform 0.3s;
 }
 
 .minimized #minimize-powercells{
     transform: scaleX(-1) rotate(90deg);;
-    transition: transform 0.3s;
 }
 
 .cells-bar {
@@ -330,4 +327,13 @@ body {
     padding-top:5px;
     line-height: 25px;
     /*border-top: 1px solid rgba(255, 255, 255, 0.5);*/
+}
+
+.windowButton{
+    background-color: rgba(255, 255, 255,0);
+    transition: background-color .2s, transform .3s;
+    border-radius: 50px;
+}
+.windowButton:hover{
+    background-color: rgba(255, 255, 255,.1);
 }
