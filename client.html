@@ -25,8 +25,8 @@
     </div>
     
     <div id="guiContainer">
-        <div id="tooltip">Tooltip</div>
-        <div class="guiPanel map tooltip" data-tooltip-name="Map">
+        <div id="tooltip"><div id="tooltipName">Tooltip</div><div id="tooltipDesc">Description</div></div>
+        <div class="guiPanel map tooltip" data-tooltip-name="Map" data-tooltip-desc="The map of the sector.">
             <div class="guiBar">
                 <h1>MAP</h1>
                 <div><img src="images/ui/fullscreen.png"><img id="minimize-minimap" src="images/ui/minimize.png"></div>
@@ -68,7 +68,7 @@
             </div>
         </div>
 
-        <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management">
+        <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management" data-tooltip-desc="Drag powercells to and from your storage.">
             <div class="guiBar vertical cells-bar">
                 <h1>POWER CELLS</h1>
                 <div><img id="minimize-powercells" src="images/ui/minimize.png"></div>
@@ -83,10 +83,10 @@
             
         </div>
         <div class="gauges">
-            <div class="tooltip" data-tooltip-name="Shield Integrity"><img src="images/ui/iconShield.png"><div class="gauge"><div id="gaugeShield"></div></div><h1 id="numberShield">75</h1></div>
-            <div class="tooltip" data-tooltip-name="Hull Integrity"><img src="images/ui/iconHull.png"><div class="gauge"><div id="gaugeHull"></div></div><h1 id="numberHull">75</h1></div>
-            <div class="tooltip" data-tooltip-name="Remaining Fuel"><img src="images/ui/iconFuel.png"><div class="gauge"><div id="gaugeFuel"></div></div><h1 id="numberFuel">100</h1></div>
-            <div class="tooltip" data-tooltip-name="Cargo Load"><img src="images/ui/iconCargo.png"><div class="gauge"><div id="gaugeCargo"></div></div><h1 id="numberCargo">100</h1></div>
+            <div class="tooltip" data-tooltip-name="Shield Integrity" data-tooltip-desc="The integrity of the shield."><img src="images/ui/iconShield.png"><div class="gauge"><div id="gaugeShield"></div></div><h1 id="numberShield">75</h1></div>
+            <div class="tooltip" data-tooltip-name="Hull Integrity" data-tooltip-desc="The strength of the ship's hull. When it reaches zero, the ship explodes."><img src="images/ui/iconHull.png"><div class="gauge"><div id="gaugeHull"></div></div><h1 id="numberHull">75</h1></div>
+            <div class="tooltip" data-tooltip-name="Remaining Fuel" data-tooltip-desc="Remaining afterburner fuel in the tank. When it runs out, the afterburner is disabled."><img src="images/ui/iconFuel.png"><div class="gauge"><div id="gaugeFuel"></div></div><h1 id="numberFuel">100</h1></div>
+            <div class="tooltip" data-tooltip-name="Cargo Load" data-tooltip-desc="The ship's cargo load."><img src="images/ui/iconCargo.png"><div class="gauge"><div id="gaugeCargo"></div></div><h1 id="numberCargo">100</h1></div>
         </div>
     </div>
 </body>
