@@ -792,7 +792,11 @@ window.addEventListener("wheel", e => {
 let gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
 let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
-let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
+//let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
+let gasColorMap = new ColorGraph(
+    [0.1,0.0,0.8],
+    [0.1,0.2,0.8],
+    [0.2,0.4,0.1]);
 let gasParticles = [];
 let gasDisplay = [];
 
@@ -824,6 +828,7 @@ function gasParticleChunksDisplay() {
                 g.alpha = e / 200 + 0.5;
                 g.rotation += 0.03 * g.alpha + 0.008;
                 g.tint = gasColorMap.evaluate(e / 100);
+                g.red = Math.random();
                 gasDisplay[gX][gY] = true;
                 g.visible = true;
             }

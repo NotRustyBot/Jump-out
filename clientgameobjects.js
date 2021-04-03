@@ -164,7 +164,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
         this.outlineMask
     );
 
-    if(prefix == "ship"){
+    if (prefix == "ship") {
         playerContainer.addChild(this.container);
     }
     else {
@@ -375,7 +375,7 @@ function ParticleSystem(settings) {
     if (settings != null) this.settings = settings;
     else {
         this.settings = {
-            container:null,
+            container: null,
             infinite: true,
             duration: 1,
             offset: new Vector(0, 0),
@@ -525,7 +525,7 @@ function ParticleSystem(settings) {
         this.emitter.position = obj.position.result().add(this.settings.offset.rotate(this.emitter.rotation));
     };
     this.delete = function () {
-        if(this.settings.container == null)effectsContainer.removeChild(this.container);
+        if (this.settings.container == null) effectsContainer.removeChild(this.container);
         ParticleSystem.particleSystems.splice(ParticleSystem.particleSystems.indexOf(this), 1);
     };
 }
@@ -580,6 +580,20 @@ function Graph(values, scale) {
         let min = this.values[bottom];
         let max = this.values[top];
         return min + (max - min) * (value * length - bottom);
+    };
+}
+
+function ColorGraph(red, green, blue) {
+
+    this.red = new Graph(red, 255);
+    this.green = new Graph(green, 255);;
+    this.blue = new Graph(blue, 255);;
+    this.evaluate = function (value) {
+
+        let r = Math.floor(this.red.evaluate(value));
+        let g = Math.floor(this.green.evaluate(value));
+        let b = Math.floor(this.blue.evaluate(value));
+        return r * 65536 + g * 256 + b;
     };
 }
 
