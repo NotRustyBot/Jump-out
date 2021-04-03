@@ -583,11 +583,11 @@ function Graph(values, scale) {
     };
 }
 
-function ColorGraph(red, green, blue) {
+function ColorGraph(redValues, greenValues, blueValues) {
 
-    this.red = new Graph(red, 255);
-    this.green = new Graph(green, 255);;
-    this.blue = new Graph(blue, 255);;
+    this.red = new Graph(redValues, 255);
+    this.green = new Graph(greenValues, 255);;
+    this.blue = new Graph(blueValues, 255);;
     this.evaluate = function (value) {
 
         let r = Math.floor(this.red.evaluate(value));
