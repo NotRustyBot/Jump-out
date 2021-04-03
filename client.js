@@ -187,7 +187,7 @@ function closeLoadingScreen() {
 var fpsText = new PIXI.Text();
 fpsText.style.fill = 0xFFFFFF;
 fpsText.style.fontFamily = "Overpass Mono";
-fpsText.position.set(110,10);
+fpsText.position.set(110, 10);
 guiContainer.addChild(fpsText);
 
 
@@ -248,12 +248,12 @@ for (let i = 0; i < 60; i++) {
     averageFPS.push(0);
 }
 
-function arrayAverage(array){
+function arrayAverage(array) {
     let sum = 0;
     for (let i = 0; i < array.length; i++) {
         sum += array[i];
     }
-    return sum/array.length;    
+    return sum / array.length;
 }
 
 function graphicsUpdate(deltaTimeFactor) {
@@ -796,11 +796,8 @@ window.addEventListener("wheel", e => {
 let gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
 let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
-let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
-/*let gasColorMap = new ColorGraph(
-    [0.3,0.5,0.2,0.0],
-    [0.1,0.2,0.1,0.0],
-    [0.2,0.4,0.1,0.0]);*/
+//let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
+let gasColorMap = new ColorGraph([0x161A1C, 0xa04060]);
 let gasParticles = [];
 let gasDisplay = [];
 
@@ -819,11 +816,12 @@ function gasParticleChunksDisplay() {
 
             let gX = Math.floor(g.x / gasParticleSpacing);
             let gY = Math.floor(g.y / gasParticleSpacing);
+            // mimo obrazovke
             if (gX > gasPosX + gasCamWidth / 2 ||
                 gX < gasPosX - gasCamWidth / 2 ||
                 gY > gasPosY + gasCamHeight / 2 ||
                 gY < gasPosY - gasCamHeight / 2
-            ) {
+            ) { // zneviditelint
                 avalible.push(g);
                 gasDisplay[gX][gY] = false;
                 g.visible = false;
@@ -838,6 +836,7 @@ function gasParticleChunksDisplay() {
             }
         }
 
+        
         for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
             for (let py = Math.max(gasPosY - gasCamHeight / 2, 0); py < gasPosY + gasCamHeight / 2; py++) {
 

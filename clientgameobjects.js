@@ -584,11 +584,26 @@ function Graph(values, scale) {
     };
 }
 
-function ColorGraph(redValues, greenValues, blueValues) {
+function ColorGraph(colorValues) {
 
-    this.red = new Graph(redValues, 255);
-    this.green = new Graph(greenValues, 255);;
-    this.blue = new Graph(blueValues, 255);;
+    let blueValues = [];
+    let greenValues = [];
+    let redValues = [];
+
+    for (let i = 0; i < colorValues.length; i++) {
+        const color = colorValues[i];
+        let r = Math.floor(color / 256 / 256);
+        let b = Math.floor(color % 256);
+        let g = Math.floor(color / 256) % 256;
+        redValues.push(r);
+        greenValues.push(g);
+        blueValues.push(b);
+    }
+
+
+    this.red = new Graph(redValues);
+    this.green = new Graph(greenValues);
+    this.blue = new Graph(blueValues);
     this.evaluate = function (value) {
 
         let r = Math.floor(this.red.evaluate(value));
