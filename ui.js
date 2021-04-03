@@ -20,14 +20,24 @@ let pixi_minimap = new PIXI.Application({
 });
 let gasPx_container = new PIXI.ParticleContainer();
 pixi_minimap.stage.addChild(gasPx_container);
-
-for (let i = 0; i < 50 * 50; i++) {
-    let gasPX = new PIXI.Sprite.from("images/circle.png");
-    gasPx_container.addChild(gasPX);
+let gasPXs = [];
+for (let x = 0; x < 50; x++) {
+    for (let y = 0; y < 50; y++) {
+        let gasPX = new PIXI.Sprite.from("images/circle.png");
+        gasPX.x = x * 7;
+        gasPX.y = y * 7;
+        gasPXs[x*50 + y] = gasPX;
+        gasPX.scale = 0.1;
+        gasPx_container.addChild(gasPX);
+    }
 }
 
 function UpdateMinimap() {
-    //pixi_minimap
+    for (let x = 0; x < 50; x++) {
+        for (let y = 0; y < 50; y++) {
+
+        }
+    }
 }
 gauges.classList.toggle("minimized");
 gaugesElement.classList.toggle("minimized");
