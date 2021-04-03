@@ -625,7 +625,7 @@ function LensFlare(parent) {
     //this.sprites[2] = new PIXI.Sprite(loader.resources.lensflare2.texture);
     this.sprites.forEach(sprite => {
         sprite.anchor.set(0.5);
-        sprite.scale.set(0.13);
+        sprite.scale.set(0.05);
         sprite.blendMode = PIXI.BLEND_MODES.ADD;
         app.stage.addChild(sprite);
     });
@@ -664,12 +664,12 @@ function Trail(emitter, offset) {
     this.baseColor = new ColorRamp(0xaaffff, 0x003388);*/
     this.color = new ColorGraph([0x6ae2f2, 0x5f2eff]);
     this.boostColor = new ColorGraph([0xffffff,0xff5599,0xff5599,0xaa2299, 0x990055]);
-    this.baseColor = new ColorGraph([0xffffff,0x007788,0x004488,0x223377, 0x112255]);
+    //this.boostColor =new ColorGraph([0x160c28,0xefcb68,0xe1efe6,0xaeb7b3,0x000411,]);
+    this.baseColor = new ColorGraph([0xffffff,0x007788,0x004488,0x223377, 0x112255,0x000000]);
     this.emitter = emitter;
     this.firstPoint = null;
     //this.scale = new Ramp(10, 0);
     this.scale = new Graph([30,20,13,9.6,6.7,4.6,3,1.8,0.8,0]);
-    this.scale = new Graph([0,0]);
     this.maxAge = 1;
     this.framesPerEmit = 2;
     this.framesFromEmit = 0;

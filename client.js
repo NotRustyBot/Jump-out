@@ -125,7 +125,7 @@ var gasContainer = new PIXI.Container(10000, {
     rotation: true,
     tint: true,
 });
-gasContainer.filters = [new PIXI.filters.AlphaFilter(0)];
+gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 
 gameContainer.addChild(bgContainer);
 gameContainer.addChild(entityContainer);
@@ -163,6 +163,7 @@ const fps = 60;
 //GRAPHICS
 var graphics = new PIXI.Graphics();
 playerEffectsContainer.addChild(graphics);
+//effectsContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 //graphics.blendMode = PIXI.BLEND_MODES.ADD;
 //#endregion
 
@@ -800,6 +801,11 @@ let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camer
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
 let gasColorMap = new ColorGraph([0x161A1C, 0xa04060]);
+gasColorMap =  new ColorGraph([0x006d77,0x83c5be,0xedf6f9,0xffddd2,0xe29578,]);
+
+gasColorMap =  new ColorGraph([0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,]);
+
+gasColorMap =  new ColorGraph([0x397367,0x63ccca,0x5da399,0x42858c,0x35393c,]);
 let gasParticles = [];
 let gasDisplay = [];
 
