@@ -170,16 +170,16 @@ playerEffectsContainer.addChild(graphics);
 
 //GAUGES
 let gauges = {
-    shield:document.getElementById("gaugeShield"),
-    hull:document.getElementById("gaugeHull"),
-    fuel:document.getElementById("gaugeFuel"),
-    cargo:document.getElementById("gaugeCargo"),
+    shield: document.getElementById("gaugeShield"),
+    hull: document.getElementById("gaugeHull"),
+    fuel: document.getElementById("gaugeFuel"),
+    cargo: document.getElementById("gaugeCargo"),
 }
 let gaugeNumbers = {
-    shield:document.getElementById("numberShield"),
-    hull:document.getElementById("numberHull"),
-    fuel:document.getElementById("numberFuel"),
-    cargo:document.getElementById("numberCargo"),
+    shield: document.getElementById("numberShield"),
+    hull: document.getElementById("numberHull"),
+    fuel: document.getElementById("numberFuel"),
+    cargo: document.getElementById("numberCargo"),
 }
 
 //#endregion
@@ -428,18 +428,20 @@ function updateGui(deltaTime) {
 
     let shieldRatio = 75;
     let hullRatio = 75;
-    let fuelRatio = localPlayer.ship.afterBurnerFuel/6;
+    let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
     let cargoRatio = 0;
 
-    gauges.shield.style.width = shieldRatio+"%";
-    gauges.hull.style.width = hullRatio+"%";
-    gauges.fuel.style.width = fuelRatio+"%";
-    gauges.cargo.style.width = cargoRatio+"%";
+    gauges.shield.style.width = shieldRatio + "%";
+    gauges.hull.style.width = hullRatio + "%";
+    gauges.fuel.style.width = fuelRatio + "%";
+    gauges.cargo.style.width = cargoRatio + "%";
 
     gaugeNumbers.shield.innerHTML = shieldRatio.toFixed(0);
     gaugeNumbers.hull.innerHTML = hullRatio.toFixed(0);
     gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
     gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
+
+    //UpdateMinimap();
 
 }
 
@@ -633,7 +635,7 @@ function parseProximity(view) { // tady se děje update
             Datagrams.EntitySetup.transferData(entity, temp);
             entity.update(0);
         } else {
-            console.log(temp.id);
+            console.warn(temp.id);
         }
     }
 }
@@ -729,10 +731,14 @@ function parseDebug(view) {
 
 
 let scannedGas = [];
-function parseGasScan(view){
-    let temp = {};
-    view.deserealize(temp, Datagrams.GasScan);
-    scannedGas[temp.x * 1000 + temp.y] = temp.gas;
+function parseGasScan(view) {
+    let count = view.getUint16();
+    for (let i = 0; i < count; i++) {
+        let temp = {};
+        view.deserealize(temp, Datagrams.GasScan);
+        scannedGas[temp.x * 1000 + temp.y] = temp.gas;
+    }
+
 }
 
 const buffer = new ArrayBuffer(1000);
@@ -845,11 +851,11 @@ let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camer
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
 let gasColorMap = new ColorGraph([0x161A1C, 0xa04060]);
-gasColorMap =  new ColorGraph([0x006d77,0x83c5be,0xedf6f9,0xffddd2,0xe29578,]);
+gasColorMap = new ColorGraph([0x006d77, 0x83c5be, 0xedf6f9, 0xffddd2, 0xe29578,]);
 
-gasColorMap =  new ColorGraph([0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,]);
+gasColorMap = new ColorGraph([0x6f1d1b, 0xbb9457, 0x432818, 0x99582a, 0xffe6a7, 0x6f1d1b, 0xbb9457, 0x432818, 0x99582a, 0xffe6a7,]);
 
-gasColorMap =  new ColorGraph([0x397367,0x63ccca,0x5da399,0x42858c,0x35393c,]);
+gasColorMap = new ColorGraph([0x397367, 0x63ccca, 0x5da399, 0x42858c, 0x35393c,]);
 
 //gasColorMap = new ColorGraph([0x000000,0x3d2645,0x832161,0xda4167,0xf0eff4]);
 
