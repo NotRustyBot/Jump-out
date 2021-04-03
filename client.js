@@ -67,6 +67,7 @@ loader
     .add("outlineMask", "images/mask_outline.png")
     .add("shadow", "images/shadow2.png")
     .add("smooth", "images/smooth.png")
+    .add("flame", "images/flame.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -106,6 +107,7 @@ var gameContainer = new PIXI.Container();
 var bgContainer = new PIXI.Container();
 var entityContainer = new PIXI.Container();
 var playerContainer = new PIXI.Container();
+var playerEffectsContainer = new PIXI.Container();
 var shadowContainer = new PIXI.Container();
 var effectsContainer = new PIXI.Container();
 var guiContainer = new PIXI.Container();
@@ -123,11 +125,12 @@ var gasContainer = new PIXI.Container(10000, {
     rotation: true,
     tint: true,
 });
-gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
+gasContainer.filters = [new PIXI.filters.AlphaFilter(0)];
 
 gameContainer.addChild(bgContainer);
 gameContainer.addChild(entityContainer);
 gameContainer.addChild(playerContainer);
+gameContainer.addChild(playerEffectsContainer);
 gameContainer.addChild(gasContainer);
 gameContainer.addChild(shadowContainer);
 gameContainer.addChild(effectsContainer);
@@ -159,7 +162,8 @@ const fps = 60;
 
 //GRAPHICS
 var graphics = new PIXI.Graphics();
-bgContainer.addChild(graphics);
+playerEffectsContainer.addChild(graphics);
+//graphics.blendMode = PIXI.BLEND_MODES.ADD;
 //#endregion
 
 //#region LOADING SCREEN

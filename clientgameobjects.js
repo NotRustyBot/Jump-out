@@ -315,6 +315,7 @@ function Player(id) {
         miniMap.removeChild(this.miniMapMarker);
     }
     this.lensFlare = new LensFlare(this.ship);
+
     this.toGlobal = function (vector) {
         //let rv = Vector.fromAngle(this.ship.rotation);
         let cos = Math.cos(this.ship.rotation);
@@ -649,6 +650,10 @@ function LensFlare(parent) {
 
 
 function Trail(emitter, offset) {
+    this.engineFlame = new PIXI.Sprite(loader.resources.flame.texture);
+    this.engineFlame.anchor.set(0.9,0.5);
+    this.engineFlame.blendMode = PIXI.BLEND_MODES.ADD;
+    playerEffectsContainer.addChild(this.engineFlame);
     this.emit = false;
     this.offset = offset ?? Vector.zero();
     this.color = new ColorRamp(0x6ae2f2, 0x5f2eff);
@@ -656,7 +661,8 @@ function Trail(emitter, offset) {
     this.baseColor = new ColorRamp(0xaaffff, 0x003388);
     this.emitter = emitter;
     this.firstPoint = null;
-    this.scale = new Ramp(10, 0);
+    //this.scale = new Ramp(10, 0);
+    this.scale = new Graph([30,20,13,9.6,6.7,4.6,3,1.8,0.8,0])
     this.maxAge = 1;
     this.framesPerEmit = 2;
     this.framesFromEmit = 0;
@@ -673,7 +679,16 @@ function Trail(emitter, offset) {
         //console.log(this.points);
         let point = this.firstPoint;
         let previousPoint = this.firstPoint;
-        let emitPos = this.offset.rotate(this.emitter.rotation).add((this.emitter.position));
+        let emitPos = this.offset.result().rotate(this.emitter.rotation).add((this.emitter.position));
+        //let enginePos = this.offset.result().rotate(this.emitter.rotation).add((this.emitter.position));
+        //let emitPos = this.offset.result().mult(1+this.heatRatioNormalised*2).rotate(this.emitter.rotation).add((this.emitter.position));
+        this.engineFlame.position.set(emitPos.x,emitPos.y);
+        this.engineFlame.rotation = this.emitter.rotation;
+        this.engineFlame.scale.x = (1-0.5*Math.random())*this.heatRatioNormalised;
+        this.engineFlame.alpha = this.heatRatioNormalised;
+        this.engineFlame.tint = this.color.evaluate(0.8);
+        
+
         while (point != null) {
             point.age += deltaTime;
             point.visualAge = Math.min(this.maxAge, point.visualAge + deltaTime);
