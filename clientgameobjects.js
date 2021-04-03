@@ -593,7 +593,7 @@ function ColorGraph(colorValues) {
         const color = colorValues[i];
         let r = Math.floor(color / 256 / 256);
         let b = Math.floor(color % 256);
-        let g = Math.floor(color/256)%256;
+        let g = Math.floor(color / 256) % 256;
         redValues.push(r);
         greenValues.push(g);
         blueValues.push(b);

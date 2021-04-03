@@ -8,10 +8,11 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: #1C2327;
+    background: #1c2327;
 }
 
 #loadingBarContainer {
+    display: none !important;
     position: absolute;
     height: 100vh;
     width: 100vw;
@@ -36,7 +37,7 @@ body {
 }
 
 #loadingBar {
-    transition: width .2s;
+    transition: width 0.2s;
     height: 100%;
     width: 0%;
     background: rgb(38, 159, 240);
@@ -51,7 +52,7 @@ body {
     left: 50px;
     background: rgb(122, 122, 122);
     border-radius: 100px;
-    border: 0px solid rgb(190, 190, 190)
+    border: 0px solid rgb(190, 190, 190);
 }
 
 #guiContainer {
@@ -91,18 +92,18 @@ body {
     font-size: 30px;
 }
 
-.guiBar>div {
+.guiBar > div {
     /*background-color: #333333;*/
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    margin:0 10px 0 10px;
+    margin: 0 10px 0 10px;
 }
 
-.guiBar>div img {
+.guiBar > div img {
     width: 30px;
     height: 30px;
-    margin:10px;
+    margin: 10px;
 }
 
 .guiPanelContent {
@@ -131,7 +132,7 @@ body {
 }
 
 .shadow {
-    box-shadow: 0px 60px 100px rgba(0, 0, 0, .2);
+    box-shadow: 0px 60px 100px rgba(0, 0, 0, 0.2);
 }
 
 #minimapContainer {
@@ -148,9 +149,63 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color .2s;
+    transition: background-color 0.2s;
 }
 
 .bigIconButton:hover {
     background: #353535;
+}
+
+.map {
+    border-radius: 20px 0 0 0;
+}
+
+.menus {
+    border-radius: 0 0 20px 0;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: fit-content;
+}
+
+.menus > div {
+    height: auto;
+}
+
+.menus .bigIconButton{
+    max-height: 10vh;
+}
+
+.power-cells {
+    border-radius: 0 20px 0 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    height: 40vh;
+    max-height: 500px;
+    flex-direction: row-reverse;
+}
+
+.cells-bar {
+    height: 100%;
+    width: 70px;
+    flex-direction: column-reverse;
+}
+
+.cells-bar > h1 {
+    writing-mode: vertical-lr;
+    padding: 25px 0 0 0;
+    transform: rotate(180deg);
+}
+
+.cells-bar > div {
+    margin: 10px 0 10px 0;
+}
+
+.cells-bar > div > img {
+    transform: rotate(90deg);
+}
+
+.cells-icons {
+    height: auto;
 }

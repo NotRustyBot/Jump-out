@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@300&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?Version=1">
     <title>Jumpout</title>
     <style>
 
@@ -25,7 +25,7 @@
     </div>
     
     <div id="guiContainer">
-        <div class="guiPanel" style="border-radius: 20px 0 0 0;">
+        <div class="guiPanel map">
             <div class="guiBar">
                 <h1>MAP</h1>
                 <div><img src="images/ui/fullscreen.png"><img src="images/ui/minimize.png"></div>
@@ -57,8 +57,8 @@
             </div>
         </div>
         -->
-        <div class="guiPanel" style="border-radius: 0 0 20px 0;left:0;top:0;width:100px;height:fit-content;">
-            <div class="guiPanelContent vertical noPadding" style="height:auto;">
+        <div class="guiPanel menus">
+            <div class="guiPanelContent vertical noPadding">
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
@@ -67,12 +67,12 @@
             </div>
         </div>
 
-        <div class="guiPanel" style="border-radius: 0 20px 0 0;left:0;bottom:0;width:300px;height:500px;flex-direction: row-reverse;">
-            <div class="guiBar vertical" style="height: 100%;width:70px;flex-direction: column-reverse;">
-                <h1 style="writing-mode: vertical-lr; padding:25px 0 0 0; transform:rotate(180deg);">POWER CELLS</h1>
-                <div style="margin:10px 0 10px 0;"><img src="images/ui/minimize.png" style="transform: rotate(90deg);"></div>
+        <div class="guiPanel power-cells">
+            <div class="guiBar vertical cells-bar">
+                <h1>POWER CELLS</h1>
+                <div><img src="images/ui/minimize.png"></div>
             </div>
-            <div class="guiPanelContent vertical noPadding" style="height:auto;">
+            <div class="guiPanelContent vertical noPadding cells-icons">
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
@@ -83,13 +83,13 @@
         </div>
     </div>
 </body>
-
+<!--
 <script src="pixi.js"></script>
 <script src="https://pixijs.io/examples/pixi-plugins/pixi-dragonbones.js"></script>
 <script>let exports = {}; </script>
 <script type="text/javascript" src="clientgameobjects.js"></script>
 <script type="text/javascript" src="datagram.js"></script>
 <script type="text/javascript" src="client.js"></script>
-
+-->
 
 </html>
