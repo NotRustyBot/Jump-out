@@ -296,10 +296,6 @@ body {
     background: #ACACAC;
 }
 
-.tooltip {
-
-}
-
 #tooltip {
     z-index:100;
     position:absolute;
