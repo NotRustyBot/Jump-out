@@ -26,6 +26,7 @@ window.addEventListener("resize", function () {
 
 
 });
+
 //#endregion
 
 //#region LOADER
@@ -165,6 +166,22 @@ var graphics = new PIXI.Graphics();
 playerEffectsContainer.addChild(graphics);
 //effectsContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 //graphics.blendMode = PIXI.BLEND_MODES.ADD;
+
+
+//GAUGES
+let gauges = {
+    shield:document.getElementById("gaugeShield"),
+    hull:document.getElementById("gaugeHull"),
+    fuel:document.getElementById("gaugeFuel"),
+    cargo:document.getElementById("gaugeCargo"),
+}
+let gaugeNumbers = {
+    shield:document.getElementById("numberShield"),
+    hull:document.getElementById("numberHull"),
+    fuel:document.getElementById("numberFuel"),
+    cargo:document.getElementById("numberCargo"),
+}
+
 //#endregion
 
 //#region LOADING SCREEN
@@ -408,6 +425,22 @@ function updateGui(deltaTime) {
     mapGraphics.lineStyle(0, 0x000000);
     mapGraphics.drawStar(localPlayer.ship.position.x * miniMapZoom, localPlayer.ship.position.y * miniMapZoom, 3, 6, 3, localPlayer.ship.rotation + Math.PI / 2);
     mapGraphics.endFill();
+
+    let shieldRatio = 75;
+    let hullRatio = 75;
+    let fuelRatio = localPlayer.ship.afterBurnerFuel/6;
+    let cargoRatio = 0;
+
+    gauges.shield.style.width = shieldRatio+"%";
+    gauges.hull.style.width = hullRatio+"%";
+    gauges.fuel.style.width = fuelRatio+"%";
+    gauges.cargo.style.width = cargoRatio+"%";
+
+    gaugeNumbers.shield.innerHTML = shieldRatio.toFixed(0);
+    gaugeNumbers.hull.innerHTML = hullRatio.toFixed(0);
+    gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
+    gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
+
 }
 
 //#endregion
