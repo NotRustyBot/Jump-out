@@ -1,3 +1,4 @@
+@echo off
 git add .
-git commit -m "f"
+git commit -m "%date% %time%"
 git push
