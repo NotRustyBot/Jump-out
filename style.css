@@ -13,6 +13,7 @@ body {
 
 #loadingBarContainer {
     display: none !important;
+
     position: absolute;
     height: 100vh;
     width: 100vw;
@@ -157,7 +158,21 @@ body {
 }
 
 .map {
+    transition: margin-bottom 0.3s;
     border-radius: 20px 0 0 0;
+}
+
+.map.minimized{
+    margin-bottom:-400px;
+}
+
+#minimize-minimap{
+    transform: scaleY(1);
+    transition: transform 0.3s;
+}
+
+.minimized #minimize-minimap{
+    transform: scaleY(-1);
 }
 
 .menus {
@@ -172,11 +187,12 @@ body {
     height: auto;
 }
 
-.menus .bigIconButton{
+.menus .bigIconButton {
     max-height: 10vh;
 }
 
-.power-cells {
+.powercells {
+    transition: margin-left 0.3s;
     border-radius: 0 20px 0 0;
     left: 0;
     bottom: 0;
@@ -184,6 +200,20 @@ body {
     height: 40vh;
     max-height: 500px;
     flex-direction: row-reverse;
+}
+
+.powercells.minimized{
+    margin-left: -230px;
+}
+
+#minimize-powercells{
+    transform: scaleX(1) rotate(90deg);;
+    transition: transform 0.3s;
+}
+
+.minimized #minimize-powercells{
+    transform: scaleX(-1) rotate(90deg);;
+    transition: transform 0.3s;
 }
 
 .cells-bar {
@@ -200,10 +230,6 @@ body {
 
 .cells-bar > div {
     margin: 10px 0 10px 0;
-}
-
-.cells-bar > div > img {
-    transform: rotate(90deg);
 }
 
 .cells-icons {
