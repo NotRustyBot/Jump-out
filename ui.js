@@ -43,14 +43,13 @@ Array.from(tooltipElements).forEach(element => {
     })
 });
 
-
-
 min_minimap.addEventListener("click", () => {
     minimap.classList.toggle("minimized");
 });
 
 min_powercells.addEventListener("click", () => {
     powercells.classList.toggle("minimized");
+    gaugesElement.classList.toggle("minimized");
 });
 
 let pixi_minimap = new PIXI.Application({
@@ -84,5 +83,3 @@ function UpdateMinimap() {
         }
     }
 }
-gauges.classList.toggle("minimized");
-gaugesElement.classList.toggle("minimized");
