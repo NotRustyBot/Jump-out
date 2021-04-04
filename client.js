@@ -294,7 +294,7 @@ for (let i = 0; i < 60; i++) {
 let minFPS = [];
 
 for (let i = 0; i < 360; i++) {
-    minFPS.push(0);
+    minFPS.push(1000);
 }
 
 function arrayAverage(array) {
@@ -316,10 +316,12 @@ function arrayMin(array) {
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
         averageFPS.push(app.ticker.FPS);
+        minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
         fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) +"\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         averageFPS.shift();
+        minFPS.shift();
 
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
