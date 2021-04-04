@@ -319,7 +319,7 @@ function graphicsUpdate(deltaTimeFactor) {
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) +"\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         averageFPS.shift();
         minFPS.shift();
 
@@ -527,7 +527,7 @@ function reconnect() {
         else {
             console.log("Stopped reconnecting after " + (connectionAttempts - 1) + " attempts");
             loadingStatus.textContent = "CONNECTION FAILED";
-            loadingDetails.textContent = "Stopped reconnecting after " + (connectionAttempts-1) + " attempts";
+            loadingDetails.textContent = "Stopped reconnecting after " + (connectionAttempts - 1) + " attempts";
         }
     }
 }
@@ -813,7 +813,7 @@ function parseGasScan(view) {
     for (let i = 0; i < count; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.GasScan);
-        scannedGas[temp.x * 1000/minimapScale + temp.y] = temp.gas;
+        scannedGas[temp.x * 1000 / minimapScale + temp.y] = temp.gas;
     }
 
 }
@@ -886,7 +886,7 @@ function handleInput() {
     } else if (keyDown.e) {
         actionID = 2;
         keyDown.e = false;
-    }else if (keyDown.c) {
+    } else if (keyDown.c) {
         detachCamera = !detachCamera;
         keyDown.c = false;
     }
@@ -953,6 +953,8 @@ function gasParticleChunksDisplay() {
         let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
         let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         let avalible = [];
+        gasPosX = Math.max(Math.min(gasPosX, 1000 - 1), 0);
+        gasPosY = Math.max(Math.min(gasPosY, 1000 - 1), 0);
         gasHere = Universe.gasMap[gasPosX][gasPosY];
 
         for (let i = 0; i < gasParticles.length; i++) {
@@ -983,7 +985,9 @@ function gasParticleChunksDisplay() {
 
         for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
             for (let py = Math.max(gasPosY - gasCamHeight / 2, 0); py < gasPosY + gasCamHeight / 2; py++) {
-
+                if (px >= 1000 || py >= 1000) {
+                    continue;
+                }
                 if (!gasDisplay[px][py]) {
                     let g = avalible.pop();
                     if (g != undefined) {
