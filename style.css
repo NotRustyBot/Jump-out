@@ -13,7 +13,7 @@ body {
 
 #loadingBarContainer {
     /*display: none !important;*/
-
+    font-family: Montserrat, sans-serif;
     position: absolute;
     height: 100vh;
     width: 100vw;
@@ -27,14 +27,24 @@ body {
     z-index: 100;
 }
 
-#loadingBarContainer span {
-    font-family: Montserrat, sans-serif;
+#loadingStatus {
+    
     font-weight: 100;
     letter-spacing: 0.5em;
     text-align: center;
     font-size: 2em;
     margin-right: -0.5em;
     margin-bottom: 15px;
+}
+
+#loadingDetails{
+    font-weight: 100;
+    letter-spacing: 0.1em;
+    text-align: center;
+    font-size: 1.5em;
+    margin-right: -0.5em;
+    margin-top: 15px;
+    color:rgba(255, 255, 255,.5)
 }
 
 #loadingBar {
@@ -105,7 +115,7 @@ body {
 .guiBar > div img {
     width: 30px;
     height: 30px;
-    margin: 10px;
+    padding: 10px;
 }
 
 .guiPanelContent {
@@ -169,7 +179,6 @@ body {
 
 #minimize-minimap{
     transform: scaleY(1);
-    transition: transform 0.3s;
 }
 
 .minimized #minimize-minimap{
@@ -209,12 +218,10 @@ body {
 
 #minimize-powercells{
     transform: scaleX(1) rotate(90deg);;
-    transition: transform 0.3s;
 }
 
 .minimized #minimize-powercells{
     transform: scaleX(-1) rotate(90deg);;
-    transition: transform 0.3s;
 }
 
 .cells-bar {
@@ -330,4 +337,13 @@ body {
     padding-top:5px;
     line-height: 25px;
     /*border-top: 1px solid rgba(255, 255, 255, 0.5);*/
+}
+
+.windowButton{
+    background-color: rgba(255, 255, 255,0);
+    transition: background-color .2s, transform .3s;
+    border-radius: 50px;
+}
+.windowButton:hover{
+    background-color: rgba(255, 255, 255,.1);
 }

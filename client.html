@@ -22,6 +22,7 @@
         <div id="loadingBarBG">
             <div id="loadingBar"></div>
         </div>
+        <span id="loadingDetails">&nbsp;</span>
     </div>
     
     <div id="guiContainer">
@@ -29,7 +30,7 @@
         <div class="guiPanel map tooltip" data-tooltip-name="Map" data-tooltip-desc="The map of the sector.">
             <div class="guiBar">
                 <h1>MAP</h1>
-                <div><img src="images/ui/fullscreen.png"><img id="minimize-minimap" src="images/ui/minimize.png"></div>
+                <div><img class="windowButton" src="images/ui/fullscreen.png"><img class="windowButton" id="minimize-minimap" src="images/ui/minimize.png"></div>
             </div>
             <div class="guiPanelContent center">
                 <div id="minimapContainer">
@@ -71,7 +72,7 @@
         <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management" data-tooltip-desc="Drag powercells to and from your storage.">
             <div class="guiBar vertical cells-bar">
                 <h1>POWER CELLS</h1>
-                <div><img id="minimize-powercells" src="images/ui/minimize.png"></div>
+                <div><img id="minimize-powercells" class="windowButton" src="images/ui/minimize.png"></div>
             </div>
             <div class="guiPanelContent vertical noPadding cells-icons">
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>

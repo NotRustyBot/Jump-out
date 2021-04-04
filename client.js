@@ -143,6 +143,10 @@ var loaded = false;
 var connected = false;
 var running = false;
 
+var connectionAttempts = 1;
+var reconnectInterval = 3000;
+var maxReconnectAttempts = 100;
+
 //GAS
 var gasLoaded = false;
 var gasParticleSpacing = 400;
@@ -187,17 +191,29 @@ let gaugeNumbers = {
 //#region LOADING SCREEN
 var loadingStatus = document.getElementById("loadingStatus");
 loadingStatus.textContent = "LOADING";
+var loadingDetails = document.getElementById("loadingDetails");
+loadingDetails.innerHtml = "&nbsp;";
 
 function loadingProgress(e) {
     document.getElementById("loadingBar").style.width = e.progress + "%";
     console.log("loading", e.progress);
 }
 
+var loadingScreenOpen = true;
+
 function closeLoadingScreen() {
+    loadingScreenOpen = false;
     document.getElementById("loadingBarContainer").style.opacity = "0";
     setTimeout(() => {
         document.getElementById("loadingBarContainer").style.display = "none";
     }, 1000);
+}
+function openLoadingScreen() {
+    loadingScreenOpen = true;
+    document.getElementById("loadingBarContainer").style.display = "flex";
+    setTimeout(() => {
+        document.getElementById("loadingBarContainer").style.opacity = "1";
+    }, 100);
 }
 //#endregion
 
@@ -263,7 +279,7 @@ function start() {
 //#region UPDATE
 
 function update() {
-    if (running) {
+    if (running && connected) {
         sendControls();
     }
 }
@@ -458,26 +474,52 @@ function updateGui(deltaTime) {
 
 //#region NETWORK
 
+
+
 function connect() {
-    console.log(window.location.hostname);
+    loadingStatus.textContent = "CONNECTING";
+    loadingDetails.textContent = "Attempt " + connectionAttempts + "/" + maxReconnectAttempts;
+    document.getElementById("loadingBar").style.width = 100 * connectionAttempts / maxReconnectAttempts + "%"
+    //console.log(window.location.hostname);
     if (window.location.hostname == "10.200.140.14") {
         connection = new WebSocket("ws://10.200.140.14:20003/");
         console.log("Connecting to local...");
     } else {
         connection = new WebSocket("wss://jumpout.ws.coal.games/");
-        console.log("Connecting to server...");
+        console.log("Connecting to server... Attempt " + connectionAttempts);
     }
     connection.binaryType = "arraybuffer";
+    //setTimeout(onConnectionTimeout,reconnectInterval);
     connection.onopen = onConnectionOpen;
     connection.onmessage = onConnectionMessage;
     connection.onclose = onConnectionClose;
 }
 
+function reconnect() {
+    if (!connected) {
+        if (!loadingScreenOpen) openLoadingScreen();
+        connectionAttempts++;
+        if (connectionAttempts <= maxReconnectAttempts) {
+            connect();
+        }
+        else {
+            console.log("Stopped reconnecting after " + (connectionAttempts - 1) + " attempts");
+            loadingStatus.textContent = "CONNECTION FAILED";
+            loadingDetails.textContent = "Stopped reconnecting after " + (connectionAttempts-1) + " attempts";
+        }
+    }
+}
+
 function onConnectionClose(e) {
     console.log("Connection closed. Code: " + e.code + " Reason: " + e.reason);
+    connected = false;
+    running = false;
+
+    setTimeout(reconnect, reconnectInterval)
 }
 function onConnectionOpen() {
     console.log("Connection opened");
+    connectionAttempts = 0;
     connected = true;
     sendInit();
 
@@ -566,6 +608,7 @@ function parseGas(view) {
     }
 
     loadingStatus.textContent = "GENERATING MAP";
+    loadingDetails.textContent = "Generating gas"
 
     document.getElementById("loadingBar").style.transition = "none";
     document.getElementById("loadingBar").style.width = 0 + "%";
@@ -583,7 +626,7 @@ function parsePlayer(view) {
         view.deserealize(ship, Datagrams.shipUpdate);
 
         Datagrams.shipUpdate.transferData(player.ship, ship);
-        
+
     }
     else {
         console.log("Undefined player update with ID " + id);
@@ -606,7 +649,7 @@ function parseInit(view) {
         let pl = new Player(p.id);
         Datagrams.initPlayer.transferData(pl, p);
     }
-    
+
 
     running = true;
 
@@ -778,8 +821,8 @@ function sendControls() {
         view.serialize({ command: serverCommand }, Datagrams.ServerConsole);
         serverCommand = "";
     }
-
-    connection.send(buffer.slice(0, view.index));
+    if (connected)
+        connection.send(buffer.slice(0, view.index));
     //console.log(buffer);
 }
 
