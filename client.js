@@ -813,7 +813,7 @@ function parseGasScan(view) {
     for (let i = 0; i < count; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.GasScan);
-        scannedGas[temp.x * 1000 + temp.y] = temp.gas;
+        scannedGas[temp.x * 1000/minimapScale + temp.y] = temp.gas;
     }
 
 }
