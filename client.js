@@ -291,6 +291,12 @@ for (let i = 0; i < 60; i++) {
     averageFPS.push(0);
 }
 
+let minFPS = [];
+
+for (let i = 0; i < 360; i++) {
+    minFPS.push(0);
+}
+
 function arrayAverage(array) {
     let sum = 0;
     for (let i = 0; i < array.length; i++) {
@@ -312,7 +318,7 @@ function graphicsUpdate(deltaTimeFactor) {
         averageFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) +"\nMin FPS: " + arrayMin(averageFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) +"\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         averageFPS.shift();
 
         updatePlayers(deltaTime);
