@@ -298,12 +298,21 @@ function arrayAverage(array) {
     }
     return sum / array.length;
 }
+
+
+function arrayMin(array) {
+    let min = 0;
+    for (let i = 0; i < array.length; i++) {
+        min = Math.min(min, array[i]);
+    }
+    return min;
+}
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
         averageFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) +"\nMin FPS: " + arrayMin(averageFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
         averageFPS.shift();
 
         updatePlayers(deltaTime);
