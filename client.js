@@ -301,8 +301,8 @@ function arrayAverage(array) {
 
 
 function arrayMin(array) {
-    let min = 0;
-    for (let i = 0; i < array.length; i++) {
+    let min = array[0];
+    for (let i = 1; i < array.length; i++) {
         min = Math.min(min, array[i]);
     }
     return min;
