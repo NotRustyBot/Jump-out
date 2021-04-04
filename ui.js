@@ -56,22 +56,28 @@ let pixi_minimap = new PIXI.Application({
     view: minimap_canvas,
     width: 350, height: 350,
 });
-let gasPx_container = new PIXI.ParticleContainer(1000, {scale: true,
+let gasPx_container = new PIXI.ParticleContainer(1000, {
+    scale: true,
     position: true,
     rotation: true,
-    tint: true,});
+    tint: true,
+});
 pixi_minimap.stage.addChild(gasPx_container);
 pixi_minimap.stage.addChild(PIXI.Sprite.from("images/minimapMask.png"));
 pixi_minimap.renderer.backgroundColor = 0x181818;
 
 let gasPXs = [];
 
-for (let x = 0; x < 25; x++) {
-    for (let y = 0; y < 25; y++) {
+let minimapControl = { zoom: 3, density: 25 };
+
+for (let x = 0; x < minimapControl.density; x++) {
+    for (let y = 0; y < minimapControl.density; y++) {
         let gasPX = new PIXI.Sprite.from("images/minimap/circle.png");
-        gasPX.position.x = x * 14;
-        gasPX.position.y = y * 14;
-        gasPXs[x * 25 + y] = gasPX;
+        gasPX.position.x = x * (350 / minimapControl.density);
+        gasPX.position.y = y * (350 / minimapControl.density);
+        gasPXs[x * minimapControl.density + y] = gasPX;
+        gasPX.anchor.set(0.5);
+        gasPX.oscilation = Math.random();
 
         gasPx_container.addChild(gasPX);
     }
@@ -79,18 +85,22 @@ for (let x = 0; x < 25; x++) {
 
 
 
-function UpdateMinimap() {
-    for (let x = 0; x < 25; x++) {
-        for (let y = 0; y < 25; y++) {
-            let gasPX = gasPXs[x * 25 + y];
-            let lx = Math.floor(localPlayer.ship.position.x / gasParticleSpacing) - 12 + x;
-            let ly = Math.floor(localPlayer.ship.position.y / gasParticleSpacing) - 12 + y;
-            if (scannedGas[lx*1000 +ly] == undefined) {
-                gasPX.scale.set(0.5);
+function UpdateMinimap(deltaTime) {
+    for (let x = 0; x < minimapControl.density; x++) {
+        for (let y = 0; y < minimapControl.density; y++) {
+            let gasPX = gasPXs[x * minimapControl.density + y];
+            let lx = Math.floor((localPlayer.ship.position.x / gasParticleSpacing) - minimapControl.density / 2 * minimapControl.zoom + x* minimapControl.zoom);
+            let ly = Math.floor((localPlayer.ship.position.y / gasParticleSpacing) - minimapControl.density / 2 * minimapControl.zoom + y* minimapControl.zoom);
+            if (scannedGas[lx * 1000 + ly] == undefined) {
+                gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation),0)/2 +0.3);
+                gasPX.oscilation+=deltaTime;
+                if (gasPX.oscilation > 2) {
+                    gasPX.oscilation -= 3;
+                }
                 gasPX.tint = 0x555555;
-            }else{
+            } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(scannedGas[lx*1000 +ly]/100);
+                gasPX.scale.set(scannedGas[lx * 1000 + ly] / 100);
             }
         }
     }

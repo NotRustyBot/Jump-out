@@ -191,7 +191,8 @@ body {
     left: 0;
     top: 0;
     width: 100px;
-    height: fit-content;
+    height: unset;
+    bottom: unset;
 }
 
 .menus > div {

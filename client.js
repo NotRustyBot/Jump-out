@@ -466,7 +466,7 @@ function updateGui(deltaTime) {
     gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
     gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
 
-    UpdateMinimap();
+    UpdateMinimap(deltaTime);
 
 }
 
