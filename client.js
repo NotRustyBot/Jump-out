@@ -144,7 +144,7 @@ var connected = false;
 var running = false;
 
 var connectionAttempts = 1;
-var reconnectInterval = 2000;
+var reconnectInterval = 3000;
 var maxReconnectAttempts = 100;
 
 //GAS
