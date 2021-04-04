@@ -199,11 +199,21 @@ function loadingProgress(e) {
     console.log("loading", e.progress);
 }
 
+var loadingScreenOpen = true;
+
 function closeLoadingScreen() {
+    loadingScreenOpen = false;
     document.getElementById("loadingBarContainer").style.opacity = "0";
     setTimeout(() => {
         document.getElementById("loadingBarContainer").style.display = "none";
     }, 1000);
+}
+function openLoadingScreen() {
+    loadingScreenOpen = true;
+    document.getElementById("loadingBarContainer").style.display = "flex";
+    setTimeout(() => {
+        document.getElementById("loadingBarContainer").style.opacity = "1";
+    }, 100);
 }
 //#endregion
 
@@ -269,7 +279,7 @@ function start() {
 //#region UPDATE
 
 function update() {
-    if (running) {
+    if (running && connected) {
         sendControls();
     }
 }
@@ -465,7 +475,9 @@ function updateGui(deltaTime) {
 
 
 function connect() {
-    loadingDetails.textContent = "Attempt "+connectionAttempts+"/"+maxReconnectAttempts;
+    loadingStatus.textContent = "CONNECTING";
+    loadingDetails.textContent = "Attempt " + connectionAttempts + "/" + maxReconnectAttempts;
+    document.getElementById("loadingBar").style.width = 100 * connectionAttempts / maxReconnectAttempts + "%"
     //console.log(window.location.hostname);
     if (window.location.hostname == "10.200.140.14") {
         connection = new WebSocket("ws://10.200.140.14:20003/");
@@ -483,18 +495,24 @@ function connect() {
 
 function reconnect() {
     if (!connected) {
+        if (!loadingScreenOpen) openLoadingScreen();
         connectionAttempts++;
         if (connectionAttempts <= maxReconnectAttempts) {
             connect();
         }
         else {
-            console.log("Stopped reconnecting after " + (connectionAttempts - 1) + " attempts")
+            console.log("Stopped reconnecting after " + (connectionAttempts - 1) + " attempts");
+            loadingStatus.textContent = "CONNECTION FAILED";
+            loadingDetails.textContent = "Stopped reconnecting after " + (connectionAttempts-1) + " attempts";
         }
     }
 }
 
 function onConnectionClose(e) {
     console.log("Connection closed. Code: " + e.code + " Reason: " + e.reason);
+    connected = false;
+    running = false;
+
     setTimeout(reconnect, reconnectInterval)
 }
 function onConnectionOpen() {
@@ -785,8 +803,8 @@ function sendControls() {
         view.serialize({ command: serverCommand }, Datagrams.ServerConsole);
         serverCommand = "";
     }
-
-    connection.send(buffer.slice(0, view.index));
+    if (connected)
+        connection.send(buffer.slice(0, view.index));
     //console.log(buffer);
 }
 
