@@ -84,14 +84,14 @@ for (let x = 0; x < minimapControl.density; x++) {
 }
 
 
-
+const minimapScale = 2;
 function UpdateMinimap(deltaTime) {
     for (let x = 0; x < minimapControl.density; x++) {
         for (let y = 0; y < minimapControl.density; y++) {
             let gasPX = gasPXs[x * minimapControl.density + y];
-            let lx = Math.floor((localPlayer.ship.position.x / gasParticleSpacing) - minimapControl.density / 2 * minimapControl.zoom + x* minimapControl.zoom);
-            let ly = Math.floor((localPlayer.ship.position.y / gasParticleSpacing) - minimapControl.density / 2 * minimapControl.zoom + y* minimapControl.zoom);
-            if (scannedGas[lx * 1000 + ly] == undefined) {
+            let lx = Math.floor((localPlayer.ship.position.x / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + x* minimapControl.zoom);
+            let ly = Math.floor((localPlayer.ship.position.y / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + y* minimapControl.zoom);
+            if (scannedGas[lx * 1000/minimapScale + ly] == undefined) {
                 gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation),0)/2 +0.3);
                 gasPX.oscilation+=deltaTime;
                 if (gasPX.oscilation > 2) {
@@ -100,7 +100,7 @@ function UpdateMinimap(deltaTime) {
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(scannedGas[lx * 1000 + ly] / 100);
+                gasPX.scale.set(scannedGas[lx * 1000/minimapScale + ly] / 100);
             }
         }
     }
