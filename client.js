@@ -143,6 +143,10 @@ var loaded = false;
 var connected = false;
 var running = false;
 
+var connectionAttempts = 1;
+var reconnectInterval = 2000;
+var maxReconnectAttempts = 100;
+
 //GAS
 var gasLoaded = false;
 var gasParticleSpacing = 400;
@@ -170,16 +174,16 @@ playerEffectsContainer.addChild(graphics);
 
 //GAUGES
 let gauges = {
-    shield:document.getElementById("gaugeShield"),
-    hull:document.getElementById("gaugeHull"),
-    fuel:document.getElementById("gaugeFuel"),
-    cargo:document.getElementById("gaugeCargo"),
+    shield: document.getElementById("gaugeShield"),
+    hull: document.getElementById("gaugeHull"),
+    fuel: document.getElementById("gaugeFuel"),
+    cargo: document.getElementById("gaugeCargo"),
 }
 let gaugeNumbers = {
-    shield:document.getElementById("numberShield"),
-    hull:document.getElementById("numberHull"),
-    fuel:document.getElementById("numberFuel"),
-    cargo:document.getElementById("numberCargo"),
+    shield: document.getElementById("numberShield"),
+    hull: document.getElementById("numberHull"),
+    fuel: document.getElementById("numberFuel"),
+    cargo: document.getElementById("numberCargo"),
 }
 
 //#endregion
@@ -187,6 +191,8 @@ let gaugeNumbers = {
 //#region LOADING SCREEN
 var loadingStatus = document.getElementById("loadingStatus");
 loadingStatus.textContent = "LOADING";
+var loadingDetails = document.getElementById("loadingDetails");
+loadingDetails.innerHtml = "&nbsp;";
 
 function loadingProgress(e) {
     document.getElementById("loadingBar").style.width = e.progress + "%";
@@ -437,13 +443,13 @@ function updateGui(deltaTime) {
 
     let shieldRatio = 75;
     let hullRatio = 75;
-    let fuelRatio = localPlayer.ship.afterBurnerFuel/6;
+    let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
     let cargoRatio = 0;
 
-    gauges.shield.style.width = shieldRatio+"%";
-    gauges.hull.style.width = hullRatio+"%";
-    gauges.fuel.style.width = fuelRatio+"%";
-    gauges.cargo.style.width = cargoRatio+"%";
+    gauges.shield.style.width = shieldRatio + "%";
+    gauges.hull.style.width = hullRatio + "%";
+    gauges.fuel.style.width = fuelRatio + "%";
+    gauges.cargo.style.width = cargoRatio + "%";
 
     gaugeNumbers.shield.innerHTML = shieldRatio.toFixed(0);
     gaugeNumbers.hull.innerHTML = hullRatio.toFixed(0);
@@ -456,26 +462,44 @@ function updateGui(deltaTime) {
 
 //#region NETWORK
 
+
+
 function connect() {
-    console.log(window.location.hostname);
+    loadingDetails.textContent = "Attempt "+connectionAttempts+"/"+maxReconnectAttempts;
+    //console.log(window.location.hostname);
     if (window.location.hostname == "10.200.140.14") {
         connection = new WebSocket("ws://10.200.140.14:20003/");
         console.log("Connecting to local...");
     } else {
         connection = new WebSocket("wss://jumpout.ws.coal.games/");
-        console.log("Connecting to server...");
+        console.log("Connecting to server... Attempt " + connectionAttempts);
     }
     connection.binaryType = "arraybuffer";
+    //setTimeout(onConnectionTimeout,reconnectInterval);
     connection.onopen = onConnectionOpen;
     connection.onmessage = onConnectionMessage;
     connection.onclose = onConnectionClose;
 }
 
+function reconnect() {
+    if (!connected) {
+        connectionAttempts++;
+        if (connectionAttempts <= maxReconnectAttempts) {
+            connect();
+        }
+        else {
+            console.log("Stopped reconnecting after " + (connectionAttempts - 1) + " attempts")
+        }
+    }
+}
+
 function onConnectionClose(e) {
     console.log("Connection closed. Code: " + e.code + " Reason: " + e.reason);
+    setTimeout(reconnect, reconnectInterval)
 }
 function onConnectionOpen() {
     console.log("Connection opened");
+    connectionAttempts = 0;
     connected = true;
     sendInit();
 
@@ -561,6 +585,7 @@ function parseGas(view) {
     }
 
     loadingStatus.textContent = "GENERATING MAP";
+    loadingDetails.textContent = "Generating gas"
 
     document.getElementById("loadingBar").style.transition = "none";
     document.getElementById("loadingBar").style.width = 0 + "%";
@@ -578,7 +603,7 @@ function parsePlayer(view) {
         view.deserealize(ship, Datagrams.shipUpdate);
 
         Datagrams.shipUpdate.transferData(player.ship, ship);
-        
+
     }
     else {
         console.log("Undefined player update with ID " + id);
@@ -601,7 +626,7 @@ function parseInit(view) {
         let pl = new Player(p.id);
         Datagrams.initPlayer.transferData(pl, p);
     }
-    
+
 
     running = true;
 
@@ -845,11 +870,11 @@ let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camer
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
 let gasColorMap = new ColorGraph([0x161A1C, 0xa04060]);
-gasColorMap =  new ColorGraph([0x006d77,0x83c5be,0xedf6f9,0xffddd2,0xe29578,]);
+gasColorMap = new ColorGraph([0x006d77, 0x83c5be, 0xedf6f9, 0xffddd2, 0xe29578,]);
 
-gasColorMap =  new ColorGraph([0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,0x6f1d1b,0xbb9457,0x432818,0x99582a,0xffe6a7,]);
+gasColorMap = new ColorGraph([0x6f1d1b, 0xbb9457, 0x432818, 0x99582a, 0xffe6a7, 0x6f1d1b, 0xbb9457, 0x432818, 0x99582a, 0xffe6a7,]);
 
-gasColorMap =  new ColorGraph([0x397367,0x63ccca,0x5da399,0x42858c,0x35393c,]);
+gasColorMap = new ColorGraph([0x397367, 0x63ccca, 0x5da399, 0x42858c, 0x35393c,]);
 
 //gasColorMap = new ColorGraph([0x000000,0x3d2645,0x832161,0xda4167,0xf0eff4]);
 
