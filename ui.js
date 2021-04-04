@@ -61,6 +61,8 @@ let gasPx_container = new PIXI.ParticleContainer(1000, {scale: true,
     rotation: true,
     tint: true,});
 pixi_minimap.stage.addChild(gasPx_container);
+pixi_minimap.stage.addChild(PIXI.Sprite.from("images/minimapMask.png"));
+pixi_minimap.renderer.backgroundColor = 0x181818;
 
 let gasPXs = [];
 

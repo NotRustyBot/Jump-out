@@ -787,7 +787,7 @@ function parseDebug(view) {
 let scannedGas = [];
 function parseGasScan(view) {
     let count = view.getUint16();
-    console.log(count);
+    //console.log(count);
     for (let i = 0; i < count; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.GasScan);
