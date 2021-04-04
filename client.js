@@ -358,9 +358,14 @@ function updatePlayers(deltaTime) {
     localPlayer.miniMapMarker.rotation = localPlayer.ship.rotation + Math.PI / 2;
 }
 
+let detachCamera = false;
+
 function updateCamera(deltaTime) {
-    camera.x = localPlayer.ship.position.x;
-    camera.y = localPlayer.ship.position.y;
+    if (!detachCamera) {
+        camera.x = localPlayer.ship.position.x;
+        camera.y = localPlayer.ship.position.y;
+    }
+
     gameContainer.scale.set(camera.zoom);
     gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
     gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
@@ -880,7 +885,10 @@ function handleInput() {
         keyDown.f = false;
     } else if (keyDown.e) {
         actionID = 2;
-        keyDown.f = false;
+        keyDown.e = false;
+    }else if (keyDown.c) {
+        detachCamera = !detachCamera;
+        keyDown.c = false;
     }
 
 }
