@@ -450,7 +450,7 @@ function updateGui(deltaTime) {
     gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
     gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
 
-    //UpdateMinimap();
+    UpdateMinimap();
 
 }
 
@@ -744,6 +744,7 @@ function parseDebug(view) {
 let scannedGas = [];
 function parseGasScan(view) {
     let count = view.getUint16();
+    console.log(count);
     for (let i = 0; i < count; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.GasScan);

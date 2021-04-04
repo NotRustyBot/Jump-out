@@ -56,9 +56,14 @@ let pixi_minimap = new PIXI.Application({
     view: minimap_canvas,
     width: 350, height: 350,
 });
-let gasPx_container = new PIXI.ParticleContainer();
+let gasPx_container = new PIXI.ParticleContainer(1000, {scale: true,
+    position: true,
+    rotation: true,
+    tint: true,});
 pixi_minimap.stage.addChild(gasPx_container);
+
 let gasPXs = [];
+
 for (let x = 0; x < 25; x++) {
     for (let y = 0; y < 25; y++) {
         let gasPX = new PIXI.Sprite.from("images/minimap/circle.png");
@@ -70,16 +75,22 @@ for (let x = 0; x < 25; x++) {
     }
 }
 
+
+
 function UpdateMinimap() {
     for (let x = 0; x < 25; x++) {
         for (let y = 0; y < 25; y++) {
+            let gasPX = gasPXs[x * 25 + y];
             let lx = Math.floor(localPlayer.ship.position.x / gasParticleSpacing) - 12 + x;
             let ly = Math.floor(localPlayer.ship.position.y / gasParticleSpacing) - 12 + y;
-            if (scannedGas[x*1000 +y] == undefined) {
-                gasPX.scale.set(0.01);
+            if (scannedGas[lx*1000 +ly] == undefined) {
+                gasPX.scale.set(0.5);
+                gasPX.tint = 0x555555;
             }else{
-                gasPX.scale.set(scannedGas[x*1000 +y]/100);
+                gasPX.tint = 0xffffff;
+                gasPX.scale.set(scannedGas[lx*1000 +ly]/100);
             }
         }
     }
+    pixi_minimap.renderer.render(pixi_minimap.stage);
 }
