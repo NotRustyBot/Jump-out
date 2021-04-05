@@ -174,10 +174,12 @@ function ShadedSprite(parent, prefix, sizeObject) {
 
     this.update = function (source) {
         if (!isOnScreen(this.parent.position, 100)) {
-            this.container.visible = false
+            this.container.visible = false;
+            this.shadow.visible = false;
             return;
         } else {
-            this.container.visible = true
+            this.container.visible = true;
+            this.shadow.visible = true;
         }
 
         this.container.position.set(this.parent.position.x, this.parent.position.y);
