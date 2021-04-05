@@ -304,6 +304,12 @@ body {
 #gaugeCargo {
     background: #ACACAC;
 }
+#gaugeSpeed {
+    background: #ffffff;
+}
+#gaugeSpeed2 {
+    background: #a5a5a5;
+}
 
 #tooltip {
     z-index:100;

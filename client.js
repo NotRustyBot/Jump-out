@@ -61,6 +61,9 @@ loader
     .add("ship_base", "images/ship_base.png")
     .add("ship_dark", "images/ship_dark.png")
     .add("ship_outline", "images/ship_outline.png")
+    .add("ship2_base", "images/ship2_base.png")
+    .add("ship2_dark", "images/ship2_dark.png")
+    .add("ship2_outline", "images/ship2_outline.png")
     .add("asteroid_base", "images/asteroid_base.png")
     .add("asteroid_dark", "images/asteroid_dark.png")
     .add("asteroid_outline", "images/asteroid_outline.png")
@@ -178,12 +181,15 @@ let gauges = {
     hull: document.getElementById("gaugeHull"),
     fuel: document.getElementById("gaugeFuel"),
     cargo: document.getElementById("gaugeCargo"),
+    speed: document.getElementById("gaugeSpeed"),
+    maxSpeed: document.getElementById("gaugeSpeed2"),
 }
 let gaugeNumbers = {
     shield: document.getElementById("numberShield"),
     hull: document.getElementById("numberHull"),
     fuel: document.getElementById("numberFuel"),
     cargo: document.getElementById("numberCargo"),
+    speed: document.getElementById("numberSpeed"),
 }
 
 //#endregion
@@ -330,7 +336,7 @@ function graphicsUpdate(deltaTimeFactor) {
         updateGui(deltaTime);
 
         Player.players.forEach(player => {
-
+            if(player.lensFlare)
             player.lensFlare.update(player.toGlobal(new Vector(-90, 0)).add({ x: -camera.x, y: -camera.y }).mult(camera.zoom));
         });
 
@@ -477,16 +483,23 @@ function updateGui(deltaTime) {
     let hullRatio = 75;
     let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
     let cargoRatio = 0;
+    let speedG = localPlayer.ship.velocity.length();
+    let maxSpeedG = 1 - localPlayer.ship.debuff / 110;;
+    let speedRatio = speedG/20;
+    let maxSpeedRatio = maxSpeedG/20;
 
     gauges.shield.style.width = shieldRatio + "%";
     gauges.hull.style.width = hullRatio + "%";
     gauges.fuel.style.width = fuelRatio + "%";
     gauges.cargo.style.width = cargoRatio + "%";
+    gauges.speed.style.width = speedRatio + "%";
+    gauges.maxSpeed.style.width = maxSpeedRatio + "%";
 
     gaugeNumbers.shield.innerHTML = shieldRatio.toFixed(0);
     gaugeNumbers.hull.innerHTML = hullRatio.toFixed(0);
     gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
     gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
+    gaugeNumbers.speed.innerHTML = speedG.toFixed(0) + " / "+ maxSpeedG.toFixed(0);
 
     UpdateMinimap(deltaTime);
 
