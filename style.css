@@ -250,7 +250,7 @@ body {
     position: absolute;
     display:flex;
     height:auto;
-    width:500px;
+    width:550px;
     left:300px;
     bottom:0;
     padding:30px;
@@ -276,6 +276,7 @@ body {
     height:10px;
     border-radius: 10px;
     margin:0 10px 0 10px;
+    overflow: hidden;
 }
 .gauge > div {
     width:75%;
@@ -285,7 +286,7 @@ body {
 
 }
 .gauges h1 {
-    width:80px;
+    width:100px;
     font-family: Montserrat, sans-serif;
     font-size: 2em;
     color: white;
@@ -306,9 +307,10 @@ body {
 }
 #gaugeSpeed {
     background: #ffffff;
+    margin-top: -10px;
 }
 #gaugeSpeed2 {
-    background: #a5a5a5;
+    background: #ffffff3f;
 }
 
 #tooltip {

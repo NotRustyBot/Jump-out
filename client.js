@@ -484,7 +484,7 @@ function updateGui(deltaTime) {
     let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
     let cargoRatio = 0;
     let speedG = localPlayer.ship.velocity.length();
-    let maxSpeedG = 1 - localPlayer.ship.debuff / 110;;
+    let maxSpeedG = (1 - localPlayer.ship.debuff / 110) * 2000;
     let speedRatio = speedG/20;
     let maxSpeedRatio = maxSpeedG/20;
 
@@ -499,7 +499,7 @@ function updateGui(deltaTime) {
     gaugeNumbers.hull.innerHTML = hullRatio.toFixed(0);
     gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
     gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
-    gaugeNumbers.speed.innerHTML = speedG.toFixed(0) + " / "+ maxSpeedG.toFixed(0);
+    gaugeNumbers.speed.innerHTML = speedG.toFixed(0);
 
     UpdateMinimap(deltaTime);
 
