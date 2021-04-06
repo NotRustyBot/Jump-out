@@ -370,7 +370,7 @@ let preformance = {
 
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
-        preformance.start();
+        
         averageFPS.push(app.ticker.FPS);
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
@@ -382,12 +382,7 @@ function graphicsUpdate(deltaTimeFactor) {
         updateParticles(deltaTime);
         updateTrails(deltaTime);
         updateCamera(deltaTime);
-
-        preformance.logAndNext();
-
         updateGui(deltaTime);
-
-        preformance.logAndNext();
 
         Player.players.forEach(player => {
             if (player.lensFlare)
@@ -404,9 +399,7 @@ function graphicsUpdate(deltaTimeFactor) {
         sunAngle += deltaTime * 0.1;
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
 
-        preformance.logAndNext();
-
-        preformance.stop();
+        
     }
 }
 

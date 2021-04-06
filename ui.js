@@ -107,5 +107,4 @@ function UpdateMinimap(deltaTime) {
             }
         }
     }
-    pixi_minimap.renderer.render(pixi_minimap.stage);
 }
