@@ -69,31 +69,7 @@ Vector.fromAngle = function (r) {
     return new Vector(Math.cos(r), Math.sin(r));
 };
 
-function ShipType() {
-    this.name = "ShipTypeName";
-    this.speed = 5;
-    this.acceleration = 1;
-    this.reverseAccelreation = 0.5;
-    this.rotationSpeed = 1;
-    this.afterBurnerBonus = 3;
-    this.afterBurnerCapacity = 60;
-}
 
-ShipType.init = function () {
-    ShipType.types = [];
-    let debugShip = new ShipType();
-    debugShip.name = "Debug";
-    debugShip.speed = 150;
-    debugShip.acceleration = 5;
-    debugShip.reverseAccelreation = 3;
-    debugShip.rotationSpeed = 1;
-    debugShip.afterBurnerSpeedBonus = 1.5;
-    debugShip.afterBurnerAgilityBonus = 1.5;
-    debugShip.afterBurnerCapacity = 60;
-    ShipType.types["Debug"] = debugShip;
-};
-
-ShipType.init();
 
 
 var Universe = {};
@@ -174,10 +150,12 @@ function ShadedSprite(parent, prefix, sizeObject) {
 
     this.update = function (source) {
         if (!isOnScreen(this.parent.position, 100)) {
-            this.container.visible = false
+            this.container.visible = false;
+            this.shadow.visible = false;
             return;
         } else {
-            this.container.visible = true
+            this.container.visible = true;
+            this.shadow.visible = true;
         }
 
         this.container.position.set(this.parent.position.x, this.parent.position.y);
@@ -240,12 +218,15 @@ function Ship() {
     };
 }
 
+ShipType = defineShips([]);
+
 function Player(id) {
     this.nick = "nick";
     this.ship;
     this.id = id;
     this.ship = new Ship();
-    this.ship.init(ShipType.types["Debug"]);
+    this.shipType = -1;
+    this.ship.init(ShipType.types[this.shipType]);
     this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);
     this.sprite.anchor.set(0.5);

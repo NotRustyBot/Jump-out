@@ -43,8 +43,10 @@ Array.from(tooltipElements).forEach(element => {
     })
 });
 
+let minimapShown = true;
 min_minimap.addEventListener("click", () => {
     minimap.classList.toggle("minimized");
+    minimapShown = !minimapShown;
 });
 
 min_powercells.addEventListener("click", () => {
@@ -86,6 +88,7 @@ for (let x = 0; x < minimapControl.density; x++) {
 
 const minimapScale = 2;
 function UpdateMinimap(deltaTime) {
+    if(!minimapShown) return;
     for (let x = 0; x < minimapControl.density; x++) {
         for (let y = 0; y < minimapControl.density; y++) {
             let gasPX = gasPXs[x * minimapControl.density + y];
