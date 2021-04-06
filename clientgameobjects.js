@@ -200,10 +200,12 @@ function Ship(type) {
     this.control = new Vector(0, 0);
     this.afterBurnerActive = 0;
     this.afterBurnerFuel = 0;
-    //this.trails = [new Trail(this, new Vector(-90, 0))];
-    //this.trails = [new Trail(this, new Vector(-180, -72)), new Trail(this, new Vector(-180, 72)), new Trail(this, new Vector(-127, -124)), new Trail(this, new Vector(-127, 124)), new Trail(this, new Vector(55, -112),false), new Trail(this, new Vector(55, 112),false)];
-    this.trails = [new Trail(this, new Vector(-120, -20)), new Trail(this, new Vector(-120, 20))];
-    this.sprite = new ShadedSprite(this, "ship3", { size: /*1.9*/1.6 });
+    this.trails = [];
+    for (let i = 0; i < this.stats.trails.length; i++) {
+        this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x,this.stats.trails[i].y),this.stats.trails[i].useTrail));
+        
+    }
+    this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize});
 
     this.init = function (type) {
         this.stats = type;
@@ -632,7 +634,6 @@ function LensFlare(parent) {
         });
     }
 }
-
 
 
 function Trail(emitter, offset, useTrail) {
