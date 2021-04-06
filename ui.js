@@ -9,6 +9,8 @@ const powercells = document.getElementsByClassName("powercells")[0];
 const gaugesElement = document.getElementsByClassName("gauges")[0];
 
 const tooltipBox = document.getElementById("tooltip");
+const tooltipBoxName = document.getElementById("tooltipName");
+const tooltipBoxDesc = document.getElementById("tooltipDesc");
 
 const tooltipElements = document.getElementsByClassName("tooltip");
 
@@ -26,17 +28,17 @@ Array.from(tooltipElements).forEach(element => {
     element.addEventListener("mouseenter", e => {
         tooltipBox.style.opacity = "1";
         if (element.dataset.tooltipName)
-            tooltipBox.firstChild.innerHTML = element.dataset.tooltipName;
+            tooltipBoxName.innerHTML = element.dataset.tooltipName;
         else
-            tooltipBox.firstChild.innerHTML = "Missing tooltip";
+            tooltipBoxName.innerHTML = "Missing tooltip";
 
         if (element.dataset.tooltipDesc) {
-            tooltipBox.lastChild.style.display = "block";
-            tooltipBox.lastChild.innerHTML = element.dataset.tooltipDesc;
+            tooltipBoxDesc.style.display = "block";
+            tooltipBoxDesc.innerHTML = element.dataset.tooltipDesc;
         }
         else {
-            tooltipBox.lastChild.style.display = "none";
-            tooltipBox.lastChild.innerHTML = "Missing description";
+            tooltipBoxDesc.style.display = "none";
+            tooltipBoxDesc.innerHTML = "Missing description";
         }
     })
     element.addEventListener("mouseleave", e => {
@@ -52,14 +54,14 @@ min_minimap.addEventListener("click", () => {
 });
 
 minimap_zoomIn.addEventListener("click", () => {
-    if (minimapControl.zoom-zoomStep >= minimapControl.minZoom) {
-        minimapControl.zoom-=zoomStep;
+    if (minimapControl.zoom - zoomStep >= minimapControl.minZoom) {
+        minimapControl.zoom -= zoomStep;
     }
 });
 
 minimap_zoomOut.addEventListener("click", () => {
-    if (minimapControl.zoom+zoomStep <= minimapControl.maxZoom) {
-        minimapControl.zoom+=zoomStep;
+    if (minimapControl.zoom + zoomStep <= minimapControl.maxZoom) {
+        minimapControl.zoom += zoomStep;
     }
 });
 
@@ -102,22 +104,22 @@ for (let x = 0; x < minimapControl.density; x++) {
 
 const minimapScale = 2;
 function UpdateMinimap(deltaTime) {
-    if(!minimapShown) return;
+    if (!minimapShown) return;
     for (let x = 0; x < minimapControl.density; x++) {
         for (let y = 0; y < minimapControl.density; y++) {
             let gasPX = gasPXs[x * minimapControl.density + y];
-            let lx = Math.floor((localPlayer.ship.position.x / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + x* minimapControl.zoom);
-            let ly = Math.floor((localPlayer.ship.position.y / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + y* minimapControl.zoom);
-            if (scannedGas[lx * 1000/minimapScale + ly] == undefined) {
-                gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation),0)/2 +0.3);
-                gasPX.oscilation+=deltaTime;
+            let lx = Math.floor((localPlayer.ship.position.x / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + x * minimapControl.zoom);
+            let ly = Math.floor((localPlayer.ship.position.y / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + y * minimapControl.zoom);
+            if (scannedGas[lx * 1000 / minimapScale + ly] == undefined) {
+                gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation), 0) / 2 + 0.3);
+                gasPX.oscilation += deltaTime;
                 if (gasPX.oscilation > 2) {
                     gasPX.oscilation -= 3;
                 }
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(scannedGas[lx * 1000/minimapScale + ly] / 100);
+                gasPX.scale.set(scannedGas[lx * 1000 / minimapScale + ly] / 100);
             }
         }
     }
