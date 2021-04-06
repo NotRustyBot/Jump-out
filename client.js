@@ -1009,21 +1009,21 @@ window.addEventListener("wheel", e => {
     }
 });
 
-let dragging = false;
+let mapDragging = false;
 bigmap_canvas.addEventListener('mousedown', e => {
-    dragging = true;
+    mapDragging = true;
 });
 
 bigmap_canvas.addEventListener('mousemove', e => {
-    if (dragging === true) {
+    if (mapDragging === true) {
         big_mapControl.x -= e.movementX/big_mapDrag * big_mapControl.zoom;
         big_mapControl.y -= e.movementY/big_mapDrag * big_mapControl.zoom;
     }
 });
 
 window.addEventListener('mouseup', e => {
-    if (dragging === true) {
-        dragging = false;
+    if (mapDragging === true) {
+        mapDragging = false;
     }
 });
 

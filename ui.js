@@ -235,7 +235,7 @@ function UpdateMinimap(deltaTime) {
 
 
 
-let bigMapShown = true;
+let bigMapShown = false;
 
 let bigMapApp = new PIXI.Application({
     view: bigmap_canvas,
