@@ -305,6 +305,7 @@ Datagrams.shipUpdate = shipUpdate;
 let initPlayer = new Datagram();
 initPlayer.add(types.uint16, "id");
 initPlayer.add(types.string, "nick");
+initPlayer.add(types.uint8, "shipType");
 Datagrams.initPlayer = initPlayer;
 
 let playerSettingsDatagram = new Datagram();

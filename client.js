@@ -726,8 +726,9 @@ function parsePlayer(view) {
 
 function parseInit(view) {
     let id = view.getUint16();
-    console.log("Setting up local player with ID " + id);
     localPlayer = new Player(id);
+    localPlayer.shipType = view.getUint8();
+    console.log("Setting up local player with ID " + id);
     initLocalPlayer();
     let existingPlayers = view.getUint8();
     for (let i = 0; i < existingPlayers; i++) {
@@ -736,6 +737,7 @@ function parseInit(view) {
         console.log("Adding existing player with ID " + p.id);
 
         let pl = new Player(p.id);
+        console.log(p.shipType);
         Datagrams.initPlayer.transferData(pl, p);
     }
 

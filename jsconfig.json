@@ -7,5 +7,6 @@
         "datagram.js",
         "clientgameobjects.js",
         "ui.js",
+        "shipTypes.js",
       ]
   }
