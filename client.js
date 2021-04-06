@@ -319,25 +319,76 @@ function arrayMin(array) {
     }
     return min;
 }
+
+let preformance = {
+    data: [],
+    lastTime: 0,
+    logIndex: 0,
+    streaming: false,
+    start: function () {
+        this.lastTime = window.performance.now();
+        this.logIndex = 0;
+    },
+    log: function () {
+        if (this.data[this.logIndex] == undefined) {
+            this.data[this.logIndex] = 0;
+        }
+        this.data[this.logIndex] += window.performance.now() - this.lastTime;
+        this.logIndex++;
+    },
+    next: function () {
+        this.lastTime = window.performance.now();
+    },
+    logAndNext: function () {
+        this.log();
+        this.next();
+    },
+    stop: function () {
+        if (this.data[this.logIndex] == undefined) {
+            this.data[this.logIndex] = 0;
+        }
+        this.data[this.logIndex]++;
+
+        if (this.streaming) {
+            for (let i = 0; i < this.data.length; i++) {
+                this.data[i] = this.data[i]*0.99;
+            }
+            window.localStorage.setItem("preformanceData", preformance.string());
+        }
+    },
+    string: function(){
+        let out = "";
+        this.data.forEach(e => {
+            out += Math.floor(e) + ",";
+        });
+        return out.substring(0,out.length-1);
+    }
+}
+
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
+        preformance.start();
         averageFPS.push(app.ticker.FPS);
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n"+ (preformance.streaming? "streaming..." : "") ;
         averageFPS.shift();
         minFPS.shift();
-
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateTrails(deltaTime);
         updateCamera(deltaTime);
+
+        preformance.logAndNext();
+
         updateGui(deltaTime);
 
+        preformance.logAndNext();
+
         Player.players.forEach(player => {
-            if(player.lensFlare)
-            player.lensFlare.update(player.toGlobal(new Vector(-90, 0)).add({ x: -camera.x, y: -camera.y }).mult(camera.zoom));
+            if (player.lensFlare)
+                player.lensFlare.update(player.toGlobal(new Vector(-90, 0)).add({ x: -camera.x, y: -camera.y }).mult(camera.zoom));
         });
 
         Entity.list.forEach(entity => {
@@ -350,6 +401,9 @@ function graphicsUpdate(deltaTimeFactor) {
         sunAngle += deltaTime * 0.1;
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
 
+        preformance.logAndNext();
+
+        preformance.stop();
     }
 }
 
@@ -485,8 +539,8 @@ function updateGui(deltaTime) {
     let cargoRatio = 0;
     let speedG = localPlayer.ship.velocity.length();
     let maxSpeedG = (1 - localPlayer.ship.debuff / 110) * 2000;
-    let speedRatio = speedG/20;
-    let maxSpeedRatio = maxSpeedG/20;
+    let speedRatio = speedG / 20;
+    let maxSpeedRatio = maxSpeedG / 20;
 
     gauges.shield.style.width = shieldRatio + "%";
     gauges.hull.style.width = hullRatio + "%";
@@ -902,6 +956,13 @@ function handleInput() {
     } else if (keyDown.c) {
         detachCamera = !detachCamera;
         keyDown.c = false;
+    } else if (keyDown.k) {
+        window.open("debug/index.html?data="+preformance.string());
+        preformance.data = [];
+        keyDown.k = false;
+    } else if (keyDown.l) {
+        preformance.streaming = !preformance.streaming;
+        keyDown.l = false;
     }
 
 }
