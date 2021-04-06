@@ -108,9 +108,22 @@ function UpdateMinimap(deltaTime) {
     for (let x = 0; x < minimapControl.density; x++) {
         for (let y = 0; y < minimapControl.density; y++) {
             let gasPX = gasPXs[x * minimapControl.density + y];
-            let lx = Math.floor((localPlayer.ship.position.x / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + x * minimapControl.zoom);
-            let ly = Math.floor((localPlayer.ship.position.y / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + y * minimapControl.zoom);
-            if (scannedGas[lx * 1000 / minimapScale + ly] == undefined) {
+            let lx = (localPlayer.ship.position.x / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + x * minimapControl.zoom;
+            let ly = (localPlayer.ship.position.y / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + y * minimapControl.zoom;
+
+            let gtl = scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.floor(ly)] || 0;
+            let gtr = scannedGas[Math.ceil(lx) * 1000 / minimapScale + Math.floor(ly)] || 0;
+            let gbl = scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.ceil(ly)] || 0;
+            let gbr = scannedGas[Math.ceil(lx) * 1000 / minimapScale + Math.ceil(ly)] || 0;
+
+            let ptl = (2 - ((lx % 1) + (ly % 1)))/2;
+            let ptr = (2 - (1 - (lx % 1) + (ly % 1)))/2;
+            let pbl = (2 - ((lx % 1) + 1 - (ly % 1)))/2;
+            let pbr = (2 - (1 - (lx % 1) + 1 - (ly % 1)))/2;
+
+
+
+            if (scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.floor(ly)] == undefined) {
                 gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation), 0) / 2 + 0.3);
                 gasPX.oscilation += deltaTime;
                 if (gasPX.oscilation > 2) {
@@ -119,7 +132,7 @@ function UpdateMinimap(deltaTime) {
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(scannedGas[lx * 1000 / minimapScale + ly] / 100);
+                gasPX.scale.set((gtl*ptl + gtr*ptr + gbl*pbl + gbr*pbr) / 200);
             }
         }
     }
