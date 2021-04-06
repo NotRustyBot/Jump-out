@@ -323,7 +323,7 @@ function arrayMin(array) {
     return min;
 }
 
-let preformance = {
+let performanceData = {
     data: [],
     lastTime: 0,
     logIndex: 0,
@@ -356,7 +356,7 @@ let preformance = {
             for (let i = 0; i < this.data.length; i++) {
                 this.data[i] = this.data[i]*0.99;
             }
-            window.localStorage.setItem("preformanceData", preformance.string());
+            window.localStorage.setItem("performanceData", performanceData.string());
         }
     },
     string: function(){
@@ -375,7 +375,7 @@ function graphicsUpdate(deltaTimeFactor) {
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n"+ (preformance.streaming? "streaming..." : "") ;
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n"+ (performance.streaming? "streaming..." : "") ;
         averageFPS.shift();
         minFPS.shift();
         updatePlayers(deltaTime);
@@ -392,6 +392,8 @@ function graphicsUpdate(deltaTimeFactor) {
         Entity.list.forEach(entity => {
             entity.update(deltaTime);
         });
+
+
 
         //gasParticleContainers[5][5].visible = true;
         gasParticleChunksDisplay();
@@ -550,6 +552,8 @@ function updateGui(deltaTime) {
     gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
     gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
     gaugeNumbers.speed.innerHTML = speedG.toFixed(0);
+
+    updateTooltip(deltaTime);
 
     UpdateMinimap(deltaTime);
 
@@ -954,11 +958,11 @@ function handleInput() {
         detachCamera = !detachCamera;
         keyDown.c = false;
     } else if (keyDown.k) {
-        window.open("debug/index.html?data="+preformance.string());
-        preformance.data = [];
+        window.open("debug/index.html?data="+performance.string());
+        performance.data = [];
         keyDown.k = false;
     } else if (keyDown.l) {
-        preformance.streaming = !preformance.streaming;
+        performance.streaming = !performance.streaming;
         keyDown.l = false;
     }
 

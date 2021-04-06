@@ -149,7 +149,7 @@ input.onchange = update;
 
 
 window.addEventListener('storage', (e) => {
-    if (e.key == "preformanceData") {
+    if (e.key == "performanceData") {
         input.value = e.newValue;
         update(true);
     }
