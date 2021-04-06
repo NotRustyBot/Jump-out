@@ -423,8 +423,10 @@ body {
 .inventory {
     height:900px;
     width:950px;
-    min-width: 470px;
-    min-height: 650px;
+    min-width: 490px;
+    min-height: 655px;
+    max-width: 1800px;
+    max-height: 1100px;
     position: relative;
 }
 .inventory .guiPanelContent{
