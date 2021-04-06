@@ -1,4 +1,3 @@
-
 //#region PIXI INIT
 let app = new PIXI.Application({
     antialias: true,
@@ -354,28 +353,28 @@ let performanceData = {
 
         if (this.streaming) {
             for (let i = 0; i < this.data.length; i++) {
-                this.data[i] = this.data[i]*0.99;
+                this.data[i] = this.data[i] * 0.99;
             }
             window.localStorage.setItem("performanceData", performanceData.string());
         }
     },
-    string: function(){
+    string: function () {
         let out = "";
         this.data.forEach(e => {
             out += Math.floor(e) + ",";
         });
-        return out.substring(0,out.length-1);
+        return out.substring(0, out.length - 1);
     }
 }
 
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
-        
+
         averageFPS.push(app.ticker.FPS);
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n"+ (performance.streaming? "streaming..." : "") ;
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n" + (performance.streaming ? "streaming..." : "");
         averageFPS.shift();
         minFPS.shift();
         updatePlayers(deltaTime);
@@ -401,7 +400,7 @@ function graphicsUpdate(deltaTimeFactor) {
         sunAngle += deltaTime * 0.1;
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
 
-        
+
     }
 }
 
@@ -958,7 +957,7 @@ function handleInput() {
         detachCamera = !detachCamera;
         keyDown.c = false;
     } else if (keyDown.k) {
-        window.open("debug/index.html?data="+performance.string());
+        window.open("debug/index.html?data=" + performance.string());
         performance.data = [];
         keyDown.k = false;
     } else if (keyDown.l) {
@@ -979,22 +978,53 @@ window.addEventListener("keyup", function (e) {
 });
 
 window.addEventListener("wheel", e => {
-    //var oldTargetZoom = targetZoom;
-    let targetZoom = camera.zoom;
-    if (e.deltaY < 0) {
-        if (targetZoom <= maxZoom) targetZoom *= zoomStep;
-    }
-    if (e.deltaY > 0) {
-        if (targetZoom >= minZoom) targetZoom /= zoomStep;
-    }
-    /*if (targetZoom != oldTargetZoom) {
-        zoomDuration = 0;
-        startZoom = zoom;
-    }*/
-    camera.zoom = targetZoom;
+    if (bigMapShown) {
+        if (e.deltaY > 0) {
+            if (big_mapControl.zoom * big_mapControl.zoomStep <= big_mapControl.maxZoom) {
+                big_mapControl.zoom *= big_mapControl.zoomStep;
+            }
+        }
+        if (e.deltaY < 0) {
+            if (big_mapControl.zoom / big_mapControl.zoomStep >= big_mapControl.minZoom) {
+                big_mapControl.zoom /= big_mapControl.zoomStep;
+            }
+        }
+    } else {
+        //var oldTargetZoom = targetZoom;
+        let targetZoom = camera.zoom;
+        if (e.deltaY < 0) {
+            if (targetZoom <= maxZoom) targetZoom *= zoomStep;
+        }
+        if (e.deltaY > 0) {
+            if (targetZoom >= minZoom) targetZoom /= zoomStep;
+        }
+        /*if (targetZoom != oldTargetZoom) {
+            zoomDuration = 0;
+            startZoom = zoom;
+        }*/
+        camera.zoom = targetZoom;
 
-    if (camera.zoom > maxZoom) camera.zoom = maxZoom;
-    if (camera.zoom < minZoom) camera.zoom = minZoom;
+        if (camera.zoom > maxZoom) camera.zoom = maxZoom;
+        if (camera.zoom < minZoom) camera.zoom = minZoom;
+    }
+});
+
+let dragging = false;
+bigmap_canvas.addEventListener('mousedown', e => {
+    dragging = true;
+});
+
+bigmap_canvas.addEventListener('mousemove', e => {
+    if (dragging === true) {
+        big_mapControl.x -= e.movementX/big_mapDrag * big_mapControl.zoom;
+        big_mapControl.y -= e.movementY/big_mapDrag * big_mapControl.zoom;
+    }
+});
+
+window.addEventListener('mouseup', e => {
+    if (dragging === true) {
+        dragging = false;
+    }
 });
 
 //#endregion

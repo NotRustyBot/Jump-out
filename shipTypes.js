@@ -28,6 +28,7 @@ function defineShips(Action) {
     fuelShip.afterBurnerAccelerationBonus = 100;
     fuelShip.afterBurnerCapacity = 600;
     fuelShip.cargoCapacity = 30;
+    fuelShip.inventory = [{unique: true, capacity: 15, filter: 0},{unique: false},{unique: false}],
     fuelShip.drag = 0.05;
     fuelShip.actionPool = [Action.buildTest, Action.MineRock];
     fuelShip.radarRange = 14000;
@@ -79,6 +80,7 @@ function defineShips(Action) {
     debugShip.afterBurnerAccelerationBonus = 800;
     debugShip.afterBurnerCapacity = 600;
     debugShip.cargoCapacity = 30;
+    debugShip.inventory = [{unique: true, capacity: 15, filter: 0},{unique: false},{unique: false}],
     debugShip.drag = 0.5;
     debugShip.actionPool = [Action.buildTest, Action.MineRock];
     debugShip.radarRange = 14000;
@@ -104,6 +106,7 @@ function defineShips(Action) {
     hackerShip.afterBurnerAccelerationBonus = 800;
     hackerShip.afterBurnerCapacity = 600;
     hackerShip.cargoCapacity = 30;
+    hackerShip.inventory = [{unique: true, capacity: 15, filter: 0},{unique: false},{unique: false}],
     hackerShip.drag = 0.5;
     hackerShip.actionPool = [Action.buildTest, Action.MineRock];
     hackerShip.radarRange = 14000;
