@@ -105,7 +105,7 @@ Entity.list = new Map();
 
 let sunAngle = 0;
 
-function ShadedSprite(parent, prefix, sizeObject) {
+function ShadedSprite(parent, prefix, sizeObject, isPlayer) {
     this.container = new PIXI.Container();
     this.parent = parent;
     this.sizeObject = sizeObject;
@@ -140,7 +140,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
         this.outlineMask
     );
 
-    if (prefix == "ship") {
+    if (isPlayer) {
         playerContainer.addChild(this.container);
     }
     else {
@@ -201,7 +201,7 @@ function Ship() {
     this.afterBurnerFuel = 0;
     //this.trails = [new Trail(this, new Vector(-90, 0))];
     this.trails = [new Trail(this, new Vector(-180, -72)), new Trail(this, new Vector(-180, 72)), new Trail(this, new Vector(-127, -124)), new Trail(this, new Vector(-127, 124)), new Trail(this, new Vector(55, -112),false), new Trail(this, new Vector(55, 112),false)];
-    this.sprite = new ShadedSprite(this, [this.stats.name], { size: 1.9 });
+    this.sprite = new ShadedSprite(this, this.stats.name, { size: 1.9 }, true);
 
     this.init = function (type) {
         this.stats = type;
