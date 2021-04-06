@@ -192,6 +192,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer) {
 
 function Ship(type) {
     this.stats = type;
+    console.log(type);
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.rotation = 0;
@@ -216,11 +217,11 @@ function Ship(type) {
 
 ShipType = defineShips([]);
 
-function Player(id) {
+function Player(id, type) {
     this.nick = "nick";
     this.ship;
     this.id = id;
-    this.shipType = -1;
+    this.shipType = type;
     this.ship = new Ship(ShipType.types[this.shipType]);
     this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);

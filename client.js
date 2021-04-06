@@ -58,12 +58,15 @@ loader
     .add("minimap", "images/minimap/minimap.png")
     .add("marker1", "images/minimap/marker1.png")
     .add("marker2", "images/minimap/marker2.png")
-    .add("ship_base", "images/ship_base.png")
-    .add("ship_dark", "images/ship_dark.png")
-    .add("ship_outline", "images/ship_outline.png")
-    .add("ship2_base", "images/ship2_base.png")
-    .add("ship2_dark", "images/ship2_dark.png")
-    .add("ship2_outline", "images/ship2_outline.png")
+    .add("debug_base", "images/ships/debug_base.png")
+    .add("debug_dark", "images/ships/debug_dark.png")
+    .add("debug_outline", "images/ships/debug_outline.png")
+    .add("fuel_base", "images/ships/fuel_base.png")
+    .add("fuel_dark", "images/ships/fuel_dark.png")
+    .add("fuel_outline", "images/ships/fuel_outline.png")
+    .add("hacker_base", "images/ships/hacker_base.png")
+    .add("hacker_dark", "images/ships/hacker_dark.png")
+    .add("hacker_outline", "images/ships/hacker_outline.png")
     .add("asteroid_base", "images/asteroid_base.png")
     .add("asteroid_dark", "images/asteroid_dark.png")
     .add("asteroid_outline", "images/asteroid_outline.png")
@@ -726,8 +729,7 @@ function parsePlayer(view) {
 
 function parseInit(view) {
     let id = view.getUint16();
-    localPlayer = new Player(id);
-    localPlayer.shipType = view.getUint8();
+    localPlayer = new Player(id, view.getUint8());
     console.log("Setting up local player with ID " + id);
     initLocalPlayer();
     let existingPlayers = view.getUint8();
@@ -736,7 +738,7 @@ function parseInit(view) {
         view.deserealize(p, Datagrams.initPlayer);
         console.log("Adding existing player with ID " + p.id);
 
-        let pl = new Player(p.id);
+        let pl = new Player(p.id, p.shipType);
         console.log(p.shipType);
         Datagrams.initPlayer.transferData(pl, p);
     }
@@ -753,7 +755,7 @@ function parseNewPlayers(view) {
         view.deserealize(p, Datagrams.initPlayer);
         if (p.id != localPlayer.id) {
             console.log("Adding new player with ID " + p.id);
-            let pl = new Player(p.id);
+            let pl = new Player(p.id, p.shipType);
             Datagrams.initPlayer.transferData(pl, p);
         }
     }
