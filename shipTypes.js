@@ -10,6 +10,7 @@ function ShipType() {
     this.drag;
     this.actionPool = [];
     this.size;
+    this.trails;
 }
 
 function defineShips(Action) {
@@ -30,6 +31,40 @@ function defineShips(Action) {
     fuelShip.drag = 0.05;
     fuelShip.actionPool = [Action.buildTest, Action.MineRock];
     fuelShip.radarRange = 14000;
+    fuelShip.trails = [
+        {
+            x:-180,
+            y:-72,
+            useTrail:true
+        },
+        {
+            x:-180,
+            y:72,
+            useTrail:true
+        },
+        {
+            x:-127,
+            y:-124,
+            useTrail:true
+        },
+        {
+            x:-127,
+            y:124,
+            useTrail:true
+        },
+        {
+            x:55,
+            y:-112,
+            useTrail:false
+        },
+        {
+            x:55,
+            y:112,
+            useTrail:false
+        },
+
+    ];
+    fuelShip.spriteSize = 1.9;
     ShipType.types[100] = fuelShip;
 
     let debugShip = new ShipType();
@@ -47,6 +82,14 @@ function defineShips(Action) {
     debugShip.drag = 0.5;
     debugShip.actionPool = [Action.buildTest, Action.MineRock];
     debugShip.radarRange = 14000;
+    debugShip.trails = [
+        {
+            x:-90,
+            y:0,
+            useTrail:true
+        },
+    ];
+    debugShip.spriteSize = 1;
     ShipType.types[0] = debugShip;
 
     let hackerShip = new ShipType();
@@ -64,6 +107,19 @@ function defineShips(Action) {
     hackerShip.drag = 0.5;
     hackerShip.actionPool = [Action.buildTest, Action.MineRock];
     hackerShip.radarRange = 14000;
+    hackerShip.trails = [
+        {
+            x:-120,
+            y:-20,
+            useTrail:true
+        },
+        {
+            x:-120,
+            y:20,
+            useTrail:true
+        },
+    ];
+    hackerShip.spriteSize = 1.6;
     ShipType.types[1] = hackerShip;
 
     return ShipType;
