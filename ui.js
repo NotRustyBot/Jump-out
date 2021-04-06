@@ -16,16 +16,41 @@ const tooltipBoxDesc = document.getElementById("tooltipDesc");
 
 const tooltipElements = document.getElementsByClassName("tooltip");
 
+const closeButtons = document.getElementsByClassName("closeButton");
+const dragBars = document.getElementsByClassName("dragBar");
+const resizeButtons = document.getElementsByClassName("resizeButton");
+
+const toggleInventory = document.getElementById("sidebarInventory");
+
+const inventoryElement = document.getElementsByClassName("inventory")[0];
+
 var mousePosition = { x: 0, y: 0 };
 document.onmousemove = function (e) {
     mousePosition.x = e.pageX;
     mousePosition.y = e.pageY;
+    if(dragging){
+        dragMoved.x+=e.movementX;
+        dragMoved.y+=e.movementY;
+        draggedElement.style.left = (dragStart.x + dragMoved.x)+ "px";
+        draggedElement.style.top = (dragStart.y + dragMoved.y)+ "px";
+    }
+    if(resizing){
+        dragMoved.x+=e.movementX;
+        dragMoved.y+=e.movementY;
+        draggedElement.style.width = (dragStart.x + dragMoved.x)+ "px";
+        draggedElement.style.height = (dragStart.y + dragMoved.y)+ "px";
+    }
 };
 
 let tooltipStack = [];
 let hoverTime = 0;
 let tooltipDelay = .3;
 
+let dragging = false;
+let resizing = false;
+let dragMoved = {x:0,y:0};
+let dragStart = {x:0,y:0};
+let draggedElement = null;
 
 
 Array.from(tooltipElements).forEach(element => {
@@ -40,6 +65,49 @@ Array.from(tooltipElements).forEach(element => {
         tooltipStack.pop();
     })
 });
+
+Array.from(closeButtons).forEach(element => {
+    element.addEventListener("click", () => {
+        element.parentElement.parentElement.classList.toggle("closed");
+    })
+});
+
+Array.from(dragBars).forEach(element => {
+    element.addEventListener("mousedown", () => {
+        draggedElement = element.parentElement;
+        dragging = true;
+        dragMoved = {x:element.parentElement.offsetLeft,y:element.parentElement.offsetTop};
+    })
+    element.addEventListener("mouseup", () => {
+        draggedElement = null;
+        dragging = false;
+        dragMoved = {x:0,y:0};
+    })
+});
+
+Array.from(resizeButtons).forEach(element => {
+    element.addEventListener("mousedown", () => {
+        draggedElement = element.parentElement;
+        resizing = true;
+        dragMoved = {x:element.parentElement.offsetWidth,y:element.parentElement.offsetHeight};
+    })
+    element.addEventListener("mouseup", () => {
+        draggedElement = null;
+        resizing = false;
+        dragMoved = {x:0,y:0};
+    })
+});
+
+document.addEventListener("mouseup", () => {
+    draggedElement = null;
+    resizing = false;
+    dragging = false;
+    dragMoved = {x:0,y:0};
+})
+
+toggleInventory.addEventListener("click", () => {
+    inventoryElement.classList.toggle("closed");
+})
 
 function updateTooltip(deltaTime) {
     hoverTime += deltaTime;
