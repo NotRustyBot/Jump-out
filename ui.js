@@ -18,14 +18,34 @@ var mousePosition = { x: 0, y: 0 };
 document.onmousemove = function (e) {
     mousePosition.x = e.pageX;
     mousePosition.y = e.pageY;
-    tooltipBox.style.top = mousePosition.y + "px";
-    tooltipBox.style.left = mousePosition.x + "px";
 };
+
+let tooltipStack = [];
+let hoverTime = 0;
+let tooltipDelay = .3;
 
 
 
 Array.from(tooltipElements).forEach(element => {
     element.addEventListener("mouseenter", e => {
+        hoverTime = 0;
+        tooltipChanged = true;
+        tooltipStack.push(element);
+    })
+    element.addEventListener("mouseleave", e => {
+        hoverTime = 0;
+        tooltipChanged = true;
+        tooltipStack.pop();
+    })
+});
+
+function updateTooltip(deltaTime) {
+    hoverTime += deltaTime;
+    tooltipBox.style.top = Math.min(mousePosition.y, screen.height - tooltipBox.offsetHeight - 10) + "px";
+    tooltipBox.style.left = mousePosition.x + "px";
+    if(mousePosition.x + tooltipBox.offsetWidth + 10>= screen.width) tooltipBox.style.left = (mousePosition.x - tooltipBox.offsetWidth-20) + "px";
+    if (tooltipStack.length > 0 && hoverTime >= tooltipDelay) {
+        let element = tooltipStack[tooltipStack.length - 1];
         tooltipBox.style.opacity = "1";
         if (element.dataset.tooltipName)
             tooltipBoxName.innerHTML = element.dataset.tooltipName;
@@ -40,12 +60,16 @@ Array.from(tooltipElements).forEach(element => {
             tooltipBoxDesc.style.display = "none";
             tooltipBoxDesc.innerHTML = "Missing description";
         }
-    })
-    element.addEventListener("mouseleave", e => {
+        if (tooltipBox.offsetHeight + mousePosition.y > screen.height) {
+            //tooltipBox.style.bottom = 0;
+            //tooltipBox.style.top = (mousePosition.y-tooltipBox.offsetHeight) + "px";
+        }
+    }
+    else {
         tooltipBox.style.opacity = "0";
+    }
 
-    })
-});
+}
 
 let minimapShown = true;
 min_minimap.addEventListener("click", () => {

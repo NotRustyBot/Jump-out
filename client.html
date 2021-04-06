@@ -33,14 +33,17 @@
         <div class="guiPanel map tooltip" data-tooltip-name="Map" data-tooltip-desc="The map of the sector.">
             <div class="guiBar">
                 <h1>MAP</h1>
-                <div><img class="windowButton" src="images/ui/fullscreen.png"><img class="windowButton"
-                        id="minimize-minimap" src="images/ui/minimize.png"></div>
+                <div><img class="windowButton tooltip" src="images/ui/fullscreen.png" data-tooltip-name="Fullscreen map">
+                    <img class="windowButton tooltip" id="minimize-minimap" src="images/ui/minimize.png"
+                        data-tooltip-name="Minimize">
+                </div>
             </div>
             <div class="guiPanelContent center">
                 <div id="minimapContainer">
                     <canvas id="minimap"></canvas>
                 </div>
-                <div class="mapControls"><span id="zoomIn">+</span><span id="zoomOut">-</span></div>
+                <div class="mapControls"><span id="zoomIn" class="tooltip" data-tooltip-name="Zoom in">+</span><span
+                        id="zoomOut" class="tooltip" data-tooltip-name="Zoom out">-</span></div>
             </div>
         </div>
         <!--
@@ -79,7 +82,7 @@
             data-tooltip-desc="Drag powercells to and from your storage.">
             <div class="guiBar vertical cells-bar">
                 <h1>POWER CELLS</h1>
-                <div><img id="minimize-powercells" class="windowButton" src="images/ui/minimize.png"></div>
+                <div><img id="minimize-powercells" class="windowButton tooltip" src="images/ui/minimize.png" data-tooltip-name="Minimize"></div>
             </div>
             <div class="guiPanelContent vertical noPadding cells-icons">
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
@@ -115,7 +118,7 @@
                 <h1 id="numberFuel">100</h1>
             </div>
             <div class="tooltip" data-tooltip-name="Ship Speed"
-                data-tooltip-desc="The speed and max speed of the ship, affected by surronding gas density."><img
+                data-tooltip-desc="The current and maximum speed of the ship, affected by surronding gas density."><img
                     src="images/ui/iconSpeed.png">
                 <div class="gauge">
                     <div id="gaugeSpeed2"></div>
