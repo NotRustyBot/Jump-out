@@ -105,7 +105,7 @@ Entity.list = new Map();
 
 let sunAngle = 0;
 
-function ShadedSprite(parent, prefix, sizeObject) {
+function ShadedSprite(parent, prefix, sizeObject, isPlayer) {
     this.container = new PIXI.Container();
     this.parent = parent;
     this.sizeObject = sizeObject;
@@ -140,7 +140,7 @@ function ShadedSprite(parent, prefix, sizeObject) {
         this.outlineMask
     );
 
-    if (prefix == "ship") {
+    if (isPlayer) {
         playerContainer.addChild(this.container);
     }
     else {
@@ -190,8 +190,9 @@ function ShadedSprite(parent, prefix, sizeObject) {
 }
 
 
-function Ship() {
-    this.stats;
+function Ship(type) {
+    this.stats = type;
+    console.log(type);
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.rotation = 0;
@@ -221,13 +222,12 @@ function Ship() {
 
 ShipType = defineShips([]);
 
-function Player(id) {
+function Player(id, type) {
     this.nick = "nick";
     this.ship;
     this.id = id;
-    this.ship = new Ship();
-    this.shipType = -1;
-    this.ship.init(ShipType.types[this.shipType]);
+    this.shipType = type;
+    this.ship = new Ship(ShipType.types[this.shipType]);
     this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);
     this.sprite.anchor.set(0.5);
