@@ -201,7 +201,7 @@ function Ship() {
     this.afterBurnerFuel = 0;
     //this.trails = [new Trail(this, new Vector(-90, 0))];
     this.trails = [new Trail(this, new Vector(-180, -72)), new Trail(this, new Vector(-180, 72)), new Trail(this, new Vector(-127, -124)), new Trail(this, new Vector(-127, 124)), new Trail(this, new Vector(55, -112),false), new Trail(this, new Vector(55, 112),false)];
-    this.sprite = new ShadedSprite(this, "ship2", { size: 1.9 });
+    this.sprite = new ShadedSprite(this, [this.stats.name], { size: 1.9 });
 
     this.init = function (type) {
         this.stats = type;
