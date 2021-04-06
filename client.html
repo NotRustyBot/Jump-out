@@ -33,7 +33,8 @@
         <div class="guiPanel map tooltip" data-tooltip-name="Map" data-tooltip-desc="The map of the sector.">
             <div class="guiBar">
                 <h1>MAP</h1>
-                <div><img class="windowButton tooltip" src="images/ui/fullscreen.png" data-tooltip-name="Fullscreen map">
+                <div><img class="windowButton tooltip" src="images/ui/fullscreen.png"
+                        data-tooltip-name="Fullscreen map">
                     <img class="windowButton tooltip" id="minimize-minimap" src="images/ui/minimize.png"
                         data-tooltip-name="Minimize">
                 </div>
@@ -46,34 +47,83 @@
                         id="zoomOut" class="tooltip" data-tooltip-name="Zoom out">-</span></div>
             </div>
         </div>
-        <!--
-        <div class="guiPanel shadow" style="left:500px;top:500px;width:800px;height:600px;">
-            <div class="guiBar">
-                <h1>WINDOW</h1>
-                <div><img src="images/ui/cross.png"></div>
+
+        <div class="guiPanel inventory shadow" style="left:900px;top:300px;">
+            <div class="guiBar dragBar">
+                <h1>Inventory</h1>
+                <div class="closeButton"><img src="images/ui/cross.png"></div>
             </div>
-            <div class="guiPanelContent">
-                Suspendisse eu tincidunt ante. Maecenas hendrerit lorem nec egestas ullamcorper. Praesent a orci dui.
-                Etiam varius sodales justo eget commodo. Nam imperdiet blandit augue id malesuada. Etiam egestas, justo
-                et posuere euismod, tellus neque consectetur ipsum, eget porta metus nibh at odio. Etiam purus elit,
-                dictum vel semper sed, dictum nec felis. Fusce viverra erat metus, a malesuada ipsum mattis sed. Nulla
-                nec ornare elit. Integer vitae tellus non felis fringilla ultricies ut et magna. Aenean gravida ut
-                tellus sit amet efficitur. Suspendisse potenti. Nunc consequat nisl id malesuada euismod. Donec eget
-                malesuada odio. Vivamus suscipit a ante non ultrices. Aliquam eu tristique tellus.
-                <br>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. A error, tenetur, sunt esse quidem quam
-                laborum similique unde necessitatibus neque, consectetur rem dolorum odio autem tempore eum alias
-                quibusdam ipsam.
+            <div class="guiPanelContent vertical">
+                <div id="inventoryTop">
+                    <div class="inventorySpecialSlots">
+                        <div>
+                            <div class="specialSlotNumber slotsLeft">
+                                <span>300</span>
+                            </div>
+                            <div>
+                                <div class="inventorySlotSpecial"></div>
+                                <span>Test</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="specialSlotNumber slotsLeft">
+                                <span>300</span>
+                            </div>
+                            <div>
+                                <div class="inventorySlotSpecial"></div>
+                                <span>Test</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inventoryShipImg"><img src="images/ui/shipBlueprint.png"></div>
+                    <div class="inventorySpecialSlots">
+                        <div>
+                            <div>
+                                <div class="inventorySlotSpecial"></div>
+                                <span>Test</span>
+                            </div>
+                            <div class="specialSlotNumber slotsRight">
+                                <span>300</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <div class="inventorySlotSpecial"></div>
+                                <span>Test</span>
+                            </div>
+                            <div class="specialSlotNumber slotsRight">
+                                <span>300</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="inventoryBar">
+                    <div><div id="gaugeInventoryPreview"></div><div id="gaugeInventory"></div></div>
+                    <span>0 / 8 Cargo</span>
+                </div>
+                <div id="inventoryBottom">
+                    <div id="inventoryGrid">
+                        <div><div></div></div>
+                        <div><div></div></div>
+                        <div><div></div></div>
+                        <div><div></div></div>
+                        <div><div></div></div>
+                        <div><div></div></div>
+                        <div><div></div></div>
+                        <div><div></div></div>
+                    </div>
+                </div>
             </div>
+            <div class="resizeButton"></div>
         </div>
-        -->
+
         <div class="guiPanel menus">
             <div class="guiPanelContent vertical noPadding">
-                <div class="bigIconButton tooltip" data-tooltip-name="Ship Info"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" data-tooltip-name="Inventory"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" data-tooltip-name="Buildings"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" data-tooltip-name="Clues"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img src="images/ui/cross.png">
+                <div class="bigIconButton tooltip" id="sidebarInfo" data-tooltip-name="Ship Info"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarInventory" data-tooltip-name="Inventory"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarBuildings" data-tooltip-name="Buildings"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarClues" data-tooltip-name="Clues"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarHlad" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img src="images/ui/cross.png">
                 </div>
             </div>
         </div>
@@ -82,7 +132,8 @@
             data-tooltip-desc="Drag powercells to and from your storage.">
             <div class="guiBar vertical cells-bar">
                 <h1>POWER CELLS</h1>
-                <div><img id="minimize-powercells" class="windowButton tooltip" src="images/ui/minimize.png" data-tooltip-name="Minimize"></div>
+                <div><img id="minimize-powercells" class="windowButton tooltip" src="images/ui/minimize.png"
+                        data-tooltip-name="Minimize"></div>
             </div>
             <div class="guiPanelContent vertical noPadding cells-icons">
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
@@ -138,14 +189,14 @@
 </body>
 <!--
 -->
-<script src="pixi.js"></script>
-<script src="https://pixijs.io/examples/pixi-plugins/pixi-dragonbones.js"></script>
-<script>let exports = {};</script>
-<script type="text/javascript" src="shipTypes.js"></script>
-<script type="text/javascript" src="clientgameobjects.js"></script>
-<script type="text/javascript" src="datagram.js"></script>
-<script type="text/javascript" src="client.js"></script>
-
-<script type="text/javascript" src="ui.js"></script>
+    <script src="pixi.js"></script>
+    <script src="https://pixijs.io/examples/pixi-plugins/pixi-dragonbones.js"></script>
+    <script>let exports = {};</script>
+    <script type="text/javascript" src="shipTypes.js"></script>
+    <script type="text/javascript" src="clientgameobjects.js"></script>
+    <script type="text/javascript" src="datagram.js"></script>
+    <script type="text/javascript" src="client.js"></script>
+    
+    <script type="text/javascript" src="ui.js"></script>
 
 </html>

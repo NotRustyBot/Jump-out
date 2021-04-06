@@ -97,6 +97,7 @@ body {
 }
 
 .guiBar h1 {
+    text-transform: uppercase;
     margin: 0;
     padding-left: 25px;
     line-height: 70px;
@@ -124,6 +125,9 @@ body {
     width: 100%;
     padding: 0 25px 25px 25px;
     box-sizing: border-box;
+    font-size: 18px;
+    line-height: 25px;
+    color:#cccccc;
 }
 
 .center {
@@ -396,4 +400,203 @@ body {
 }
 .windowButton:hover{
     background-color: rgba(255, 255, 255,.1);
+}
+#inventoryTop{
+    width: 100%;
+    /*height:300px;*/
+    display:flex;
+    flex-direction: row;
+    flex-grow: 0;
+}
+#inventoryTop > div {
+    height: 100%;
+}
+#inventoryBottom{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0px 0 70px 0;
+}
+
+.inventory {
+    height:900px;
+    width:950px;
+    min-width: 470px;
+    min-height: 650px;
+    position: relative;
+}
+.inventory .guiPanelContent{
+    height: 100%;
+}
+.inventoryShipImg{
+    /*min-width: 100px;*/
+    padding: 0 10px 0 10px;
+    width:300px;
+    flex-grow:0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.inventoryShipImg img {
+    width:80%;
+
+}
+.inventorySpecialSlots{
+    font-size: 18px;
+    font-weight: bolder;
+    flex-grow:1;
+    display: flex;
+    flex-direction: column;
+    letter-spacing: .1em;
+}
+.inventorySpecialSlots >div{
+    flex-grow: 1;
+    width:100%;
+    display:flex;
+    justify-content: center;
+    flex-direction: row;
+}
+.inventorySpecialSlots >div>div{
+    flex-grow: 1;
+    width:70%;
+    min-width: 50px;
+    max-width: 150px;
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.inventorySpecialSlots >div>div>span{
+    line-height: 50px;
+    text-transform: uppercase;
+}
+.inventorySpecialSlots >div>.specialSlotNumber{
+    justify-content: flex-start;
+    width:30%;
+    font-size: 30px;
+    min-width: 100px;
+    max-width: unset;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+.inventorySpecialSlots >div>.slotsLeft>span{
+    text-align: end;
+    padding-right: 20px;
+}
+.inventorySpecialSlots >div>.slotsRight>span{
+    text-align: start;
+    padding-left: 20px;
+}
+.inventorySpecialSlots >div>.specialSlotNumber>span{
+    line-height: 100px;
+    width:100%;
+    
+}
+.inventorySlotSpecial {
+    width:100px;
+    height:100px;
+    border: 5px dashed #434343;
+    /*box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.473) inset;*/
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#inventoryBar {
+    width: 100%;
+    height:70px;
+    flex-shrink: 0;
+    padding:0 10px 0 10px;
+    box-sizing: border-box;
+}
+#inventoryBar > div {
+    background-color: #ffffff3d;
+    height: 10px;
+    width:100%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    overflow:hidden;
+}
+#gaugeInventory {
+    background-color: white;
+    height:100%;
+    border-radius: 10px;
+    width:75%;
+    margin-top:-10px;
+}
+#gaugeInventoryPreview {
+    background-color: rgb(202, 42, 42);
+    height:100%;
+    border-radius: 10px;
+    width:85%;
+}
+
+#inventoryBar > span {
+    line-height: 60px;
+    font-size: 30px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-weight: bolder;
+}
+
+#inventoryGrid{
+    width:100%;
+    flex-grow: 1;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-rows: 200px 200px;
+    gap: 20px;
+    row-gap: 20px;
+
+}
+#inventoryGrid > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#inventoryGrid > div > div {
+    height:200px;
+    width:200px;
+    border-radius: 10px;
+    border: 5px dashed #434343;
+    box-sizing: border-box;
+}
+
+.closed{
+    display:none;
+}
+.resizeButton{
+    position:absolute;
+    bottom:-20px;
+    right:-20px;
+    width:60px;
+    height:60px;
+    background-color: rgba(255, 255, 255, 0.096);
+    border-radius: 20px;
+    transition: background-color .3s;
+}
+.resizeButton:hover{
+    background-color: rgba(255, 255, 255, 0.438);
+}
+
+.dragBar{
+    background-color: rgba(255, 255, 255, 0);
+    transition: background-color .3s;
+}
+
+.dragBar:hover{
+    background-color: rgba(255, 255, 255, 0.062);
+}
+
+.closeButton{
+    border-radius: 50px;
+    background-color: rgba(255, 255, 255, 0);
+    transition: background-color .3s;
+}
+
+.closeButton:hover{
+    background-color: rgba(255, 255, 255, 0.062);
 }
