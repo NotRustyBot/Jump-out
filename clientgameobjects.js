@@ -190,8 +190,8 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer) {
 }
 
 
-function Ship() {
-    this.stats;
+function Ship(type) {
+    this.stats = type;
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.rotation = 0;
@@ -202,10 +202,6 @@ function Ship() {
     //this.trails = [new Trail(this, new Vector(-90, 0))];
     this.trails = [new Trail(this, new Vector(-180, -72)), new Trail(this, new Vector(-180, 72)), new Trail(this, new Vector(-127, -124)), new Trail(this, new Vector(-127, 124)), new Trail(this, new Vector(55, -112),false), new Trail(this, new Vector(55, 112),false)];
     this.sprite = new ShadedSprite(this, this.stats.name, { size: 1.9 }, true);
-
-    this.init = function (type) {
-        this.stats = type;
-    };
 
     this.update = function (dt) {
 
@@ -224,9 +220,8 @@ function Player(id) {
     this.nick = "nick";
     this.ship;
     this.id = id;
-    this.ship = new Ship();
     this.shipType = -1;
-    this.ship.init(ShipType.types[this.shipType]);
+    this.ship = new Ship(ShipType.types[this.shipType]);
     this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);
     this.sprite.anchor.set(0.5);
