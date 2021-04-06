@@ -1,6 +1,8 @@
 const min_minimap = document.getElementById("minimize-minimap");
 const minimap = document.getElementsByClassName("map")[0];
 const minimap_canvas = document.getElementById("minimap");
+const minimap_zoomIn = document.getElementById("zoomIn");
+const minimap_zoomOut = document.getElementById("zoomOut");
 
 const min_powercells = document.getElementById("minimize-powercells");
 const powercells = document.getElementsByClassName("powercells")[0];
@@ -49,6 +51,18 @@ min_minimap.addEventListener("click", () => {
     minimapShown = !minimapShown;
 });
 
+minimap_zoomIn.addEventListener("click", () => {
+    if (minimapControl.zoom-zoomStep >= minimapControl.minZoom) {
+        minimapControl.zoom-=zoomStep;
+    }
+});
+
+minimap_zoomOut.addEventListener("click", () => {
+    if (minimapControl.zoom+zoomStep <= minimapControl.maxZoom) {
+        minimapControl.zoom+=zoomStep;
+    }
+});
+
 min_powercells.addEventListener("click", () => {
     powercells.classList.toggle("minimized");
     gaugesElement.classList.toggle("minimized");
@@ -70,7 +84,7 @@ pixi_minimap.renderer.backgroundColor = 0x181818;
 
 let gasPXs = [];
 
-let minimapControl = { zoom: 3, density: 25 };
+let minimapControl = { zoom: 3, density: 25, minZoom: 1, maxZoom: 10, zoomStep: 2 };
 
 for (let x = 0; x < minimapControl.density; x++) {
     for (let y = 0; y < minimapControl.density; y++) {

@@ -17,28 +17,33 @@
 </head>
 
 <body>
-    
+
     <div id="loadingBarContainer"><span id="loadingStatus">LOADING</span>
         <div id="loadingBarBG">
             <div id="loadingBar"></div>
         </div>
         <span id="loadingDetails">&nbsp;</span>
     </div>
-    
+
     <div id="guiContainer">
-        <div id="tooltip"><div id="tooltipName">Tooltip</div><div id="tooltipDesc">Description</div></div>
+        <div id="tooltip">
+            <div id="tooltipName">Tooltip</div>
+            <div id="tooltipDesc">Description</div>
+        </div>
         <div class="guiPanel map tooltip" data-tooltip-name="Map" data-tooltip-desc="The map of the sector.">
             <div class="guiBar">
                 <h1>MAP</h1>
-                <div><img class="windowButton" src="images/ui/fullscreen.png"><img class="windowButton" id="minimize-minimap" src="images/ui/minimize.png"></div>
+                <div><img class="windowButton" src="images/ui/fullscreen.png"><img class="windowButton"
+                        id="minimize-minimap" src="images/ui/minimize.png"></div>
             </div>
             <div class="guiPanelContent center">
                 <div id="minimapContainer">
                     <canvas id="minimap"></canvas>
                 </div>
+                <div class="mapControls"><span id="zoomIn">+</span><span id="zoomOut">-</span></div>
             </div>
         </div>
-<!--
+        <!--
         <div class="guiPanel shadow" style="left:500px;top:500px;width:800px;height:600px;">
             <div class="guiBar">
                 <h1>WINDOW</h1>
@@ -65,11 +70,13 @@
                 <div class="bigIconButton tooltip" data-tooltip-name="Inventory"><img src="images/ui/cross.png"></div>
                 <div class="bigIconButton tooltip" data-tooltip-name="Buildings"><img src="images/ui/cross.png"></div>
                 <div class="bigIconButton tooltip" data-tooltip-name="Clues"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img src="images/ui/cross.png">
+                </div>
             </div>
         </div>
 
-        <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management" data-tooltip-desc="Drag powercells to and from your storage.">
+        <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management"
+            data-tooltip-desc="Drag powercells to and from your storage.">
             <div class="guiBar vertical cells-bar">
                 <h1>POWER CELLS</h1>
                 <div><img id="minimize-powercells" class="windowButton" src="images/ui/minimize.png"></div>
@@ -81,22 +88,56 @@
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
                 <div class="bigIconButton"><img src="images/ui/cross.png"></div>
             </div>
-            
+
         </div>
         <div class="gauges">
-            <div class="tooltip" data-tooltip-name="Shield Integrity" data-tooltip-desc="The integrity of the shield."><img src="images/ui/iconShield.png"><div class="gauge"><div id="gaugeShield"></div></div><h1 id="numberShield">75</h1></div>
-            <div class="tooltip" data-tooltip-name="Hull Integrity" data-tooltip-desc="The strength of the ship's hull. When it reaches zero, the ship explodes."><img src="images/ui/iconHull.png"><div class="gauge"><div id="gaugeHull"></div></div><h1 id="numberHull">75</h1></div>
-            <div class="tooltip" data-tooltip-name="Remaining Fuel" data-tooltip-desc="Remaining afterburner fuel in the tank. When it runs out, the afterburner is disabled."><img src="images/ui/iconFuel.png"><div class="gauge"><div id="gaugeFuel"></div></div><h1 id="numberFuel">100</h1></div>
-            <div class="tooltip" data-tooltip-name="Ship Speed" data-tooltip-desc="The speed and max speed of the ship, affected by surronding gas density."><img src="images/ui/iconSpeed.png"><div class="gauge"><div id="gaugeSpeed2"></div><div id="gaugeSpeed"></div></div><h1 id="numberSpeed">100</h1></div>
-            <div class="tooltip" data-tooltip-name="Cargo Load" data-tooltip-desc="The ship's cargo load."><img src="images/ui/iconCargo.png"><div class="gauge"><div id="gaugeCargo"></div></div><h1 id="numberCargo">100</h1></div>
+            <div class="tooltip" data-tooltip-name="Shield Integrity" data-tooltip-desc="The integrity of the shield.">
+                <img src="images/ui/iconShield.png">
+                <div class="gauge">
+                    <div id="gaugeShield"></div>
+                </div>
+                <h1 id="numberShield">75</h1>
+            </div>
+            <div class="tooltip" data-tooltip-name="Hull Integrity"
+                data-tooltip-desc="The strength of the ship's hull. When it reaches zero, the ship explodes."><img
+                    src="images/ui/iconHull.png">
+                <div class="gauge">
+                    <div id="gaugeHull"></div>
+                </div>
+                <h1 id="numberHull">75</h1>
+            </div>
+            <div class="tooltip" data-tooltip-name="Remaining Fuel"
+                data-tooltip-desc="Remaining afterburner fuel in the tank. When it runs out, the afterburner is disabled.">
+                <img src="images/ui/iconFuel.png">
+                <div class="gauge">
+                    <div id="gaugeFuel"></div>
+                </div>
+                <h1 id="numberFuel">100</h1>
+            </div>
+            <div class="tooltip" data-tooltip-name="Ship Speed"
+                data-tooltip-desc="The speed and max speed of the ship, affected by surronding gas density."><img
+                    src="images/ui/iconSpeed.png">
+                <div class="gauge">
+                    <div id="gaugeSpeed2"></div>
+                    <div id="gaugeSpeed"></div>
+                </div>
+                <h1 id="numberSpeed">100</h1>
+            </div>
+            <div class="tooltip" data-tooltip-name="Cargo Load" data-tooltip-desc="The ship's cargo load."><img
+                    src="images/ui/iconCargo.png">
+                <div class="gauge">
+                    <div id="gaugeCargo"></div>
+                </div>
+                <h1 id="numberCargo">100</h1>
+            </div>
         </div>
     </div>
 </body>
 <!--
-    -->
+-->
 <script src="pixi.js"></script>
 <script src="https://pixijs.io/examples/pixi-plugins/pixi-dragonbones.js"></script>
-<script>let exports = {}; </script>
+<script>let exports = {};</script>
 <script type="text/javascript" src="shipTypes.js"></script>
 <script type="text/javascript" src="clientgameobjects.js"></script>
 <script type="text/javascript" src="datagram.js"></script>
