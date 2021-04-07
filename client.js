@@ -77,6 +77,8 @@ loader
     .add("item_base", "images/item_base.png")
     .add("item_dark", "images/item_dark.png")
     .add("item_outline", "images/item_outline.png")
+    .add("itemOre", "images/ui/itemOre.png")
+    .add("itemPowercell", "images/ui/itemPowercell.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -874,7 +876,7 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
-    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position);
+    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position, temp.position);
     //id, position, item, stack
 }
 
@@ -888,8 +890,12 @@ function parseItemRemove(view) {
 function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
-    Players.list.get(temp.shipId).ship.inventory.slots[temp.slot].addItem(new Item(temp.item,temp.stack));
-    inventoryUpdate();
+    console.log(temp)
+    Player.players.get(temp.shipId).ship.inventory.slots[temp.slot].addItem(new Item(temp.item,temp.stack));
+    //inventoryUpdate();
+    if(temp.shipId == localPlayer.id){
+        createItemElement(localPlayer.ship.inventory.slots[temp.slot],findSlotElement(temp.slot));
+    }
     //shipId, slot, item, stack
 }
 

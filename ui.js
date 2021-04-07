@@ -97,16 +97,26 @@ function generateInventory() {
     }
 }
 
+function findSlotElement(id){
+    let cells = document.getElementsByClassName("inventoryCell");
+    for (let i = 0; i < cells.length; i++) {
+        const element = cells[i];
+        console.log("dsds",element.dataset.slotId, id);
+        if(element.dataset.slotId == id) return element;
+    }
+    return null;
+}
+
 function createItemElement(slot,slotElement) {
     let newItem = document.createElement("div");
     newItem.classList.add("item");
     newItem.classList.add("tooltip");
-    newSlot.dataset.tooltipName = "Item ID " + slot.item.id;
+    newItem.dataset.tooltipName = "Item ID " + slot.item.id;
     let spanNum = document.createElement("span");
     spanNum.classList.add("itemNumber");
     spanNum.textContent = slot.item.stack;
     let img = document.createElement("img");
-    img.src = "images/ui/shipBlueprint.png";
+    img.src = "images/ui/itemOre.png";
     let spanName = document.createElement("span");
     spanNum.textContent = "item ID " + slot.item.id;
     newItem.appendChild(spanNum);

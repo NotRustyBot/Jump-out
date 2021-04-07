@@ -1,4 +1,8 @@
 let ItemInfo = {
+    0: { // nic
+        tag: 0,
+        stackable: true,
+    },
     1: { // ore
         tag: 0,
         stackable: true,
