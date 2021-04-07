@@ -202,10 +202,10 @@ function Ship(type) {
     this.afterBurnerFuel = 0;
     this.trails = [];
     for (let i = 0; i < this.stats.trails.length; i++) {
-        this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x,this.stats.trails[i].y),this.stats.trails[i].useTrail));
-        
+        this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x, this.stats.trails[i].y), this.stats.trails[i].useTrail));
+
     }
-    this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize});
+    this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize });
 
     this.init = function (type) {
         this.stats = type;
@@ -222,7 +222,22 @@ function Ship(type) {
     };
 }
 
-ShipType = defineShips([]);
+let Actions = {};
+
+Actions.buildTest = function (view) { // malý písmeno??
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.placeObject }, Datagrams.SmartAction);
+    view.serialize({ structure: 1 }, SmartActionData[ActionId.placeObject]);
+}
+
+Actions.MineRock = function (view) {
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.MineRock }, Datagrams.SmartAction);
+    view.serialize({}, SmartActionData[ActionId.MineRock]);
+    console.log("yep");
+}
+
+ShipType = defineShips(Actions);
 
 function Player(id, type) {
     this.nick = "nick";
@@ -292,7 +307,7 @@ function Player(id, type) {
     this.delete = function () {
         //entityContainer.removeChild(this.sprite);
         effectsContainer.removeChild(this.nameText);
-        if(this.lensFlare)this.lensFlare.delete();
+        if (this.lensFlare) this.lensFlare.delete();
         this.particleSystems.forEach(ps => {
             ps.delete();
         });
@@ -638,7 +653,7 @@ function LensFlare(parent) {
 
 function Trail(emitter, offset, useTrail) {
     this.useTrail = useTrail;
-    if(useTrail == null) this.useTrail = true;
+    if (useTrail == null) this.useTrail = true;
     this.engineFlame = new PIXI.Sprite(loader.resources.flame.texture);
     this.engineFlame.anchor.set(0.9, 0.5);
     this.engineFlame.blendMode = PIXI.BLEND_MODES.ADD;
@@ -677,7 +692,7 @@ function Trail(emitter, offset, useTrail) {
         //let emitPos = this.offset.result().mult(1+this.heatRatioNormalised*2).rotate(this.emitter.rotation).add((this.emitter.position));
         this.engineFlame.position.set(emitPos.x, emitPos.y);
         this.engineFlame.rotation = this.emitter.rotation;
-        this.engineFlame.scale.x = (1 - 0.5 * Math.random()) * Math.min(1,this.heatRatioNormalised*2);
+        this.engineFlame.scale.x = (1 - 0.5 * Math.random()) * Math.min(1, this.heatRatioNormalised * 2);
         this.engineFlame.alpha = this.heatRatioNormalised;
         this.engineFlame.tint = this.color.evaluate(0.5);
 
