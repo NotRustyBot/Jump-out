@@ -74,9 +74,9 @@ loader
     .add("shadow", "images/shadow2.png")
     .add("smooth", "images/smooth.png")
     .add("flame", "images/flame.png")
-    .add("item_base","images/item_base.png") 
-    .add("item_dark","images/item_dark.png")
-    .add("item_outline","images/item_outline.png")
+    .add("item_base", "images/item_base.png")
+    .add("item_dark", "images/item_dark.png")
+    .add("item_outline", "images/item_outline.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -108,6 +108,19 @@ isOnScreen = function (position, size) {
         position.y + size > camera.y - screen.center.y / camera.zoom &&
         position.y - size < camera.y + screen.center.y / camera.zoom
     );
+}
+
+function screenToWorldPos(position) {
+    return (new Vector(
+        camera.x + (position.x - screen.center.x)/camera.zoom,
+        camera.y + (position.y - screen.center.y)/camera.zoom
+    ));
+}
+function worldToScreenPos(position) {
+    return (new Vector(
+        (position.x - camera.x)*camera.zoom + screen.center.x,
+        (position.y - camera.y)*camera.zoom + screen.center.y
+    ));
 }
 
 
@@ -857,7 +870,7 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
-    let newItem = new Item(temp.item, temp.id,temp.stack,temp.position);
+    let newItem = new Item(temp.item, temp.id, temp.stack, temp.position);
     //id, position, item, stack
 }
 
@@ -1028,8 +1041,8 @@ bigmap_canvas.addEventListener('mousedown', e => {
 
 bigmap_canvas.addEventListener('mousemove', e => {
     if (mapDragging === true) {
-        big_mapControl.x -= e.movementX/big_mapDrag * big_mapControl.zoom;
-        big_mapControl.y -= e.movementY/big_mapDrag * big_mapControl.zoom;
+        big_mapControl.x -= e.movementX / big_mapDrag * big_mapControl.zoom;
+        big_mapControl.y -= e.movementY / big_mapDrag * big_mapControl.zoom;
     }
 });
 

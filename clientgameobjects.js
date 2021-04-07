@@ -61,6 +61,13 @@ function Vector(x, y) {
             this.x * Math.sin(angle) + this.y * Math.cos(angle)
         );
     }
+    this.clamp = function(length){
+        if(this.length() > length) this.normalize(length);
+        return this;
+    }
+    this.lerp = function (target,value) {
+        return new Vector(this.x + (target.x - this.x) * value,this.y + (target.y - this.y) * value);
+    };
 }
 Vector.zero = function () {
     return new Vector(0, 0);
@@ -102,15 +109,24 @@ function Entity(type, id) {
 }
 Entity.list = new Map();
 
-function Item(type, id, stack, position) {
-    this.position = position.result();
-    this.rotation = Math.random()-0.5;
-    this.rotationSpeed = 0;
+function Item(type, id, stack, targetPos,sourcePos) {
+    this.animSpeed = 4;
+    this.animProgress = 1;
+    this.sourcePos = sourcePos.result();
+    this.targetPos = targetPos.result();
+    this.position = sourcePos.result();
+    this.rotation = 0;
+    this.targetRotation = (Math.random()-0.5)*2;
     this.type = type;
     this.id = id;
     Item.list.set(this.id, this);
     this.sprite = new ShadedSprite(this, "item", { size: 1.5 }, false, true);
     this.update = function (dt) {
+        if(this.animProgress > 0.001){
+            this.animProgress/=(1+this.animSpeed*dt);
+            this.rotation=(1-this.animProgress)*this.targetRotation;
+            this.position = sourcePos.lerp(targetPos,1-(this.animProgress));
+        }
         this.sprite.update({ directional: true, rotation: sunAngle });
     };
 
@@ -233,7 +249,7 @@ function Ship(type) {
         this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x, this.stats.trails[i].y), this.stats.trails[i].useTrail));
 
     }
-    this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize });
+    this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize },true);
 
     this.init = function (type) {
         this.stats = type;
@@ -551,6 +567,11 @@ function Ramp(min, max) {
     this.evaluate = function (value) {
         return this.min + (this.max - this.min) * value;
     };
+}
+function VectorRamp(min, max) {
+    this.min = min;
+    this.max = max;
+    
 }
 function ColorRamp(min, max) {
     this.min = min;

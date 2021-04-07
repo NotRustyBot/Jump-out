@@ -28,7 +28,7 @@ const inventorySlotElements = document.getElementsByClassName("inventoryCell");
 let draggedItem = null;
 const itemElements = document.getElementsByClassName("item");
 
-var mousePosition = { x: 0, y: 0 };
+var mousePosition = Vector.zero();
 document.onmousemove = function (e) {
     mousePosition.x = e.pageX;
     mousePosition.y = e.pageY;
@@ -125,7 +125,7 @@ Array.from(closeButtons).forEach(element => {
 
 Array.from(dragBars).forEach(element => {
     element.addEventListener("mousedown", () => {
-        console.log(dragMoved, dragStart);
+        //console.log(dragMoved, dragStart);
         draggedElement = element.parentElement;
         dragging = true;
         dragStart = { x: element.parentElement.offsetLeft, y: element.parentElement.offsetTop };
@@ -163,7 +163,9 @@ document.addEventListener("mouseup", () => {
             draggedItemOrigin.appendChild(draggedItem);
         } else {
             draggedItem.remove();
-            let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
+            //let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
+            let pos = screenToWorldPos(mousePosition.result().sub(screen.center).clamp(500*camera.zoom).add(screen.center));
+            let item = new Item("as",Item.list.size,1,pos,localPlayer.ship.position);
         }
 
     }
