@@ -108,20 +108,22 @@ function findSlotElement(id){
 }
 
 function createItemElement(slot,slotElement) {
+    slotElement.textContent="";
     let newItem = document.createElement("div");
     newItem.classList.add("item");
     newItem.classList.add("tooltip");
-    newItem.dataset.tooltipName = "Item ID " + slot.item.id;
+    newItem.dataset.tooltipName = slot.item.name;
     let spanNum = document.createElement("span");
     spanNum.classList.add("itemNumber");
     spanNum.textContent = slot.item.stack;
+    console.log(slot);
     let img = document.createElement("img");
     img.src = "images/ui/itemOre.png";
     let spanName = document.createElement("span");
-    spanNum.textContent = "item ID " + slot.item.id;
+    spanName.textContent = slot.item.name;
     newItem.appendChild(spanNum);
     newItem.appendChild(img);
-    newItem.appendChild(spanName);
+    newItem.appendChild(spanName);  
     slotElement.appendChild(newItem);
 
     newItem.addEventListener("mousedown", () => {

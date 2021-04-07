@@ -1,15 +1,23 @@
 let ItemInfo = {
-    0: { // nic
-        tag: 0,
-        stackable: true,
-    },
     1: { // ore
         tag: 0,
         stackable: true,
+        name:"Ore",
+    },
+    2: { // scrap
+        tag: 0,
+        stackable: true,
+        name:"Scrap",
+    },
+    3: { // crystals
+        tag: 0,
+        stackable: true,
+        name:"Crystals",
     },
     5: { // naviBeacon
         tag: 1,
         stackable: false,
+        name:"Navigation Beacon",
     },
 }
 

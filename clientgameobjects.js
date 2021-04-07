@@ -238,7 +238,7 @@ function Ship(type,player) {
     this.player = player;
     this.stats = type;
     console.log(type);
-    this.inventory = new Inventory(this.stats.capacity,this.player.id,this.stats.inventory);
+    this.inventory = new Inventory(this.stats.cargoCapacity,this.player.id,this.stats.inventory);
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.rotation = 0;
