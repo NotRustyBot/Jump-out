@@ -57,7 +57,7 @@
                 <div id="inventoryTop">
                     <div class="inventorySpecialSlots">
                         <div>
-                            <div class="specialSlotNumber slotsLeft">
+                            <div class="specialSlotNumber itemNumber slotsLeft">
                                 <span>300</span>
                             </div>
                             <div>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="specialSlotNumber slotsLeft">
+                            <div class="specialSlotNumber itemNumber slotsLeft">
                                 <span>300</span>
                             </div>
                             <div>
@@ -75,14 +75,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="inventoryShipImg tooltip" data-tooltip-name="Your ship"><img src="images/ui/shipBlueprint.png"></div>
+                    <div class="inventoryShipImg tooltip" data-tooltip-name="Your ship"><img
+                            src="images/ui/shipBlueprint.png"></div>
                     <div class="inventorySpecialSlots">
                         <div>
                             <div>
                                 <div class="inventorySlotSpecial"></div>
                                 <span>Test</span>
                             </div>
-                            <div class="specialSlotNumber slotsRight">
+                            <div class="specialSlotNumber itemNumber slotsRight">
                                 <span>300</span>
                             </div>
                         </div>
@@ -91,26 +92,66 @@
                                 <div class="inventorySlotSpecial"></div>
                                 <span>Test</span>
                             </div>
-                            <div class="specialSlotNumber slotsRight">
+                            <div class="specialSlotNumber itemNumber slotsRight">
                                 <span>300</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div id="inventoryBar">
-                    <div><div id="gaugeInventoryPreview"></div><div id="gaugeInventory"></div></div>
+                    <div>
+                        <div id="gaugeInventoryPreview"></div>
+                        <div id="gaugeInventory"></div>
+                    </div>
                     <span>0 / 8 Cargo</span>
                 </div>
                 <div id="inventoryBottom">
                     <div id="inventoryGrid">
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
+                        <div class="inventoryCell">
+                            <div class="item"><span class="itemNumber">5</span><img
+                                    src="images/ui/shipBlueprint.png"><span>Item</span></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div class="item"><span class="itemNumber">5</span><img
+                                    src="images/ui/shipBlueprint.png"><span>Item</span></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div class="item"><span class="itemNumber">5</span><img
+                                    src="images/ui/shipBlueprint.png"><span>Item</span></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div class="item"><span class="itemNumber">5</span><img
+                                    src="images/ui/shipBlueprint.png"><span>Item</span></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div class="item"><span class="itemNumber">5</span><img
+                                    src="images/ui/shipBlueprint.png"><span>Item</span></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div class="item"><span class="itemNumber">5</span><img
+                                    src="images/ui/shipBlueprint.png"><span>Item</span></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div></div>
+                        </div>
+                        <div class="inventoryCell">
+                            <div></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -119,11 +160,16 @@
 
         <div class="guiPanel menus">
             <div class="guiPanelContent vertical noPadding">
-                <div class="bigIconButton tooltip" id="sidebarInfo" data-tooltip-name="Ship Info"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarInventory" data-tooltip-name="Inventory"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarBuildings" data-tooltip-name="Buildings"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarClues" data-tooltip-name="Clues"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarHlad" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img src="images/ui/cross.png">
+                <div class="bigIconButton tooltip" id="sidebarInfo" data-tooltip-name="Ship Info"><img
+                        src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarInventory" data-tooltip-name="Inventory"><img
+                        src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarBuildings" data-tooltip-name="Buildings"><img
+                        src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarClues" data-tooltip-name="Clues"><img
+                        src="images/ui/cross.png"></div>
+                <div class="bigIconButton tooltip" id="sidebarHlad" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img
+                        src="images/ui/cross.png">
                 </div>
             </div>
         </div>

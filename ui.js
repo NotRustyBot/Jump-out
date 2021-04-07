@@ -23,22 +23,26 @@ const resizeButtons = document.getElementsByClassName("resizeButton");
 const toggleInventory = document.getElementById("sidebarInventory");
 
 const inventoryElement = document.getElementsByClassName("inventory")[0];
+const inventorySlotElements = document.getElementsByClassName("inventoryCell");
+
+let draggedItem = null;
+const itemElements = document.getElementsByClassName("item");
 
 var mousePosition = { x: 0, y: 0 };
 document.onmousemove = function (e) {
     mousePosition.x = e.pageX;
     mousePosition.y = e.pageY;
-    if(dragging){
-        dragMoved.x+=e.movementX;
-        dragMoved.y+=e.movementY;
-        draggedElement.style.left = (dragStart.x + dragMoved.x)+ "px";
-        draggedElement.style.top = (dragStart.y + dragMoved.y)+ "px";
+    if (dragging) {
+        dragMoved.x += e.movementX;
+        dragMoved.y += e.movementY;
+        draggedElement.style.left = (dragStart.x + dragMoved.x) + "px";
+        draggedElement.style.top = (dragStart.y + dragMoved.y) + "px";
     }
-    if(resizing){
-        dragMoved.x+=e.movementX;
-        dragMoved.y+=e.movementY;
-        draggedElement.style.width = (dragStart.x + dragMoved.x)+ "px";
-        draggedElement.style.height = (dragStart.y + dragMoved.y)+ "px";
+    if (resizing) {
+        dragMoved.x += e.movementX;
+        dragMoved.y += e.movementY;
+        draggedElement.style.width = (dragStart.x + dragMoved.x) + "px";
+        draggedElement.style.height = (dragStart.y + dragMoved.y) + "px";
     }
 };
 
@@ -48,10 +52,57 @@ let tooltipDelay = .3;
 
 let dragging = false;
 let resizing = false;
-let dragMoved = {x:0,y:0};
-let dragStart = {x:0,y:0};
+let dragMoved = { x: 0, y: 0 };
+let dragStart = { x: 0, y: 0 };
 let draggedElement = null;
 
+let inventorySlots = [];
+let draggedItemOrigin = null;
+let mouseInInventory = false;
+
+function inventoryUpdate() {
+    for (let i = 0; i < inventorySlotElements.length; i++) {
+        const element = inventorySlotElements[i];
+        if (inventorySlots.length > i) {
+            console.log(i, inventorySlots.length, "sds");
+            element.removeChild(element.firstChild);
+            let img = document.createElement("img");
+            img.src = "images/item_base.png";
+            element.appendChild(img);
+        }
+        else {
+            element.removeChild(element.firstChild);
+            element.appendChild(document.createElement("div"));
+        }
+
+
+    }
+}
+
+inventoryElement.addEventListener("mouseenter", e => {
+    mouseInInventory = true;
+});
+inventoryElement.addEventListener("mouseleave", e => {
+    mouseInInventory = false;
+});
+
+Array.from(itemElements).forEach(element => {
+    element.addEventListener("mousedown", () => {
+        element.style.left = "unset";
+        element.style.top = "unset";
+        element.classList.add("draggedItem");
+        dragStart = { x: element.offsetLeft + inventoryElement.offsetLeft, y: element.offsetTop + inventoryElement.offsetTop };
+        dragMoved = {x:0,y:0};
+        draggedItemOrigin = element.parentElement;
+        document.getElementById("guiContainer").appendChild(element);
+        draggedItemOrigin.appendChild(document.createElement("div"));
+        element.style.left = (dragStart.x) + "px";
+        element.style.top = (dragStart.y) + "px";
+        draggedElement = element;
+        draggedItem = element;
+        dragging = true;
+    })
+});
 
 Array.from(tooltipElements).forEach(element => {
     element.addEventListener("mouseenter", e => {
@@ -74,14 +125,17 @@ Array.from(closeButtons).forEach(element => {
 
 Array.from(dragBars).forEach(element => {
     element.addEventListener("mousedown", () => {
+        console.log(dragMoved, dragStart);
         draggedElement = element.parentElement;
         dragging = true;
-        dragMoved = {x:element.parentElement.offsetLeft,y:element.parentElement.offsetTop};
+        dragStart = { x: element.parentElement.offsetLeft, y: element.parentElement.offsetTop };
+        dragMoved = { x: 0, y: 0 };
     })
     element.addEventListener("mouseup", () => {
         draggedElement = null;
         dragging = false;
-        dragMoved = {x:0,y:0};
+        dragMoved = { x: 0, y: 0 };
+        dragStart = { x: 0, y: 0 };
     })
 });
 
@@ -89,12 +143,12 @@ Array.from(resizeButtons).forEach(element => {
     element.addEventListener("mousedown", () => {
         draggedElement = element.parentElement;
         resizing = true;
-        dragMoved = {x:element.parentElement.offsetWidth,y:element.parentElement.offsetHeight};
+        dragMoved = { x: element.parentElement.offsetWidth, y: element.parentElement.offsetHeight };
     })
     element.addEventListener("mouseup", () => {
         draggedElement = null;
         resizing = false;
-        dragMoved = {x:0,y:0};
+        dragMoved = { x: 0, y: 0 };
     })
 });
 
@@ -102,7 +156,20 @@ document.addEventListener("mouseup", () => {
     draggedElement = null;
     resizing = false;
     dragging = false;
-    dragMoved = {x:0,y:0};
+    if (draggedItem) {
+        if (mouseInInventory) {
+            draggedItem.classList.remove("draggedItem");
+            draggedItemOrigin.textContent="";
+            draggedItemOrigin.appendChild(draggedItem);
+        } else {
+            draggedItem.remove();
+            let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
+        }
+
+    }
+    draggedItem = null;
+    dragMoved = { x: 0, y: 0 };
+    dragStart = { x: 0, y: 0 };
 })
 
 toggleInventory.addEventListener("click", () => {
@@ -113,7 +180,7 @@ function updateTooltip(deltaTime) {
     hoverTime += deltaTime;
     tooltipBox.style.top = Math.min(mousePosition.y, screen.height - tooltipBox.offsetHeight - 10) + "px";
     tooltipBox.style.left = mousePosition.x + "px";
-    if(mousePosition.x + tooltipBox.offsetWidth + 10>= screen.width) tooltipBox.style.left = (mousePosition.x - tooltipBox.offsetWidth-20) + "px";
+    if (mousePosition.x + tooltipBox.offsetWidth + 10 >= screen.width) tooltipBox.style.left = (mousePosition.x - tooltipBox.offsetWidth - 20) + "px";
     if (tooltipStack.length > 0 && hoverTime >= tooltipDelay) {
         let element = tooltipStack[tooltipStack.length - 1];
         tooltipBox.style.opacity = "1";
@@ -211,10 +278,10 @@ function UpdateMinimap(deltaTime) {
             let gbl = scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.ceil(ly)] || 0;
             let gbr = scannedGas[Math.ceil(lx) * 1000 / minimapScale + Math.ceil(ly)] || 0;
 
-            let ptl = (2 - ((lx % 1) + (ly % 1)))/2;
-            let ptr = (2 - (1 - (lx % 1) + (ly % 1)))/2;
-            let pbl = (2 - ((lx % 1) + 1 - (ly % 1)))/2;
-            let pbr = (2 - (1 - (lx % 1) + 1 - (ly % 1)))/2;
+            let ptl = (2 - ((lx % 1) + (ly % 1))) / 2;
+            let ptr = (2 - (1 - (lx % 1) + (ly % 1))) / 2;
+            let pbl = (2 - ((lx % 1) + 1 - (ly % 1))) / 2;
+            let pbr = (2 - (1 - (lx % 1) + 1 - (ly % 1))) / 2;
 
 
 
@@ -227,7 +294,7 @@ function UpdateMinimap(deltaTime) {
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set((gtl*ptl + gtr*ptr + gbl*pbl + gbr*pbr) / 200);
+                gasPX.scale.set((gtl * ptl + gtr * ptr + gbl * pbl + gbr * pbr) / 200);
             }
         }
     }

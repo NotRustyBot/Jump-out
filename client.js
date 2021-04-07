@@ -74,6 +74,9 @@ loader
     .add("shadow", "images/shadow2.png")
     .add("smooth", "images/smooth.png")
     .add("flame", "images/flame.png")
+    .add("item_base","images/item_base.png") 
+    .add("item_dark","images/item_dark.png")
+    .add("item_outline","images/item_outline.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -390,6 +393,10 @@ function graphicsUpdate(deltaTimeFactor) {
 
         Entity.list.forEach(entity => {
             entity.update(deltaTime);
+        });
+
+        Item.list.forEach(item => {
+            item.update(deltaTime);
         });
 
 
@@ -850,18 +857,23 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
+    let newItem = new Item(temp.item, temp.id,temp.stack,temp.position);
     //id, position, item, stack
 }
 
 function parseItemRemove(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemRemove);
+    Item.list.get(temp.id).remove();
     //id
 }
 
 function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
+    inventorySlots.push(temp.id);
+    inventoryUpdate();
+    console.log(inventorySlots);
     //shipId, slot, item, stack
 }
 
