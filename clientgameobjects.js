@@ -268,7 +268,22 @@ function Ship(type,player) {
     };
 }
 
-ShipType = defineShips([]);
+let Actions = {};
+
+Actions.buildTest = function (view) { // malý písmeno??
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.placeObject }, Datagrams.SmartAction);
+    view.serialize({ structure: 1 }, SmartActionData[ActionId.placeObject]);
+}
+
+Actions.MineRock = function (view) {
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.MineRock }, Datagrams.SmartAction);
+    view.serialize({}, SmartActionData[ActionId.MineRock]);
+    console.log("yep");
+}
+
+ShipType = defineShips(Actions);
 
 function Player(id, type) {
     this.nick = "nick";

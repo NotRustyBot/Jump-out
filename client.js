@@ -928,17 +928,11 @@ function sendControls() {
     let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: 0 };
     view.serialize(toSend, Datagrams.input);
 
-    if (actionID == 1) {
-        view.setUint8(clientHeaders.smartAction);
-        view.serialize({ handle: 1, actionId: ActionId.placeObject }, Datagrams.SmartAction);
-        view.serialize({ structure: 1 }, SmartActionData[ActionId.placeObject]);
-    } else if (actionID == 2) {
-        view.setUint8(clientHeaders.smartAction);
-        view.serialize({ handle: 1, actionId: ActionId.MineRock }, Datagrams.SmartAction);
-        view.serialize({}, SmartActionData[ActionId.MineRock]);
+    for (let i = 0; i < actionIDs.length; i++) {
+        localPlayer.ship.stats.actionPool[actionIDs[i]](view);
+        console.log(view.view.buffer);
     }
-    actionID = 0;
-
+    actionIDs = [];
     if (serverCommand.length > 0) {
         view.setUint8(clientHeaders.serverConsole);
         view.serialize({ command: serverCommand }, Datagrams.ServerConsole);
@@ -946,7 +940,7 @@ function sendControls() {
     }
     if (connected)
         connection.send(buffer.slice(0, view.index));
-    //console.log(buffer);
+
 }
 
 function sendInit() {
@@ -967,7 +961,7 @@ function serverExecute(command) {
 
 //#region INPUT
 let controlVector = { x: 0, y: 0, afterBurner: 0 };
-let actionID = 0;
+let actionIDs = [];
 let keyDown = {};
 
 function handleInput() {
@@ -982,10 +976,10 @@ function handleInput() {
     if (keyDown.shift) controlVector.afterBurner = 1;
 
     if (keyDown.f) {
-        actionID = 1;
+        actionIDs.push(0);
         keyDown.f = false;
     } else if (keyDown.e) {
-        actionID = 2;
+        actionIDs.push(1);
         keyDown.e = false;
     } else if (keyDown.c) {
         detachCamera = !detachCamera;
