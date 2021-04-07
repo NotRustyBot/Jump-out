@@ -51,13 +51,13 @@
         <div class="guiPanel inventory shadow" style="left:900px;top:300px;">
             <div class="guiBar dragBar">
                 <h1>Inventory</h1>
-                <div class="closeButton"><img src="images/ui/cross.png"></div>
+                <div class="closeButton tooltip" data-tooltip-name="Close"><img src="images/ui/cross.png"></div>
             </div>
             <div class="guiPanelContent vertical">
                 <div id="inventoryTop">
                     <div class="inventorySpecialSlots">
                         <div>
-                            <div class="specialSlotNumber slotsLeft">
+                            <div class="specialSlotNumber itemNumber slotsLeft">
                                 <span>300</span>
                             </div>
                             <div>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="specialSlotNumber slotsLeft">
+                            <div class="specialSlotNumber itemNumber slotsLeft">
                                 <span>300</span>
                             </div>
                             <div>
@@ -75,14 +75,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="inventoryShipImg"><img src="images/ui/shipBlueprint.png"></div>
+                    <div class="inventoryShipImg tooltip" data-tooltip-name="Your ship"><img
+                            src="images/ui/shipBlueprint.png"></div>
                     <div class="inventorySpecialSlots">
                         <div>
                             <div>
                                 <div class="inventorySlotSpecial"></div>
                                 <span>Test</span>
                             </div>
-                            <div class="specialSlotNumber slotsRight">
+                            <div class="specialSlotNumber itemNumber slotsRight">
                                 <span>300</span>
                             </div>
                         </div>
@@ -91,102 +92,107 @@
                                 <div class="inventorySlotSpecial"></div>
                                 <span>Test</span>
                             </div>
-                            <div class="specialSlotNumber slotsRight">
+                            <div class="specialSlotNumber itemNumber slotsRight">
                                 <span>300</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div id="inventoryBar">
-                    <div><div id="gaugeInventoryPreview"></div><div id="gaugeInventory"></div></div>
+                    <div>
+                        <div id="gaugeInventoryPreview"></div>
+                        <div id="gaugeInventory"></div>
+                    </div>
                     <span>0 / 8 Cargo</span>
                 </div>
                 <div id="inventoryBottom">
                     <div id="inventoryGrid">
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
-                        <div><div></div></div>
+                        <!--
+                        <div class="inventoryCell">
+                        <div class="item"><span class="itemNumber">5</span><img src="images/ui/shipBlueprint.png"><span>Item</span></div>
+                        -->
                     </div>
                 </div>
             </div>
-            <div class="resizeButton"></div>
         </div>
+        <div class="resizeButton tooltip" data-tooltip-name="Resize window"></div>
+    </div>
 
-        <div class="guiPanel menus">
-            <div class="guiPanelContent vertical noPadding">
-                <div class="bigIconButton tooltip" id="sidebarInfo" data-tooltip-name="Ship Info"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarInventory" data-tooltip-name="Inventory"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarBuildings" data-tooltip-name="Buildings"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarClues" data-tooltip-name="Clues"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton tooltip" id="sidebarHlad" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img src="images/ui/cross.png">
-                </div>
-            </div>
-        </div>
-
-        <canvas id="bigMap"></canvas>
-
-        <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management"
-            data-tooltip-desc="Drag powercells to and from your storage.">
-            <div class="guiBar vertical cells-bar">
-                <h1>POWER CELLS</h1>
-                <div><img id="minimize-powercells" class="windowButton tooltip" src="images/ui/minimize.png"
-                        data-tooltip-name="Minimize"></div>
-            </div>
-            <div class="guiPanelContent vertical noPadding cells-icons">
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-                <div class="bigIconButton"><img src="images/ui/cross.png"></div>
-            </div>
-
-        </div>
-        <div class="gauges">
-            <div class="tooltip" data-tooltip-name="Shield Integrity" data-tooltip-desc="The integrity of the shield.">
-                <img src="images/ui/iconShield.png">
-                <div class="gauge">
-                    <div id="gaugeShield"></div>
-                </div>
-                <h1 id="numberShield">75</h1>
-            </div>
-            <div class="tooltip" data-tooltip-name="Hull Integrity"
-                data-tooltip-desc="The strength of the ship's hull. When it reaches zero, the ship explodes."><img
-                    src="images/ui/iconHull.png">
-                <div class="gauge">
-                    <div id="gaugeHull"></div>
-                </div>
-                <h1 id="numberHull">75</h1>
-            </div>
-            <div class="tooltip" data-tooltip-name="Remaining Fuel"
-                data-tooltip-desc="Remaining afterburner fuel in the tank. When it runs out, the afterburner is disabled.">
-                <img src="images/ui/iconFuel.png">
-                <div class="gauge">
-                    <div id="gaugeFuel"></div>
-                </div>
-                <h1 id="numberFuel">100</h1>
-            </div>
-            <div class="tooltip" data-tooltip-name="Ship Speed"
-                data-tooltip-desc="The current and maximum speed of the ship, affected by surronding gas density."><img
-                    src="images/ui/iconSpeed.png">
-                <div class="gauge">
-                    <div id="gaugeSpeed2"></div>
-                    <div id="gaugeSpeed"></div>
-                </div>
-                <h1 id="numberSpeed">100</h1>
-            </div>
-            <div class="tooltip" data-tooltip-name="Cargo Load" data-tooltip-desc="The ship's cargo load."><img
-                    src="images/ui/iconCargo.png">
-                <div class="gauge">
-                    <div id="gaugeCargo"></div>
-                </div>
-                <h1 id="numberCargo">100</h1>
+    <div class="guiPanel menus">
+        <div class="guiPanelContent vertical noPadding">
+            <div class="bigIconButton tooltip" id="sidebarInfo" data-tooltip-name="Ship Info"><img
+                    src="images/ui/iconHull.png"></div>
+            <div class="bigIconButton tooltip" id="sidebarInventory" data-tooltip-name="Inventory"><img
+                    src="images/ui/iconCargo.png"></div>
+            <div class="bigIconButton tooltip" id="sidebarBuildings" data-tooltip-name="Buildings"><img
+                    src="images/ui/cross.png"></div>
+            <div class="bigIconButton tooltip" id="sidebarClues" data-tooltip-name="Clues"><img
+                    src="images/ui/cross.png"></div>
+            <div class="bigIconButton tooltip" id="sidebarHlad" data-tooltip-name="👨🏿‍🦰 Mám hlad"><img
+                    src="images/ui/iconHlad.png">
             </div>
         </div>
+    </div>
+
+    <canvas id="bigMap"></canvas>
+
+    <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management"
+        data-tooltip-desc="Drag powercells to and from your storage.">
+        <div class="guiBar vertical cells-bar">
+            <h1>POWER CELLS</h1>
+            <div><img id="minimize-powercells" class="windowButton tooltip" src="images/ui/minimize.png"
+                    data-tooltip-name="Minimize"></div>
+        </div>
+        <div class="guiPanelContent vertical noPadding cells-icons">
+            <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+            <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+            <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+            <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+            <div class="bigIconButton"><img src="images/ui/cross.png"></div>
+        </div>
+
+    </div>
+    <div class="gauges">
+        <div class="tooltip" data-tooltip-name="Shield Integrity" data-tooltip-desc="The integrity of the shield.">
+            <img src="images/ui/iconShield.png">
+            <div class="gauge">
+                <div id="gaugeShield"></div>
+            </div>
+            <h1 id="numberShield">75</h1>
+        </div>
+        <div class="tooltip" data-tooltip-name="Hull Integrity"
+            data-tooltip-desc="The strength of the ship's hull. When it reaches zero, the ship explodes."><img
+                src="images/ui/iconHull.png">
+            <div class="gauge">
+                <div id="gaugeHull"></div>
+            </div>
+            <h1 id="numberHull">75</h1>
+        </div>
+        <div class="tooltip" data-tooltip-name="Remaining Fuel"
+            data-tooltip-desc="Remaining afterburner fuel in the tank. When it runs out, the afterburner is disabled.">
+            <img src="images/ui/iconFuel.png">
+            <div class="gauge">
+                <div id="gaugeFuel"></div>
+            </div>
+            <h1 id="numberFuel">100</h1>
+        </div>
+        <div class="tooltip" data-tooltip-name="Ship Speed"
+            data-tooltip-desc="The current and maximum speed of the ship, affected by surronding gas density."><img
+                src="images/ui/iconSpeed.png">
+            <div class="gauge">
+                <div id="gaugeSpeed2"></div>
+                <div id="gaugeSpeed"></div>
+            </div>
+            <h1 id="numberSpeed">100</h1>
+        </div>
+        <div class="tooltip" data-tooltip-name="Cargo Load" data-tooltip-desc="The ship's cargo load."><img
+                src="images/ui/iconCargo.png">
+            <div class="gauge">
+                <div id="gaugeCargo"></div>
+            </div>
+            <h1 id="numberCargo">100</h1>
+        </div>
+    </div>
     </div>
 </body>
 <!--
@@ -198,6 +204,7 @@
 <script type="text/javascript" src="clientgameobjects.js"></script>
 <script type="text/javascript" src="datagram.js"></script>
 <script type="text/javascript" src="ui.js"></script>
+<script type="text/javascript" src="inventory.js"></script>
 <script type="text/javascript" src="client.js"></script>
 
 

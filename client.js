@@ -74,6 +74,9 @@ loader
     .add("shadow", "images/shadow2.png")
     .add("smooth", "images/smooth.png")
     .add("flame", "images/flame.png")
+    .add("item_base", "images/item_base.png")
+    .add("item_dark", "images/item_dark.png")
+    .add("item_outline", "images/item_outline.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);
@@ -105,6 +108,19 @@ isOnScreen = function (position, size) {
         position.y + size > camera.y - screen.center.y / camera.zoom &&
         position.y - size < camera.y + screen.center.y / camera.zoom
     );
+}
+
+function screenToWorldPos(position) {
+    return (new Vector(
+        camera.x + (position.x - screen.center.x)/camera.zoom,
+        camera.y + (position.y - screen.center.y)/camera.zoom
+    ));
+}
+function worldToScreenPos(position) {
+    return (new Vector(
+        (position.x - camera.x)*camera.zoom + screen.center.x,
+        (position.y - camera.y)*camera.zoom + screen.center.y
+    ));
 }
 
 
@@ -163,6 +179,9 @@ var gasCount = 0;
 
 
 //LOCAL PLAYER
+/**
+ * @type {Player}
+ */
 var localPlayer;
 var playerSprite, playerLight;
 var playerSettings = { nick: "Nixk" };
@@ -390,6 +409,10 @@ function graphicsUpdate(deltaTimeFactor) {
 
         Entity.list.forEach(entity => {
             entity.update(deltaTime);
+        });
+
+        DroppedItem.list.forEach(item => {
+            item.update(deltaTime);
         });
 
 
@@ -738,6 +761,7 @@ function parseInit(view) {
         console.log(p.shipType);
         Datagrams.initPlayer.transferData(pl, p);
     }
+    generateInventory();
 
 
     running = true;
@@ -850,18 +874,22 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
+    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position);
     //id, position, item, stack
 }
 
 function parseItemRemove(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemRemove);
+    DroppedItem.list.get(temp.id).remove();
     //id
 }
 
 function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
+    Players.list.get(temp.shipId).ship.inventory.slots[temp.slot].addItem(new Item(temp.item,temp.stack));
+    inventoryUpdate();
     //shipId, slot, item, stack
 }
 
