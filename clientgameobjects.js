@@ -109,7 +109,7 @@ function Entity(type, id) {
 }
 Entity.list = new Map();
 
-function Item(type, id, stack, targetPos,sourcePos) {
+function DroppedItem(type, id, stack, targetPos,sourcePos) {
     this.animSpeed = 4;
     this.animProgress = 1;
     this.sourcePos = sourcePos.result();
@@ -119,7 +119,7 @@ function Item(type, id, stack, targetPos,sourcePos) {
     this.targetRotation = (Math.random()-0.5)*2;
     this.type = type;
     this.id = id;
-    Item.list.set(this.id, this);
+    DroppedItem.list.set(this.id, this);
     this.sprite = new ShadedSprite(this, "item", { size: 1.5 }, false, true);
     this.update = function (dt) {
         if(this.animProgress > 0.001){
@@ -132,10 +132,10 @@ function Item(type, id, stack, targetPos,sourcePos) {
 
     this.remove = function () {
         this.sprite.remove();
-        Item.list.delete(this.id);
+        DroppedItem.list.delete(this.id);
     }
 }
-Item.list = new Map();
+DroppedItem.list = new Map();
 
 
 let sunAngle = 0;
@@ -234,9 +234,11 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
 }
 
 
-function Ship(type) {
+function Ship(type,player) {
+    this.player = player;
     this.stats = type;
     console.log(type);
+    this.inventory = new Inventory(this.stats.capacity,this.player.id,this.stats.inventory);
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.rotation = 0;
@@ -273,7 +275,7 @@ function Player(id, type) {
     this.ship;
     this.id = id;
     this.shipType = type;
-    this.ship = new Ship(ShipType.types[this.shipType]);
+    this.ship = new Ship(ShipType.types[this.shipType],this);
     this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);
     this.sprite.anchor.set(0.5);

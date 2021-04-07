@@ -8,5 +8,6 @@
         "clientgameobjects.js",
         "ui.js",
         "shipTypes.js",
+        "inventory.js",
       ]
   }

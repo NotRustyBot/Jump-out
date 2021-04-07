@@ -179,6 +179,9 @@ var gasCount = 0;
 
 
 //LOCAL PLAYER
+/**
+ * @type {Player}
+ */
 var localPlayer;
 var playerSprite, playerLight;
 var playerSettings = { nick: "Nixk" };
@@ -408,7 +411,7 @@ function graphicsUpdate(deltaTimeFactor) {
             entity.update(deltaTime);
         });
 
-        Item.list.forEach(item => {
+        DroppedItem.list.forEach(item => {
             item.update(deltaTime);
         });
 
@@ -758,6 +761,7 @@ function parseInit(view) {
         console.log(p.shipType);
         Datagrams.initPlayer.transferData(pl, p);
     }
+    generateInventory();
 
 
     running = true;
@@ -870,23 +874,22 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
-    let newItem = new Item(temp.item, temp.id, temp.stack, temp.position);
+    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position);
     //id, position, item, stack
 }
 
 function parseItemRemove(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemRemove);
-    Item.list.get(temp.id).remove();
+    DroppedItem.list.get(temp.id).remove();
     //id
 }
 
 function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
-    inventorySlots.push(temp.id);
+    Players.list.get(temp.shipId).ship.inventory.slots[temp.slot].addItem(new Item(temp.item,temp.stack));
     inventoryUpdate();
-    console.log(inventorySlots);
     //shipId, slot, item, stack
 }
 

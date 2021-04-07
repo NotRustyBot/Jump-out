@@ -23,6 +23,7 @@ const resizeButtons = document.getElementsByClassName("resizeButton");
 const toggleInventory = document.getElementById("sidebarInventory");
 
 const inventoryElement = document.getElementsByClassName("inventory")[0];
+const inventoryGrid = document.getElementById("inventoryGrid");
 const inventorySlotElements = document.getElementsByClassName("inventoryCell");
 
 let draggedItem = null;
@@ -60,11 +61,10 @@ let inventorySlots = [];
 let draggedItemOrigin = null;
 let mouseInInventory = false;
 
-function inventoryUpdate() {
+/*function inventoryUpdate() {
     for (let i = 0; i < inventorySlotElements.length; i++) {
         const element = inventorySlotElements[i];
         if (inventorySlots.length > i) {
-            console.log(i, inventorySlots.length, "sds");
             element.removeChild(element.firstChild);
             let img = document.createElement("img");
             img.src = "images/item_base.png";
@@ -77,6 +77,69 @@ function inventoryUpdate() {
 
 
     }
+}*/
+
+function generateInventory() {
+    for (let i = 0; i < localPlayer.ship.inventory.slots.length; i++) {
+        const slot = localPlayer.ship.inventory.slots[i];
+        if (slot.filter == -1) {
+            let newSlot = document.createElement("div");
+            newSlot.classList.add("inventoryCell");
+            if (slot.item.stack == 0) {
+                newSlot.appendChild(document.createElement("div"));
+            }
+            else {
+                createItemElement(slot,newSlot)
+            }
+            newSlot.dataset.slotId = i;
+            inventoryGrid.appendChild(newSlot);
+        }
+    }
+}
+
+function createItemElement(slot,slotElement) {
+    let newItem = document.createElement("div");
+    newItem.classList.add("item");
+    newItem.classList.add("tooltip");
+    newSlot.dataset.tooltipName = "Item ID " + slot.item.id;
+    let spanNum = document.createElement("span");
+    spanNum.classList.add("itemNumber");
+    spanNum.textContent = slot.item.stack;
+    let img = document.createElement("img");
+    img.src = "images/ui/shipBlueprint.png";
+    let spanName = document.createElement("span");
+    spanNum.textContent = "item ID " + slot.item.id;
+    newItem.appendChild(spanNum);
+    newItem.appendChild(img);
+    newItem.appendChild(spanName);
+    slotElement.appendChild(newItem);
+
+    newItem.addEventListener("mousedown", () => {
+        newItem.style.left = "unset";
+        newItem.style.top = "unset";
+        newItem.classList.add("draggedItem");
+        dragStart = { x: newItem.offsetLeft + inventoryElement.offsetLeft, y: newItem.offsetTop + inventoryElement.offsetTop };
+        dragMoved = { x: 0, y: 0 };
+        draggedItemOrigin = slotElement;
+        document.getElementById("guiContainer").appendChild(newItem);
+        draggedItemOrigin.appendChild(document.createElement("div"));
+        newItem.style.left = (dragStart.x) + "px";
+        newItem.style.top = (dragStart.y) + "px";
+        draggedElement = newItem;
+        draggedItem = newItem;
+        dragging = true;
+    });
+
+    newItem.addEventListener("mouseenter", e => {
+        hoverTime = 0;
+        tooltipChanged = true;
+        tooltipStack.push(newItem);
+    })
+    newItem.addEventListener("mouseleave", e => {
+        hoverTime = 0;
+        tooltipChanged = true;
+        tooltipStack.pop();
+    })
 }
 
 inventoryElement.addEventListener("mouseenter", e => {
@@ -86,13 +149,13 @@ inventoryElement.addEventListener("mouseleave", e => {
     mouseInInventory = false;
 });
 
-Array.from(itemElements).forEach(element => {
+/* Array.from(itemElements).forEach(element => {
     element.addEventListener("mousedown", () => {
         element.style.left = "unset";
         element.style.top = "unset";
         element.classList.add("draggedItem");
         dragStart = { x: element.offsetLeft + inventoryElement.offsetLeft, y: element.offsetTop + inventoryElement.offsetTop };
-        dragMoved = {x:0,y:0};
+        dragMoved = { x: 0, y: 0 };
         draggedItemOrigin = element.parentElement;
         document.getElementById("guiContainer").appendChild(element);
         draggedItemOrigin.appendChild(document.createElement("div"));
@@ -102,7 +165,7 @@ Array.from(itemElements).forEach(element => {
         draggedItem = element;
         dragging = true;
     })
-});
+}); */
 
 Array.from(tooltipElements).forEach(element => {
     element.addEventListener("mouseenter", e => {
@@ -159,13 +222,13 @@ document.addEventListener("mouseup", () => {
     if (draggedItem) {
         if (mouseInInventory) {
             draggedItem.classList.remove("draggedItem");
-            draggedItemOrigin.textContent="";
+            draggedItemOrigin.textContent = "";
             draggedItemOrigin.appendChild(draggedItem);
         } else {
             draggedItem.remove();
             //let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
-            let pos = screenToWorldPos(mousePosition.result().sub(screen.center).clamp(500*camera.zoom).add(screen.center));
-            let item = new Item("as",Item.list.size,1,pos,localPlayer.ship.position);
+            let pos = screenToWorldPos(mousePosition.result().sub(screen.center).clamp(500 * camera.zoom).add(screen.center));
+            let item = new DroppedItem("as", DroppedItem.list.size, 1, pos, localPlayer.ship.position);
         }
 
     }
