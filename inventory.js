@@ -17,7 +17,7 @@ let ItemInfo = {
     5: { // naviBeacon
         tag: 1,
         stackable: false,
-        name:"Navigation Beacon",
+        name:"Nav Beacon",
     },
 }
 
@@ -48,6 +48,7 @@ function Slot(capacity, filter) {
                 return 0; // filter mismatch
             }
             this.item.id = item.id;
+            this.item.stats = ItemInfo[item.id];
             this.item.stack += taken;
             return taken; // == 0) inventory full
         } else {

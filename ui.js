@@ -112,7 +112,7 @@ function createItemElement(slot,slotElement) {
     let newItem = document.createElement("div");
     newItem.classList.add("item");
     newItem.classList.add("tooltip");
-    newItem.dataset.tooltipName = slot.item.name;
+    newItem.dataset.tooltipName = slot.item.stats.name;
     let spanNum = document.createElement("span");
     spanNum.classList.add("itemNumber");
     spanNum.textContent = slot.item.stack;
@@ -120,7 +120,7 @@ function createItemElement(slot,slotElement) {
     let img = document.createElement("img");
     img.src = "images/ui/itemOre.png";
     let spanName = document.createElement("span");
-    spanName.textContent = slot.item.name;
+    spanName.textContent = slot.item.stats.name;
     newItem.appendChild(spanNum);
     newItem.appendChild(img);
     newItem.appendChild(spanName);  
