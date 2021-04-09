@@ -390,7 +390,7 @@ let performanceData = {
 
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
-
+        
         averageFPS.push(app.ticker.FPS);
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
@@ -402,7 +402,11 @@ function graphicsUpdate(deltaTimeFactor) {
         updateParticles(deltaTime);
         updateTrails(deltaTime);
         updateCamera(deltaTime);
+        performanceData.start();
         updateGui(deltaTime);
+        performanceData.logAndNext();
+        performanceData.stop();
+        
 
         Player.players.forEach(player => {
             if (player.lensFlare)
@@ -424,7 +428,6 @@ function graphicsUpdate(deltaTimeFactor) {
 
         sunAngle += deltaTime * 0.1;
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
-
 
     }
 }
@@ -571,13 +574,16 @@ function updateGui(deltaTime) {
     gauges.speed.style.width = speedRatio + "%";
     gauges.maxSpeed.style.width = maxSpeedRatio + "%";
 
-    gaugeNumbers.shield.innerHTML = shieldRatio.toFixed(0);
-    gaugeNumbers.hull.innerHTML = hullRatio.toFixed(0);
-    gaugeNumbers.fuel.innerHTML = fuelRatio.toFixed(0);
-    gaugeNumbers.cargo.innerHTML = cargoRatio.toFixed(0);
-    gaugeNumbers.speed.innerHTML = speedG.toFixed(0);
+    gaugeNumbers.shield.textContent = shieldRatio.toFixed(0);
+    gaugeNumbers.hull.textContent = hullRatio.toFixed(0);
+    gaugeNumbers.fuel.textContent = fuelRatio.toFixed(0);
+    gaugeNumbers.cargo.textContent = cargoRatio.toFixed(0);
+    gaugeNumbers.speed.textContent = speedG.toFixed(0);
+    
 
     updateTooltip(deltaTime);
+
+    performanceData.logAndNext();
 
     UpdateMinimap(deltaTime);
 
@@ -638,8 +644,12 @@ function onConnectionOpen() {
 
 }
 
+
+let downloaded = [];
 function onConnectionMessage(messageRaw) {
     var ms = messageRaw.data;
+    console.log(ms);
+    downloaded.push(ms.byteLength);
     //console.log(typeof(ms)); //myslím, že je chyba na serveru
     parseMessage(ms);
 }
@@ -737,9 +747,8 @@ function parsePlayer(view) {
     let player = Player.players.get(id);
     if (player != undefined) {
         view.deserealize(ship, Datagrams.shipUpdate);
-
+        lastrot = player.ship.rotation;
         Datagrams.shipUpdate.transferData(player.ship, ship);
-
     }
     else {
         console.log("Undefined player update with ID " + id);
@@ -985,11 +994,11 @@ function handleInput() {
         detachCamera = !detachCamera;
         keyDown.c = false;
     } else if (keyDown.k) {
-        window.open("debug/index.html?data=" + performance.string());
-        performance.data = [];
+        window.open("debug/index.html?data=" + performanceData.string());
+        performanceData.data = [];
         keyDown.k = false;
     } else if (keyDown.l) {
-        performance.streaming = !performance.streaming;
+        performanceData.streaming = !performanceData.streaming;
         keyDown.l = false;
     }
 
@@ -1109,7 +1118,6 @@ function gasParticleChunksDisplay() {
                 g.alpha = e / 200 + 0.5;
                 g.rotation += 0.03 * g.alpha + 0.008;
                 g.tint = gasColorMap.evaluate(e / 100);
-                g.red = Math.random();
                 gasDisplay[gX][gY] = true;
                 g.visible = true;
             }

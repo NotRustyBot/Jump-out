@@ -254,10 +254,13 @@ toggleInventory.addEventListener("click", () => {
 })
 
 function updateTooltip(deltaTime) {
+    performanceData.logAndNext();
     hoverTime += deltaTime;
-    tooltipBox.style.top = Math.min(mousePosition.y, screen.height - tooltipBox.offsetHeight - 10) + "px";
-    tooltipBox.style.left = mousePosition.x + "px";
-    if (mousePosition.x + tooltipBox.offsetWidth + 10 >= screen.width) tooltipBox.style.left = (mousePosition.x - tooltipBox.offsetWidth - 20) + "px";
+    tooltipBox.style.transform = "translate(" + mousePosition.x + "px," + Math.min(mousePosition.y, screen.height - tooltipBox.offsetHeight - 10) + "px)";
+    //tooltipBox.style.top = ;
+    //tooltipBox.style.left = ;
+    //if (mousePosition.x + tooltipBox.offsetWidth + 10 >= screen.width) tooltipBox.style.left = (mousePosition.x - tooltipBox.offsetWidth - 20) + "px";
+    performanceData.logAndNext();
     if (tooltipStack.length > 0 && hoverTime >= tooltipDelay) {
         let element = tooltipStack[tooltipStack.length - 1];
         tooltipBox.style.opacity = "1";
@@ -282,7 +285,6 @@ function updateTooltip(deltaTime) {
     else {
         tooltipBox.style.opacity = "0";
     }
-
 }
 
 let minimapShown = true;
