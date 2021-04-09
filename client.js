@@ -178,8 +178,6 @@ var gasCount = 0;
 
 
 
-
-
 //LOCAL PLAYER
 /**
  * @type {Player}
@@ -395,6 +393,10 @@ function graphicsUpdate(deltaTimeFactor) {
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
+        netTimer += deltaTime;
+        if (netTimer >= 0) {
+            
+        }
         fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n" + (performance.streaming ? "streaming..." : "");
         averageFPS.shift();
         minFPS.shift();
@@ -644,11 +646,10 @@ function onConnectionOpen() {
 
 }
 
-
+let netTimer = 0;
 let downloaded = [];
 function onConnectionMessage(messageRaw) {
     var ms = messageRaw.data;
-    console.log(ms);
     downloaded.push(ms.byteLength);
     //console.log(typeof(ms)); //myslím, že je chyba na serveru
     parseMessage(ms);

@@ -269,7 +269,6 @@ function Ship(type,player) {
 }
 
 let Actions = {};
-
 Actions.buildTest = function (view) { // malý písmeno??
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.placeObject }, Datagrams.SmartAction);
@@ -280,7 +279,6 @@ Actions.MineRock = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.MineRock }, Datagrams.SmartAction);
     view.serialize({}, SmartActionData[ActionId.MineRock]);
-    console.log("yep");
 }
 
 ShipType = defineShips(Actions);
