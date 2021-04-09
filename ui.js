@@ -61,6 +61,8 @@ let inventorySlots = [];
 let draggedItemOrigin = null;
 let mouseInInventory = false;
 
+let tooltipSize = { x: 0, y: 0 }
+
 /*function inventoryUpdate() {
     for (let i = 0; i < inventorySlotElements.length; i++) {
         const element = inventorySlotElements[i];
@@ -89,7 +91,7 @@ function generateInventory() {
                 newSlot.appendChild(document.createElement("div"));
             }
             else {
-                createItemElement(slot,newSlot)
+                createItemElement(slot, newSlot)
             }
             newSlot.dataset.slotId = i;
             inventoryGrid.appendChild(newSlot);
@@ -97,18 +99,18 @@ function generateInventory() {
     }
 }
 
-function findSlotElement(id){
+function findSlotElement(id) {
     let cells = document.getElementsByClassName("inventoryCell");
     for (let i = 0; i < cells.length; i++) {
         const element = cells[i];
-        console.log("dsds",element.dataset.slotId, id);
-        if(element.dataset.slotId == id) return element;
+        console.log("dsds", element.dataset.slotId, id);
+        if (element.dataset.slotId == id) return element;
     }
     return null;
 }
 
-function createItemElement(slot,slotElement) {
-    slotElement.textContent="";
+function createItemElement(slot, slotElement) {
+    slotElement.textContent = "";
     let newItem = document.createElement("div");
     newItem.classList.add("item");
     newItem.classList.add("tooltip");
@@ -123,7 +125,7 @@ function createItemElement(slot,slotElement) {
     spanName.textContent = slot.item.stats.name;
     newItem.appendChild(spanNum);
     newItem.appendChild(img);
-    newItem.appendChild(spanName);  
+    newItem.appendChild(spanName);
     slotElement.appendChild(newItem);
 
     newItem.addEventListener("mousedown", () => {
@@ -256,34 +258,56 @@ toggleInventory.addEventListener("click", () => {
 function updateTooltip(deltaTime) {
     performanceData.logAndNext();
     hoverTime += deltaTime;
-    tooltipBox.style.transform = "translate(" + mousePosition.x + "px," + Math.min(mousePosition.y, screen.height - tooltipBox.offsetHeight - 10) + "px)";
-    //tooltipBox.style.top = ;
-    //tooltipBox.style.left = ;
-    //if (mousePosition.x + tooltipBox.offsetWidth + 10 >= screen.width) tooltipBox.style.left = (mousePosition.x - tooltipBox.offsetWidth - 20) + "px";
-    performanceData.logAndNext();
-    if (tooltipStack.length > 0 && hoverTime >= tooltipDelay) {
-        let element = tooltipStack[tooltipStack.length - 1];
-        tooltipBox.style.opacity = "1";
-        if (element.dataset.tooltipName)
-            tooltipBoxName.innerHTML = element.dataset.tooltipName;
-        else
-            tooltipBoxName.innerHTML = "Missing tooltip";
 
-        if (element.dataset.tooltipDesc) {
-            tooltipBoxDesc.style.display = "block";
-            tooltipBoxDesc.innerHTML = element.dataset.tooltipDesc;
+    //If hover active or changed recently
+    if (tooltipStack.length > 0 || hoverTime < 1) {
+        //Move tooltip
+        tooltipBox.style.top = Math.min(mousePosition.y, screen.height - tooltipSize.y - 10) + "px";
+        if (mousePosition.x + tooltipSize.x + 10 >= screen.width) {
+            tooltipBox.style.left = (mousePosition.x - tooltipSize.x - 20) + "px";
         }
         else {
-            tooltipBoxDesc.style.display = "none";
-            tooltipBoxDesc.innerHTML = "Missing description";
+            tooltipBox.style.left = mousePosition.x + "px";
         }
-        if (tooltipBox.offsetHeight + mousePosition.y > screen.height) {
-            //tooltipBox.style.bottom = 0;
-            //tooltipBox.style.top = (mousePosition.y-tooltipBox.offsetHeight) + "px";
+
+        //If changed hover this frame
+        if (hoverTime <= deltaTime) {
+            tooltipBox.style.opacity = "0";
         }
+        //If tooltipDelay reached this frame
+        if (tooltipStack.length > 0 && hoverTime >= tooltipDelay && hoverTime <= tooltipDelay + deltaTime) {
+
+            let element = tooltipStack[tooltipStack.length - 1];
+            if (element.dataset.tooltipName)
+                tooltipBoxName.innerHTML = element.dataset.tooltipName;
+            else
+                tooltipBoxName.innerHTML = "Missing tooltip";
+
+            if (element.dataset.tooltipDesc) {
+                tooltipBoxDesc.style.display = "block";
+                tooltipBoxDesc.innerHTML = element.dataset.tooltipDesc;
+            }
+            else {
+                tooltipBoxDesc.style.display = "none";
+                tooltipBoxDesc.innerHTML = "Missing description";
+            }
+            /* if (tooltipSize.y + mousePosition.y > screen.height) {
+                tooltipBox.style.bottom = 0;
+                tooltipBox.style.top = (mousePosition.y-tooltipSize.y) + "px";
+            } */
+            tooltipSize.x = tooltipBox.offsetWidth;
+            tooltipSize.y = tooltipBox.offsetHeight;
+            console.log(tooltipSize);
+
+            //tooltipBox.style.display = "unset";
+            tooltipBox.style.opacity = "1";
+        }
+
+
     }
+    //If no change recently
     else {
-        tooltipBox.style.opacity = "0";
+        //tooltipBox.style.display = "none";
     }
 }
 
