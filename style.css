@@ -99,7 +99,7 @@ body {
 
 .guiBar {
     width: 100%;
-    height: calc(var(--ui-scale)*400px);
+    height: calc(var(--ui-scale)*70px);
     /*background-color: #252525;*/
     display: flex;
     flex-direction: row;
