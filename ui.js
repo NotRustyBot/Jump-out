@@ -60,8 +60,10 @@ let draggedElement = null;
 let inventorySlots = [];
 let draggedItemOrigin = null;
 let mouseInInventory = false;
+var itemToDrop = {};
 
 let tooltipSize = { x: 0, y: 0 }
+
 
 /*function inventoryUpdate() {
     for (let i = 0; i < inventorySlotElements.length; i++) {
@@ -242,7 +244,10 @@ document.addEventListener("mouseup", () => {
             draggedItem.remove();
             //let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
             let pos = screenToWorldPos(mousePosition.result().sub(screen.center).clamp(500 * camera.zoom).add(screen.center));
-            let item = new DroppedItem("as", DroppedItem.list.size, 1, pos, localPlayer.ship.position);
+            //let item = new DroppedItem("as", DroppedItem.list.size, 1, pos, localPlayer.ship.position);
+            itemToDrop = {position:pos,id:1,stack:1};
+            actionIDs.push(ActionId.DropItem);
+
         }
 
     }
