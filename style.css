@@ -7,6 +7,10 @@
     -ms-user-drag:none;
     color: white;
     font-family: Montserrat, sans-serif;
+
+    --ui-scale: 1;
+
+    
 }
 
 body {
@@ -81,7 +85,7 @@ body {
 .guiPanel {
     font-family: Montserrat, sans-serif;
     color: white;
-    width: 400px;
+    width: calc(var(--ui-scale)*400px);
     /*height: 470px;*/
     position: absolute;
     right: 0px;
@@ -95,7 +99,7 @@ body {
 
 .guiBar {
     width: 100%;
-    height: 70px;
+    height: calc(var(--ui-scale)*400px);
     /*background-color: #252525;*/
     display: flex;
     flex-direction: row;
@@ -105,10 +109,10 @@ body {
 .guiBar h1 {
     text-transform: uppercase;
     margin: 0;
-    padding-left: 25px;
-    line-height: 70px;
-    font-size: 30px;
-    letter-spacing: 0.15em;
+    padding-left: calc(var(--ui-scale)*25px);
+    line-height: calc(var(--ui-scale)*70px);
+    font-size: calc(var(--ui-scale)*30px);
+    letter-spacing: calc(var(--ui-scale)*0.15em);
 }
 
 .guiBar>div {
@@ -116,23 +120,23 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    margin: 0 10px 0 10px;
+    margin: 0 calc(var(--ui-scale)*10px) 0 calc(var(--ui-scale)*10px);
 }
 
 .guiBar>div img {
-    width: 30px;
-    height: 30px;
-    padding: 10px;
+    width: calc(var(--ui-scale)*30px);
+    height: calc(var(--ui-scale)*30px);
+    padding: calc(var(--ui-scale)*10px);
 }
 
 .guiPanelContent {
     display: flex;
     height: 100%;
     width: 100%;
-    padding: 0 25px 25px 25px;
+    padding: 0 calc(var(--ui-scale)*25px) calc(var(--ui-scale)*25px) calc(var(--ui-scale)*25px);
     box-sizing: border-box;
-    font-size: 18px;
-    line-height: 25px;
+    font-size: calc(var(--ui-scale)*18px);
+    line-height: calc(var(--ui-scale)*25px);
     color: #cccccc;
 }
 
@@ -154,15 +158,20 @@ body {
 }
 
 .shadow {
-    box-shadow: 0px 60px 100px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px calc(var(--ui-scale)*60px) calc(var(--ui-scale)*100px) rgba(0, 0, 0, 0.2);
 }
 
 #minimapContainer {
-    width: 350px;
-    height: 350px;
+    width: calc(var(--ui-scale)*350px);
+    height: calc(var(--ui-scale)*350px);
     border: 1px solid #626262;
     border-radius: 100%;
     overflow: hidden;
+}
+
+#minimap{
+    width: 100%;
+    height: 100%;
 }
 
 .map .guiPanelContent {
@@ -171,38 +180,38 @@ body {
 
 .mapControls {
     position: absolute;
-    left: 20px;
-    bottom: 20px;
-    width: 80px;
-    height: 80px;
+    left: calc(var(--ui-scale)*20px);
+    bottom: calc(var(--ui-scale)*20px);
+    width: calc(var(--ui-scale)*80px);
+    height: calc(var(--ui-scale)*80px);
 }
 
 .mapControls span {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 40px;
-    height: 40px;
+    width: calc(var(--ui-scale)*40px);
+    height: calc(var(--ui-scale)*40px);
     background-color: #353535;
     border-radius: 50%;
-    font-size: 40px;
+    font-size: calc(var(--ui-scale)*40px);
     font-weight: bold;
     position: absolute;
 }
 
 #zoomIn {
-    top: 5px;
+    top: calc(var(--ui-scale)*5px);
     left: 0px;
 }
 
 #zoomOut {
     bottom: 0px;
-    right: 5px;
+    right: calc(var(--ui-scale)*5px);
 }
 
 .bigIconButton {
     width: 100%;
-    height: 100px;
+    height: calc(var(--ui-scale)*100px);
     background: #181818;
     display: flex;
     justify-content: center;
@@ -216,12 +225,12 @@ body {
 
 .map {
     transition: margin-bottom 0.3s;
-    border-radius: 20px 0 0 0;
-    height: 445px;
+    border-radius: calc(var(--ui-scale)*20px) 0 0 0;
+    height: calc(var(--ui-scale)*445px);
 }
 
 .map.minimized {
-    margin-bottom: -375px;
+    margin-bottom: calc(var(--ui-scale)*-375px);
 }
 
 #minimize-minimap {
@@ -233,10 +242,10 @@ body {
 }
 
 .menus {
-    border-radius: 0 0 20px 0;
+    border-radius: 0 0 calc(var(--ui-scale)*20px) 0;
     left: 0;
     top: 0;
-    width: 100px;
+    width: calc(var(--ui-scale)*100px);
     height: unset;
     bottom: unset;
 }
@@ -245,23 +254,18 @@ body {
     height: auto;
 }
 
-.menus .bigIconButton {
-    max-height: 10vh;
-}
-
 .powercells {
     transition: margin-left 0.3s;
-    border-radius: 0 20px 0 0;
+    border-radius: 0 calc(var(--ui-scale)*20px) 0 0;
     left: 0;
     bottom: 0;
-    width: 300px;
-    height: 40vh;
-    max-height: 500px;
+    width: calc(var(--ui-scale)*300px);
+    max-height: calc(var(--ui-scale)*500px);
     flex-direction: row-reverse;
 }
 
 .powercells.minimized {
-    margin-left: -230px;
+    margin-left: calc(var(--ui-scale)*-230px);
 }
 
 #minimize-powercells {
@@ -276,18 +280,18 @@ body {
 
 .cells-bar {
     height: 100%;
-    width: 70px;
+    width: calc(var(--ui-scale)*70px);
     flex-direction: column-reverse;
 }
 
 .cells-bar>h1 {
     writing-mode: vertical-lr;
-    padding: 25px 0 0 0;
+    padding: calc(var(--ui-scale)*25px) 0 0 0;
     transform: rotate(180deg);
 }
 
 .cells-bar>div {
-    margin: 10px 0 10px 0;
+    margin: calc(var(--ui-scale)*10px) 0 calc(var(--ui-scale)*10px) 0;
 }
 
 .cells-icons {
@@ -298,33 +302,33 @@ body {
     position: absolute;
     display: flex;
     height: auto;
-    width: 550px;
-    left: 300px;
+    width: calc(var(--ui-scale)*550px);
+    left: calc(var(--ui-scale)*300px);
     bottom: 0;
-    padding: 30px;
+    padding: calc(var(--ui-scale)*30px);
     transition: margin-left 0.3s;
     flex-direction: column;
     justify-content: center;
 }
 
 .gauges.minimized {
-    margin-left: -230px;
+    margin-left: calc(var(--ui-scale)*-230px);
 }
 
 .gauges>div {
     display: flex;
-    height: 50px;
+    height: calc(var(--ui-scale)*50px);
     width: 100%;
-    margin: 10px 0 10px 0;
+    margin: calc(var(--ui-scale)*10px) 0 calc(var(--ui-scale)*10px) 0;
     align-items: center;
 }
 
 .gauge {
     background-color: rgba(255, 255, 255, .2);
     flex-grow: 1;
-    height: 10px;
-    border-radius: 10px;
-    margin: 0 10px 0 10px;
+    height: calc(var(--ui-scale)*10px);
+    border-radius: calc(var(--ui-scale)*10px);
+    margin: 0 calc(var(--ui-scale)*10px) 0 calc(var(--ui-scale)*10px);
     overflow: hidden;
 }
 
@@ -332,15 +336,15 @@ body {
     width: 75%;
     height: 100%;
     background-color: white;
-    border-radius: 10px;
+    border-radius: calc(var(--ui-scale)*10px);
 }
 
 .gauges h1 {
-    width: 100px;
+    width: calc(var(--ui-scale)*100px);
     font-family: Montserrat, sans-serif;
-    font-size: 2em;
+    font-size: calc(var(--ui-scale)*2em);
     color: white;
-    margin-left: 10px;
+    margin-left: calc(var(--ui-scale)*10px);
     font-weight: bold;
 }
 
@@ -362,7 +366,7 @@ body {
 
 #gaugeSpeed {
     background: #ffffff;
-    margin-top: -10px;
+    margin-top: calc(var(--ui-scale)*-10px);
 }
 
 #gaugeSpeed2 {
@@ -371,47 +375,47 @@ body {
 
 #tooltip {
     pointer-events: none;
-    transform: translateX(400px);
+    transform: translateX(calc(var(--ui-scale)*400px));
     z-index: 100;
     position: absolute;
     background: #202020;
     /*display:none;*/
     opacity: 0;
-    margin-left: 10px;
-    margin-left: -390px;
-    margin-top: 10px;
-    border-radius: 20px;
-    box-shadow: 0px 19px 60px rgba(0, 0, 0, 0.5);
-    padding: 22px;
+    margin-left: calc(var(--ui-scale)*10px);
+    margin-left: calc(var(--ui-scale)*-390px);
+    margin-top: calc(var(--ui-scale)*10px);
+    border-radius: calc(var(--ui-scale)*20px);
+    box-shadow: 0px calc(var(--ui-scale)*10px) calc(var(--ui-scale)*60px) rgba(0, 0, 0, 0.5);
+    padding: calc(var(--ui-scale)*22px);
     color: white;
-    max-width: 400px;
+    max-width: calc(var(--ui-scale)*400px);
     transition: opacity .2s;
     font-family: Montserrat, sans-serif;
 }
 
 #tooltip>#tooltipName {
     line-height: unset;
-    font-size: 18px;
+    font-size: calc(var(--ui-scale)*18px);
     font-weight: normal;
     padding: 0;
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: calc(var(--ui-scale)*0.1em);
 }
 
 #tooltip>#tooltipDesc {
     color: #A0A0A0;
-    font-size: 18px;
-    margin-top: 5px;
-    padding-top: 5px;
-    line-height: 25px;
+    font-size: calc(var(--ui-scale)*18px);
+    margin-top: calc(var(--ui-scale)*5px);
+    padding-top: calc(var(--ui-scale)*5px);
+    line-height: calc(var(--ui-scale)*25px);
     /*border-top: 1px solid rgba(255, 255, 255, 0.5);*/
 }
 
 .windowButton {
     background-color: rgba(255, 255, 255, 0);
     transition: background-color .2s, transform .3s;
-    border-radius: 50px;
+    border-radius: calc(var(--ui-scale)*50px);
 }
 
 .windowButton:hover {
@@ -439,12 +443,12 @@ body {
 }
 
 .inventory {
-    height: 900px;
-    width: 950px;
-    min-width: 490px;
-    min-height: 670px;
-    max-width: 1830px;
-    max-height: 1110px;
+    height: calc(var(--ui-scale)*900px);
+    width: calc(var(--ui-scale)*950px);
+    min-width: calc(var(--ui-scale)*490px);
+    min-height: calc(var(--ui-scale)*670px);
+    max-width: calc(var(--ui-scale)*1830px);
+    max-height: calc(var(--ui-scale)*1110px);
     position: absolute;
 }
 
@@ -454,8 +458,8 @@ body {
 
 .inventoryShipImg {
     /*min-width: 100px;*/
-    padding: 0 20px 0 20px;
-    width: 300px;
+    padding: 0 calc(var(--ui-scale)*20px) 0 calc(var(--ui-scale)*20px);
+    width: calc(var(--ui-scale)*300px);
     flex-grow: 0;
     display: flex;
     align-items: center;
@@ -467,12 +471,12 @@ body {
 }
 
 .inventorySpecialSlots {
-    font-size: 18px;
+    font-size: calc(var(--ui-scale)*18px);
     font-weight: bolder;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    letter-spacing: .1em;
+    letter-spacing: calc(var(--ui-scale)*.1em);
 }
 
 .inventorySpecialSlots>div {
@@ -486,8 +490,8 @@ body {
 .inventorySpecialSlots>div>div {
     flex-grow: 1;
     width: 70%;
-    min-width: 50px;
-    max-width: 150px;
+    min-width: calc(var(--ui-scale)*50px);
+    max-width: calc(var(--ui-scale)*150px);
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -496,14 +500,14 @@ body {
 }
 
 .inventorySpecialSlots>div>div>span {
-    line-height: 50px;
+    line-height: calc(var(--ui-scale)*150px);
     text-transform: uppercase;
 }
 
 .inventorySpecialSlots>div>.specialSlotNumber {
     justify-content: flex-start;
     width: 30%;
-    min-width: 100px;
+    min-width: calc(var(--ui-scale)*100px);
     max-width: unset;
     display: flex;
     flex-direction: row;
@@ -511,46 +515,46 @@ body {
 }
 
 .itemNumber {
-    font-size: 30px;
+    font-size: calc(var(--ui-scale)*30px);
 }
 
 .inventorySpecialSlots>div>.slotsLeft>span {
     text-align: end;
-    padding-right: 20px;
+    padding-right: calc(var(--ui-scale)*20px);
 }
 
 .inventorySpecialSlots>div>.slotsRight>span {
     text-align: start;
-    padding-left: 20px;
+    padding-left: calc(var(--ui-scale)*20px);
 }
 
 .inventorySpecialSlots>div>.specialSlotNumber>span {
-    line-height: 100px;
+    line-height: calc(var(--ui-scale)*100px);
     width: 100%;
 }
 
 .inventorySlotSpecial {
-    width: 100px;
-    height: 100px;
+    width: calc(var(--ui-scale)*100px);
+    height: calc(var(--ui-scale)*100px);
     border: 5px dashed #434343;
     /*box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.473) inset;*/
-    border-radius: 10px;
+    border-radius: calc(var(--ui-scale)*10px);
     box-sizing: border-box;
 }
 
 #inventoryBar {
     width: 100%;
-    height: 70px;
+    height: calc(var(--ui-scale)*70px);
     flex-shrink: 0;
-    padding: 0 10px 0 10px;
+    padding: 0 calc(var(--ui-scale)*10px) 0 calc(var(--ui-scale)*10px);
     box-sizing: border-box;
 }
 
 #inventoryBar>div {
     background-color: #ffffff3d;
-    height: 10px;
+    height: calc(var(--ui-scale)*10px);
     width: 100%;
-    border-radius: 10px;
+    border-radius: calc(var(--ui-scale)*10px);
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -558,23 +562,23 @@ body {
 #gaugeInventory {
     background-color: white;
     height: 100%;
-    border-radius: 10px;
+    border-radius: calc(var(--ui-scale)*10px);
     width: 75%;
-    margin-top: -10px;
+    margin-top: calc(var(--ui-scale)*-10px);
 }
 
 #gaugeInventoryPreview {
     background-color: rgb(202, 42, 42);
     height: 100%;
-    border-radius: 10px;
+    border-radius: calc(var(--ui-scale)*10px);
     width: 85%;
 }
 
 #inventoryBar>span {
-    line-height: 60px;
-    font-size: 30px;
+    line-height: calc(var(--ui-scale)*60px);
+    font-size: calc(var(--ui-scale)*30px);
     text-transform: uppercase;
-    letter-spacing: .1em;
+    letter-spacing: calc(var(--ui-scale)*.1em);
     font-weight: bolder;
 }
 
@@ -582,11 +586,11 @@ body {
     /* width: 100%; */
     flex-grow: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, 200px);
-    grid-template-rows: repeat(auto-fill, 200px);
-    gap: 20px;
-    row-gap: 20px;
-    padding: 5px 10px 60px 10px;
+    grid-template-columns: repeat(auto-fill, calc(var(--ui-scale)*200px));
+    grid-template-rows: repeat(auto-fill, calc(var(--ui-scale)*200px));
+    gap: calc(var(--ui-scale)*20px);
+    row-gap: calc(var(--ui-scale)*20px);
+    padding: calc(var(--ui-scale)*5px) calc(var(--ui-scale)*10px) calc(var(--ui-scale)*60px) calc(var(--ui-scale)*10px);
 }
 
 .inventoryCell {
@@ -596,10 +600,10 @@ body {
 }
 
 .inventoryCell>div {
-    height: 200px;
-    width: 200px;
-    border-radius: 10px;
-    border: 5px dashed #434343;
+    height: calc(var(--ui-scale)*200px);
+    width: calc(var(--ui-scale)*200px);
+    border-radius: calc(var(--ui-scale)*10px);
+    border: calc(var(--ui-scale)*5px) dashed #434343;
     box-sizing: border-box;
 }
 
@@ -610,9 +614,9 @@ body {
 .item {
     border: none;
     box-sizing: border-box;
-    height: 200px;
-    width: 200px;
-    border-radius: 10px;
+    height: calc(var(--ui-scale)*200px);
+    width: calc(var(--ui-scale)*200px);
+    border-radius: calc(var(--ui-scale)*10px);
     box-sizing: border-box;
     border: none;
     background-color: #1C3A4B;
@@ -629,15 +633,15 @@ body {
 }
 
 .item>img {
-    width: 110px;
-    height: 110px;
+    width: calc(var(--ui-scale)*110px);
+    height: calc(var(--ui-scale)*110px);
 }
 
 .item>span {
-    line-height: 30px;
+    line-height: calc(var(--ui-scale)*30px);
     text-transform: uppercase;
     font-weight: bolder;
-    letter-spacing: .1em;
+    letter-spacing: calc(var(--ui-scale)*.1em);
     text-align: center;
 }
 
@@ -647,12 +651,12 @@ body {
 
 .resizeButton {
     position: absolute;
-    bottom: -20px;
-    right: -20px;
-    width: 60px;
-    height: 60px;
+    bottom: calc(var(--ui-scale)*-20px);
+    right:calc(var(--ui-scale)*-20px);
+    width: calc(var(--ui-scale)*60px);
+    height: calc(var(--ui-scale)*60px);
     background-color: rgba(255, 255, 255, 0.096);
-    border-radius: 20px;
+    border-radius: calc(var(--ui-scale)*20px);
     transition: background-color .3s;
 }
 
@@ -670,7 +674,7 @@ body {
 }
 
 .closeButton {
-    border-radius: 50px;
+    border-radius: calc(var(--ui-scale)*50px);
     background-color: rgba(255, 255, 255, 0);
     transition: background-color .3s;
 }
@@ -692,4 +696,10 @@ body {
 
 .draggedItem:hover {
     transform: scale(1.05) rotate(15deg);
+}
+
+.bigIconButton img,
+.gauges img{
+    height: calc(var(--ui-scale)*50px);
+    width: calc(var(--ui-scale)*50px);
 }
