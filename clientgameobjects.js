@@ -280,6 +280,11 @@ Actions.MineRock = function (view) {
     view.serialize({ handle: 1, actionId: ActionId.MineRock }, Datagrams.SmartAction);
     view.serialize({}, SmartActionData[ActionId.MineRock]);
 }
+Actions.DropItem = function(view){
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.DropItem }, Datagrams.SmartAction);
+    view.serialize({position: itemToDrop.position, item: itemToDrop.id, stack: itemToDrop.stack}, SmartActionData[ActionId.DropItem]);
+}
 
 ShipType = defineShips(Actions);
 
