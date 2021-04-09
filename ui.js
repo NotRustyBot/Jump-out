@@ -301,15 +301,11 @@ function updateTooltip(deltaTime) {
             //tooltipBox.style.display = "unset";
             tooltipBox.style.opacity = "1";
         }
-
-
     }
     //If no change recently
     else {
         //tooltipBox.style.display = "none";
     }
-
-
 }
 
 let minimapShown = true;
