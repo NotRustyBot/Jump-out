@@ -29,6 +29,8 @@ const inventorySlotElements = document.getElementsByClassName("inventoryCell");
 let draggedItem = null;
 const itemElements = document.getElementsByClassName("item");
 
+let uiScale = 1;
+
 var mousePosition = Vector.zero();
 document.onmousemove = function (e) {
     mousePosition.x = e.pageX;

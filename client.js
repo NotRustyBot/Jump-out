@@ -1020,8 +1020,19 @@ function handleInput() {
     } else if (keyDown.l) {
         performanceData.streaming = !performanceData.streaming;
         keyDown.l = false;
+    } else if (keyDown.pageup) {
+        if (uiScale + 0.1 <= 2) {
+            uiScale += 0.1;
+            document.documentElement.style.setProperty('--ui-scale', uiScale);            
+        }
+        keyDown.pageup = false;
+    } else if (keyDown.pagedown) {
+        if (uiScale - 0.1 >= 0.5) {
+            uiScale -= 0.1;
+            document.documentElement.style.setProperty('--ui-scale', uiScale);            
+        }
+        keyDown.pagedown = false;
     }
-
 }
 
 window.addEventListener("keydown", function (e) {
