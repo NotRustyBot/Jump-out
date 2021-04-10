@@ -24,6 +24,7 @@ let ItemInfo = {
 function Item(id, stack) {
     this.id = id;
     this.stack = stack;
+    /**@type {{tag:number, stackable:boolean, name:string}} */
     this.stats = ItemInfo[id];
 }
 
@@ -31,6 +32,7 @@ function Slot(capacity, filter) {
     this.filter = filter == undefined ? -1 : filter;
     this.capacity = capacity == undefined ? -1 : capacity;
     this.inventory;
+    this.id=-1;
     this.item = new Item(0, 0);
     this.addItem = function (item) {
         if (this.item.id == 0 || this.item.id == item.id) {
@@ -56,6 +58,7 @@ function Slot(capacity, filter) {
         }
     }
     this.removeItem = function (item) {
+        console.log("remobing",item)
         let taken = 0;
         if (this.item.id == item.id) {
             taken = Math.min(this.item.stack, item.stack);
@@ -73,9 +76,7 @@ function Slot(capacity, filter) {
 }
 
 function Inventory(capacity, owner, layout) {
-    /**
-     * @type {Slot[]}
-     */
+    /**@type {Slot[]}*/
     this.slots = [];
     this.capacity = capacity;
     this.used = 0;
@@ -103,6 +104,7 @@ function Inventory(capacity, owner, layout) {
         return count;
     }
     this.removeItem = function (item) {
+
         let request = item.stack;
         for (let i = this.slots.length - 1; i >= 0; i--) {
             const slot = this.slots[i];
@@ -127,6 +129,7 @@ function Inventory(capacity, owner, layout) {
     }
     this.addSlot = function (slot) {
         slot.inventory = this;
+        slot.id = this.slots.length;
         this.slots.push(slot);
     }
     for (let i = 0; i < layout.length; i++) {

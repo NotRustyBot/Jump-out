@@ -26,7 +26,7 @@ const inventoryElement = document.getElementsByClassName("inventory")[0];
 const inventoryGrid = document.getElementById("inventoryGrid");
 const inventorySlotElements = document.getElementsByClassName("inventoryCell");
 
-let draggedItem = null;
+
 const itemElements = document.getElementsByClassName("item");
 
 let uiScale = 1;
@@ -59,9 +59,16 @@ let dragMoved = { x: 0, y: 0 };
 let dragStart = { x: 0, y: 0 };
 let draggedElement = null;
 
-let inventorySlots = [];
+/**@type {HTMLElement} */
 let draggedItemOrigin = null;
+/**@type {HTMLElement} */
+let draggedItem = null;
+/**@type {HTMLElement[]} */
+let slotElements = [];
+/**@type {Item}*/
+let draggedItemInfo;
 let mouseInInventory = false;
+/**@type {{position:Vector,stack:number,slotId:number}}*/
 var itemToDrop = {};
 
 let tooltipSize = { x: 0, y: 0 }
@@ -90,14 +97,15 @@ function generateInventory() {
         const slot = localPlayer.ship.inventory.slots[i];
         if (slot.filter == -1) {
             let newSlot = document.createElement("div");
+            newSlot.dataset.slotId = i;
+            slotElements[i] = newSlot;
             newSlot.classList.add("inventoryCell");
             if (slot.item.stack == 0) {
                 newSlot.appendChild(document.createElement("div"));
             }
             else {
-                createItemElement(slot, newSlot)
+                createItemElement(slot)
             }
-            newSlot.dataset.slotId = i;
             inventoryGrid.appendChild(newSlot);
         }
     }
@@ -112,8 +120,9 @@ function findSlotElement(id) {
     }
     return null;
 }
-
-function createItemElement(slot, slotElement) {
+/**@param {Slot} slot */
+function createItemElement(slot) {
+    let slotElement = slotElements[slot.id];
     slotElement.textContent = "";
     let newItem = document.createElement("div");
     newItem.classList.add("item");
@@ -136,6 +145,7 @@ function createItemElement(slot, slotElement) {
         newItem.style.left = "unset";
         newItem.style.top = "unset";
         newItem.classList.add("draggedItem");
+        draggedItemInfo = slot.item;
         dragStart = { x: newItem.offsetLeft + inventoryElement.offsetLeft, y: newItem.offsetTop + inventoryElement.offsetTop };
         dragMoved = { x: 0, y: 0 };
         draggedItemOrigin = slotElement;
@@ -158,6 +168,28 @@ function createItemElement(slot, slotElement) {
         tooltipChanged = true;
         tooltipStack.pop();
     })
+}
+/**@param {Slot} slot */
+function refreshSlotElement(slot) {
+    let slotElement = slotElements[slot.id];
+    if (slot.item.stack > 0) {
+        let itemElement = slotElements[slot.id].firstElementChild;
+        if (itemElement.classList.contains("item")) {
+            let spanNum = itemElement.children[0];
+            let img = itemElement.children[1];
+            let spanName = itemElement.children[2];
+
+            spanNum.textContent = slot.item.stack;
+            spanName.textContent = slot.item.stats.name;
+        }
+        else {
+            createItemElement(slot);
+        }
+    }
+    else {
+        slotElement.textContent = "";
+        slotElement.appendChild(document.createElement("div"));
+    }
 }
 
 inventoryElement.addEventListener("mouseenter", e => {
@@ -247,10 +279,10 @@ document.addEventListener("mouseup", () => {
             //let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
             let pos = screenToWorldPos(mousePosition.result().sub(screen.center).clamp(500 * camera.zoom).add(screen.center));
             //let item = new DroppedItem("as", DroppedItem.list.size, 1, pos, localPlayer.ship.position);
-            itemToDrop = {position:pos,id:1,stack:1};
+            itemToDrop = { position: pos, stack: draggedItemInfo.stack, slotId:draggedItemOrigin.dataset.slotId };
             actionIDs.push(ActionId.DropItem);
-
         }
+        //refreshSlotElement(localPlayer.ship.inventory.slots[draggedItemOrigin.dataset.slotId]);
 
     }
     draggedItem = null;

@@ -902,7 +902,7 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
-    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position, temp.position);
+    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position, temp.source);
     //id, position, item, stack
 }
 
@@ -917,10 +917,13 @@ function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
     console.log(temp)
+    if(temp.stack < 0)
+    Player.players.get(temp.shipId).ship.inventory.slots[temp.slot].removeItem(new Item(temp.item,-temp.stack));
+    else 
     Player.players.get(temp.shipId).ship.inventory.slots[temp.slot].addItem(new Item(temp.item,temp.stack));
     //inventoryUpdate();
     if(temp.shipId == localPlayer.id){
-        createItemElement(localPlayer.ship.inventory.slots[temp.slot],findSlotElement(temp.slot));
+        refreshSlotElement(localPlayer.ship.inventory.slots[temp.slot])
     }
     //shipId, slot, item, stack
 }

@@ -11,6 +11,7 @@ function ShipType() {
     this.actionPool = [];
     this.size;
     this.trails;
+    this.inventory;
 }
 
 function defineShips(Action) {
@@ -127,5 +128,3 @@ function defineShips(Action) {
 
     return ShipType;
 };
-
-exports.defineShips = defineShips;
