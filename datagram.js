@@ -351,7 +351,7 @@ let InventoryChange = new Datagram();
 InventoryChange.add(types.int16, "shipId");
 InventoryChange.add(types.int8, "slot");
 InventoryChange.add(types.int8, "item");
-InventoryChange.add(types.uint16, "stack");
+InventoryChange.add(types.int16, "stack");
 Datagrams.InventoryChange = InventoryChange;
 
 let ItemCreate = new Datagram();
@@ -387,8 +387,8 @@ exports.SmartActionData = SmartActionData;
 
 let DropItem = new Datagram();
 DropItem.add(types.vector32, "position");
-DropItem.add(types.int8, "item");
 DropItem.add(types.uint16, "stack");
+DropItem.add(types.int8, "slot");
 SmartActionData.push(DropItem);
 exports.SmartActionData = SmartActionData;
 

@@ -61,12 +61,12 @@ function Vector(x, y) {
             this.x * Math.sin(angle) + this.y * Math.cos(angle)
         );
     }
-    this.clamp = function(length){
-        if(this.length() > length) this.normalize(length);
+    this.clamp = function (length) {
+        if (this.length() > length) this.normalize(length);
         return this;
     }
-    this.lerp = function (target,value) {
-        return new Vector(this.x + (target.x - this.x) * value,this.y + (target.y - this.y) * value);
+    this.lerp = function (target, value) {
+        return new Vector(this.x + (target.x - this.x) * value, this.y + (target.y - this.y) * value);
     };
 }
 Vector.zero = function () {
@@ -109,23 +109,23 @@ function Entity(type, id) {
 }
 Entity.list = new Map();
 
-function DroppedItem(type, id, stack, targetPos,sourcePos) {
+function DroppedItem(type, id, stack, targetPos, sourcePos) {
     this.animSpeed = 4;
     this.animProgress = 1;
     this.sourcePos = sourcePos.result();
     this.targetPos = targetPos.result();
     this.position = sourcePos.result();
     this.rotation = 0;
-    this.targetRotation = (Math.random()-0.5)*2;
+    this.targetRotation = (Math.random() - 0.5) * 2;
     this.type = type;
     this.id = id;
     DroppedItem.list.set(this.id, this);
     this.sprite = new ShadedSprite(this, "item", { size: 1.5 }, false, true);
     this.update = function (dt) {
-        if(this.animProgress > 0.001){
-            this.animProgress/=(1+this.animSpeed*dt);
-            this.rotation=(1-this.animProgress)*this.targetRotation;
-            this.position = sourcePos.lerp(targetPos,1-(this.animProgress));
+        if (this.animProgress > 0.001) {
+            this.animProgress /= (1 + this.animSpeed * dt);
+            this.rotation = (1 - this.animProgress) * this.targetRotation;
+            this.position = sourcePos.lerp(targetPos, 1 - (this.animProgress));
         }
         this.sprite.update({ directional: true, rotation: sunAngle });
     };
@@ -234,11 +234,13 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
 }
 
 
-function Ship(type,player) {
+function Ship(type, player) {
+    /**@type {Player}*/
     this.player = player;
+    /**@type {ShipType}*/
     this.stats = type;
     console.log(type);
-    this.inventory = new Inventory(this.stats.cargoCapacity,this.player.id,this.stats.inventory);
+    this.inventory = new Inventory(this.stats.cargoCapacity, this.player.id, this.stats.inventory);
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.rotation = 0;
@@ -251,7 +253,7 @@ function Ship(type,player) {
         this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x, this.stats.trails[i].y), this.stats.trails[i].useTrail));
 
     }
-    this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize },true);
+    this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize }, true);
 
     this.init = function (type) {
         this.stats = type;
@@ -280,10 +282,10 @@ Actions.MineRock = function (view) {
     view.serialize({ handle: 1, actionId: ActionId.MineRock }, Datagrams.SmartAction);
     view.serialize({}, SmartActionData[ActionId.MineRock]);
 }
-Actions.DropItem = function(view){
+Actions.DropItem = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.DropItem }, Datagrams.SmartAction);
-    view.serialize({position: itemToDrop.position, item: itemToDrop.id, stack: itemToDrop.stack}, SmartActionData[ActionId.DropItem]);
+    view.serialize({ position: itemToDrop.position, stack: itemToDrop.stack, slot:itemToDrop.slotId }, SmartActionData[ActionId.DropItem]);
 }
 
 ShipType = defineShips(Actions);
@@ -293,7 +295,7 @@ function Player(id, type) {
     this.ship;
     this.id = id;
     this.shipType = type;
-    this.ship = new Ship(ShipType.types[this.shipType],this);
+    this.ship = new Ship(ShipType.types[this.shipType], this);
     this.sprite = new PIXI.Sprite(loader.resources.player1.texture);
     this.sprite.scale.set(0.5);
     this.sprite.anchor.set(0.5);
@@ -376,7 +378,9 @@ function Player(id, type) {
     this.miniMapMarker.anchor.set(0.5);
     this.miniMapMarker.tint = Math.floor(Math.random() * 16777215);
 }
+/**@type {Map<number,Player>}*/
 Player.players = new Map();
+
 
 function Particle(pos, vel, rot, lifetime, texture, rotSpeed, colorRamp) {
     this.position = pos.result();
@@ -591,7 +595,7 @@ function Ramp(min, max) {
 function VectorRamp(min, max) {
     this.min = min;
     this.max = max;
-    
+
 }
 function ColorRamp(min, max) {
     this.min = min;
