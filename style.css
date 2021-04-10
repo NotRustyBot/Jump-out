@@ -501,7 +501,7 @@ body {
 }
 
 .inventorySpecialSlots>div>div>span {
-    line-height: calc(var(--ui-scale)*150px);
+    line-height: calc(var(--ui-scale)*50px);
     text-transform: uppercase;
 }
 
