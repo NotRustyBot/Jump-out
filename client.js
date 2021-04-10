@@ -402,7 +402,7 @@ function graphicsUpdate(deltaTimeFactor) {
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
         netTimer += deltaTime;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n"+"Network: "+ downBytesDisplay + "B▼ | " + upBytesDisplay +"B▲"+"\n"+ (performance.streaming ? "streaming..." : "");
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n"+"Network: "+ downBytesDisplay + "B▼ | " + upBytesDisplay +"B▲"+ "|" +ping.toFixed(0)+"ms"+"\n"+ (performance.streaming ? "streaming..." : "");
         if (netTimer >= 1) {
             downBytesDisplay = downBytes;
             downBytes = 0;
@@ -658,6 +658,7 @@ function onConnectionOpen() {
 
 }
 
+let ping = 0;
 let netTimer = 0;
 let downBytes = 0;
 let downBytesDisplay = 0;
@@ -819,6 +820,7 @@ function parseEntitySetup(view) { // tady se děje init
 }
 
 function parseProximity(view) { // tady se děje update
+    ping = window.performance.now() - pingTime[view.getUint8()];
     let size = view.getUint16();
     for (let i = 0; i < size; i++) {
         let temp = {};
@@ -944,14 +946,18 @@ function parseGasScan(view) {
 }
 
 let upBytes = 0;
-
+let packetNumber = 0;
+let pingTime = [];
 const buffer = new ArrayBuffer(1000);
 function sendControls() {
     handleInput();
     const view = new AutoView(buffer);
     view.setUint8(1);
 
-    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: 0 };
+    packetNumber++;
+    packetNumber = packetNumber % 255;
+    pingTime[packetNumber] = window.performance.now();
+    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: 0, packet: packetNumber};
     view.serialize(toSend, Datagrams.input);
 
     for (let i = 0; i < actionIDs.length; i++) {
@@ -966,6 +972,7 @@ function sendControls() {
     }
 
     upBytes += view.index;
+
 
     if (connected)
         connection.send(buffer.slice(0, view.index));
