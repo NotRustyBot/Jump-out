@@ -166,7 +166,7 @@ Datagram._Set = [
     },
 ];
 
-exports.Datagram = Datagram;
+//exports.Datagram = Datagram;
 
 function AutoView(buffer, index) {
     this.view = new DataView(buffer);
@@ -273,7 +273,7 @@ function AutoView(buffer, index) {
     }
 }
 
-exports.AutoView = AutoView;
+//exports.AutoView = AutoView;
 
 //#region datagramy
 
@@ -373,7 +373,7 @@ GasScan.add(types.int16, "y");
 GasScan.add(types.uint8, "gas");
 Datagrams.GasScan = GasScan;
 
-exports.Datagrams = Datagrams;
+//exports.Datagrams = Datagrams;
 
 let SmartActionData = [];
 
@@ -394,10 +394,10 @@ let SwapSlots = new Datagram();
 SwapSlots.add(types.int8, "slot1");
 SwapSlots.add(types.int8, "slot2");
 SmartActionData.push(SwapSlots);
-exports.SmartActionData = SmartActionData;
+//exports.SmartActionData = SmartActionData;
 
 const ActionId = { placeObject: 0, MineRock: 1, DropItem: 2, SwapSlots: 3};
-exports.ActionId = ActionId;
+//exports.ActionId = ActionId;
 
 
 let ReplyData = [];
@@ -418,15 +418,15 @@ Cooldown.add(types.uint8, "handle");
 Cooldown.add(types.float32, "time");
 ReplyData.push(Cooldown);
 
-exports.ReplyData = ReplyData;
+//exports.ReplyData = ReplyData;
 
 const ReplyId = { success: 0, invalidAction: 1, cooldown: 2 };
-exports.ReplyId = ReplyId;
+//exports.ReplyId = ReplyId;
 
 const serverHeaders = { initResponse: 0, update: 1, newPlayers: 2, playerLeft: 3, entitySetup: 4, collisionEvent: 5, debugPacket: 6, gasData: 7, proximity: 8, actionReply: 9, entityRemove: 10, gasUpdate: 11, itemCreate: 12, itemRemove: 13, inventoryChange: 14, gasScan: 15};
-exports.serverHeaders = serverHeaders;
+//exports.serverHeaders = serverHeaders;
 const clientHeaders = { init: 0, control: 1, smartAction: 2, serverConsole: 3 };
-exports.clientHeaders = clientHeaders;
+//exports.clientHeaders = clientHeaders;
 
 
 

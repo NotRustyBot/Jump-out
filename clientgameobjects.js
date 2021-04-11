@@ -1,4 +1,3 @@
-
 //#region věci
 function Vector(x, y) {
     this.x = x;
