@@ -402,7 +402,7 @@ function graphicsUpdate(deltaTimeFactor) {
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
         netTimer += deltaTime;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n" + "Network: " + (downBytesDisplay / 1000).toFixed(1) + "KB▼ | " + (upBytesDisplay / 1000).toFixed(1) + "KB▲" + " | " + ping.toFixed(0) + "ms" + "\n" + (performance.streaming ? "streaming..." : "");
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n" + "Network: " + (downBytesDisplay / 1000).toFixed(1) + "KB▼ | " + (upBytesDisplay / 1000).toFixed(1) + "KB▲" + " | " + ping.toFixed(0) + "ms" + "\n" + (performance.streaming ? "streaming..." : "");
         if (netTimer >= 1) {
             downBytesDisplay = downBytes;
             downBytes = 0;
