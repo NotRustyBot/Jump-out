@@ -187,7 +187,7 @@ var playerSprite, playerLight;
 var playerSettings = { nick: "Nixk" };
 
 //FPS
-const fps = 60;
+const fps = 30;
 
 //GRAPHICS
 var graphics = new PIXI.Graphics();
