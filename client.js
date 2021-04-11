@@ -114,14 +114,14 @@ isOnScreen = function (position, size) {
 
 function screenToWorldPos(position) {
     return (new Vector(
-        camera.x + (position.x - screen.center.x)/camera.zoom,
-        camera.y + (position.y - screen.center.y)/camera.zoom
+        camera.x + (position.x - screen.center.x) / camera.zoom,
+        camera.y + (position.y - screen.center.y) / camera.zoom
     ));
 }
 function worldToScreenPos(position) {
     return (new Vector(
-        (position.x - camera.x)*camera.zoom + screen.center.x,
-        (position.y - camera.y)*camera.zoom + screen.center.y
+        (position.x - camera.x) * camera.zoom + screen.center.x,
+        (position.y - camera.y) * camera.zoom + screen.center.y
     ));
 }
 
@@ -161,7 +161,7 @@ gameContainer.addChild(effectsContainer);
 effectsContainer.addChild(collisionContainer);
 
 //GAME VARIABLES
-var connection;
+var networker = new Worker("networker.js");
 var loaded = false;
 var connected = false;
 var running = false;
@@ -396,13 +396,13 @@ let performanceData = {
 
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
-        
+
         averageFPS.push(app.ticker.FPS);
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
         netTimer += deltaTime;
-        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n"+"Network: "+ (downBytesDisplay/1000).toFixed(1) + "KB▼ | " + (upBytesDisplay/1000).toFixed(1) +"KB▲"+ " | " +ping.toFixed(0)+"ms"+"\n"+ (performance.streaming ? "streaming..." : "");
+        fpsText.text = "    FPS: " + app.ticker.FPS.toFixed(2) + "\nAvg FPS: " + arrayAverage(averageFPS).toFixed(2) + "\nMin FPS: " + arrayMin(minFPS).toFixed(2) + "\n Factor: " + deltaTimeFactor.toFixed(2) + "\n   Fuel: " + fuel.toFixed(2) + "\n" + textToDisplay + "\nGasHere: " + gasHere + "\n    X/Y: " + Math.floor(localPlayer.ship.position.x / gasParticleSpacing) + " / " + Math.floor(localPlayer.ship.position.y / gasParticleSpacing) + "\n" + "Network: " + (downBytesDisplay / 1000).toFixed(1) + "KB▼ | " + (upBytesDisplay / 1000).toFixed(1) + "KB▲" + " | " + ping.toFixed(0) + "ms" + "\n" + (performance.streaming ? "streaming..." : "");
         if (netTimer >= 1) {
             downBytesDisplay = downBytes;
             downBytes = 0;
@@ -420,7 +420,7 @@ function graphicsUpdate(deltaTimeFactor) {
         updateGui(deltaTime);
         performanceData.logAndNext();
         performanceData.stop();
-        
+
 
         Player.players.forEach(player => {
             if (player.lensFlare)
@@ -593,7 +593,7 @@ function updateGui(deltaTime) {
     gaugeNumbers.fuel.textContent = fuelRatio.toFixed(0);
     gaugeNumbers.cargo.textContent = cargoRatio.toFixed(0);
     gaugeNumbers.speed.textContent = speedG.toFixed(0);
-    
+
 
     updateTooltip(deltaTime);
 
@@ -607,25 +607,36 @@ function updateGui(deltaTime) {
 
 //#region NETWORK
 
-
+networker.onmessage = function (e) {
+    let messageData = e.data;
+    switch (messageData.type) {
+        case 1:
+            console.log("onConnectionOpen");
+            onConnectionOpen();
+            break;
+        case 2:
+            onConnectionMessage(messageData.data);
+            break;
+        case 3:
+            console.log("onConnectionClose");
+            onConnectionClose(messageData.data);
+            break;
+        default:
+            break;
+    }
+}
 
 function connect() {
     loadingStatus.textContent = "CONNECTING";
     loadingDetails.textContent = "Attempt " + connectionAttempts + "/" + maxReconnectAttempts;
-    document.getElementById("loadingBar").style.width = 100 * connectionAttempts / maxReconnectAttempts + "%"
-    //console.log(window.location.hostname);
+    document.getElementById("loadingBar").style.width = 100 * connectionAttempts / maxReconnectAttempts + "%";
     if (window.location.hostname == "10.200.140.14") {
-        connection = new WebSocket("ws://10.200.140.14:20003/");
+        networker.postMessage({ type: 1, address: "ws://10.200.140.14:20003/" });
         console.log("Connecting to local...");
     } else {
-        connection = new WebSocket("wss://jumpout.ws.coal.games/");
+        networker.postMessage({ type: 1, address: "wss://jumpout.ws.coal.games/" });
         console.log("Connecting to server... Attempt " + connectionAttempts);
     }
-    connection.binaryType = "arraybuffer";
-    //setTimeout(onConnectionTimeout,reconnectInterval);
-    connection.onopen = onConnectionOpen;
-    connection.onmessage = onConnectionMessage;
-    connection.onclose = onConnectionClose;
 }
 
 function reconnect() {
@@ -664,12 +675,11 @@ let netTimer = 0;
 let downBytes = 0;
 let downBytesDisplay = 0;
 let upBytesDisplay = 0;
-function onConnectionMessage(messageRaw) {
-    var ms = messageRaw.data;
+function onConnectionMessage(ms) {
     downBytes += ms.byteLength;
     //console.log(typeof(ms)); //myslím, že je chyba na serveru
     parseMessage(ms);
-    console.log(window.performance.now()-lastn);
+    //console.log(window.performance.now() - lastn);
     lastn = window.performance.now();
 }
 
@@ -920,12 +930,12 @@ function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
     console.log(temp)
-    if(temp.stack < 0)
-    Player.players.get(temp.shipId).ship.inventory.slots[temp.slot].removeItem(new Item(temp.item,-temp.stack));
-    else 
-    Player.players.get(temp.shipId).ship.inventory.slots[temp.slot].addItem(new Item(temp.item,temp.stack));
+    if (temp.stack < 0)
+        Player.players.get(temp.shipId).ship.inventory.slots[temp.slot].removeItem(new Item(temp.item, -temp.stack));
+    else
+        Player.players.get(temp.shipId).ship.inventory.slots[temp.slot].addItem(new Item(temp.item, temp.stack));
     //inventoryUpdate();
-    if(temp.shipId == localPlayer.id){
+    if (temp.shipId == localPlayer.id) {
         refreshSlotElement(localPlayer.ship.inventory.slots[temp.slot])
     }
     //shipId, slot, item, stack
@@ -963,12 +973,11 @@ function sendControls() {
     packetNumber++;
     packetNumber = packetNumber % 255;
     pingTime[packetNumber] = window.performance.now();
-    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: 0, packet: packetNumber};
+    let toSend = { control: controlVector, afterBurnerActive: controlVector.afterBurner, action: 0, packet: packetNumber };
     view.serialize(toSend, Datagrams.input);
 
     for (let i = 0; i < actionIDs.length; i++) {
         localPlayer.ship.stats.actionPool[actionIDs[i]](view);
-        console.log(view.view.buffer);
     }
     actionIDs = [];
     if (serverCommand.length > 0) {
@@ -981,7 +990,7 @@ function sendControls() {
 
 
     if (connected)
-        connection.send(buffer.slice(0, view.index));
+        networker.postMessage({ type: 2, data: buffer.slice(0, view.index) });
 
 }
 
@@ -991,7 +1000,7 @@ function sendInit() {
 
     view.serialize(playerSettings, Datagrams.playerSettings);
 
-    connection.send(buffer.slice(0, view.index));
+    networker.postMessage({ type: 2, data: buffer.slice(0, view.index) });
 }
 
 let serverCommand = ""
@@ -1036,13 +1045,13 @@ function handleInput() {
     } else if (keyDown.pageup) {
         if (uiScale + 0.1 <= 2) {
             uiScale += 0.1;
-            document.documentElement.style.setProperty('--ui-scale', uiScale);            
+            document.documentElement.style.setProperty('--ui-scale', uiScale);
         }
         keyDown.pageup = false;
     } else if (keyDown.pagedown) {
         if (uiScale - 0.1 >= 0.5) {
             uiScale -= 0.1;
-            document.documentElement.style.setProperty('--ui-scale', uiScale);            
+            document.documentElement.style.setProperty('--ui-scale', uiScale);
         }
         keyDown.pagedown = false;
     }
