@@ -264,7 +264,7 @@ function Ship(type, player) {
         this.position.x += this.velocity.x * dt;
         this.position.y += this.velocity.y * dt;
 
-        //this.rotation += this.rotationSpeed * dt;
+        this.rotation += this.rotationSpeed * dt;
 
         this.sprite.update({ directional: true, rotation: sunAngle });
     };

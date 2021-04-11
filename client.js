@@ -658,6 +658,7 @@ function onConnectionOpen() {
 
 }
 
+let lastn = 0;
 let ping = 0;
 let netTimer = 0;
 let downBytes = 0;
@@ -668,6 +669,8 @@ function onConnectionMessage(messageRaw) {
     downBytes += ms.byteLength;
     //console.log(typeof(ms)); //myslím, že je chyba na serveru
     parseMessage(ms);
+    console.log(window.performance.now()-lastn);
+    lastn = window.performance.now();
 }
 
 function parseMessage(message) {
