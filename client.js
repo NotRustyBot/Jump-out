@@ -573,7 +573,21 @@ function updateGui(deltaTime) {
     let shieldRatio = 75;
     let hullRatio = 75;
     let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
-    let cargoRatio = 0;
+    let cargoRatio = localPlayer.ship.inventory.used / localPlayer.ship.inventory.capacity * 100;
+    let cargoPreviewRatio = cargoRatio;
+    if (draggingItem) {
+        let slot = localPlayer.ship.inventory.slots[draggedItemOrigin.dataset.slotId];
+        if (slot.filter == -1) {
+            cargoPreviewRatio = (localPlayer.ship.inventory.used - draggedItemInfo.stack) / localPlayer.ship.inventory.capacity * 100;
+        }
+    }
+    else if (hoveredSlot) {
+        let slot = localPlayer.ship.inventory.slots[hoveredSlot.dataset.slotId]
+        let stack = slot.item.stack;
+        if (stack > 0 && slot.filter == -1) {
+            cargoPreviewRatio = (localPlayer.ship.inventory.used - stack) / localPlayer.ship.inventory.capacity * 100;
+        }
+    }
     let speedG = localPlayer.ship.velocity.length();
     let maxSpeedG = (1 - localPlayer.ship.debuff / 110) * 2000;
     let speedRatio = speedG / 20;
@@ -585,12 +599,15 @@ function updateGui(deltaTime) {
     gauges.cargo.style.width = cargoRatio + "%";
     gauges.speed.style.width = speedRatio + "%";
     gauges.maxSpeed.style.width = maxSpeedRatio + "%";
+    gaugeInventory.style.width = cargoPreviewRatio + "%";
+    gaugeInventoryPreview.style.width = cargoRatio + "%";
 
     gaugeNumbers.shield.textContent = shieldRatio.toFixed(0);
     gaugeNumbers.hull.textContent = hullRatio.toFixed(0);
     gaugeNumbers.fuel.textContent = fuelRatio.toFixed(0);
-    gaugeNumbers.cargo.textContent = cargoRatio.toFixed(0);
+    gaugeNumbers.cargo.textContent = localPlayer.ship.inventory.used + " / " + localPlayer.ship.inventory.capacity;
     gaugeNumbers.speed.textContent = speedG.toFixed(0);
+    gaugeNumberInventory.textContent = localPlayer.ship.inventory.used + " / " + localPlayer.ship.inventory.capacity + " cargo";
 
 
     updateTooltip(deltaTime);

@@ -451,6 +451,7 @@ body {
     max-width: calc(var(--ui-scale)*1830px);
     max-height: calc(var(--ui-scale)*1110px);
     position: absolute;
+    z-index: 50;
 }
 
 .inventory .guiPanelContent {
@@ -570,6 +571,7 @@ body {
     border-radius: calc(var(--ui-scale)*10px);
     width: 75%;
     margin-top: calc(var(--ui-scale)*-10px);
+    transition: width .05s linear;
 }
 
 #gaugeInventoryPreview {
@@ -577,6 +579,7 @@ body {
     height: 100%;
     border-radius: calc(var(--ui-scale)*10px);
     width: 85%;
+    transition: width .05s linear;
 }
 
 #inventoryBar>span {
@@ -618,6 +621,7 @@ body {
 }
 
 .item {
+    font-size: calc(var(--ui-scale)*18px);
     border: none;
     box-sizing: border-box;
     /* height: calc(var(--ui-scale)*200px);
@@ -698,14 +702,18 @@ body {
 .draggedItem {
     height: calc(var(--ui-scale)*200px);
     width: calc(var(--ui-scale)*200px);
-    transform: scale(1.05) rotate(15deg);
+    transform: scale(1.05) rotate(0deg);
     position: absolute;
-    transition: transform .3s;
+    transition: transform .1s, box-shadow .1s;
+    box-shadow: none;
     pointer-events: none;
+    visibility:hidden;
 }
 
-.draggedItem:hover {
+.draggedItem.visible {
+    visibility:visible;
     transform: scale(1.05) rotate(15deg);
+    box-shadow: calc(var(--ui-scale)*5px) calc(var(--ui-scale)*30px) calc(var(--ui-scale)*80px) rgba(0, 0, 0, 0.4);
 }
 
 .bigIconButton img,
