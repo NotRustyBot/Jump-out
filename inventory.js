@@ -3,21 +3,25 @@ let ItemInfo = {
         tag: 0,
         stackable: true,
         name:"Ore",
+        color:"#1C3A4B"
     },
     2: { // scrap
         tag: 0,
         stackable: true,
         name:"Scrap",
+        color:"#2D2D2D"
     },
     3: { // crystals
         tag: 0,
         stackable: true,
         name:"Crystals",
+        color:"#501839"
     },
     5: { // naviBeacon
         tag: 1,
         stackable: false,
         name:"Nav Beacon",
+        color:"#363043"
     },
 }
 

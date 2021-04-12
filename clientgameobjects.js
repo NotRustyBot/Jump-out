@@ -290,7 +290,7 @@ Actions.DropItem = function (view) {
 Actions.SwapSlots = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.SwapSlots}, Datagrams.SmartAction);
-    view.serialize({ slot1: 1, slot2: 2}, SmartActionData[ActionId.SwapSlots]);
+    view.serialize({ slot1: slotsToSwap.from, slot2: slotsToSwap.to}, SmartActionData[ActionId.SwapSlots]);
 }
 
 ShipType = defineShips(Actions);

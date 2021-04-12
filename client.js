@@ -77,8 +77,6 @@ loader
     .add("item_base", "images/item_base.png")
     .add("item_dark", "images/item_dark.png")
     .add("item_outline", "images/item_outline.png")
-    .add("itemOre", "images/ui/itemOre.png")
-    .add("itemPowercell", "images/ui/itemPowercell.png")
     ;
 loader.onProgress.add(loadingProgress);
 loader.load(start);

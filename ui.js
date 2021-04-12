@@ -70,6 +70,11 @@ let draggedItemInfo;
 let mouseInInventory = false;
 /**@type {{position:Vector,stack:number,slotId:number}}*/
 var itemToDrop = {};
+/**@type {{from:number,to:number}}*/
+var slotsToSwap = {};
+
+/**@type {HTMLElement} */
+let hoveredSlot = null;
 
 let tooltipSize = { x: 0, y: 0 }
 
@@ -107,6 +112,12 @@ function generateInventory() {
                 createItemElement(slot)
             }
             inventoryGrid.appendChild(newSlot);
+            newSlot.addEventListener("mouseenter", e => {
+                hoveredSlot = newSlot;
+            })
+            newSlot.addEventListener("mouseleave", e => {
+                hoveredSlot = null;
+            })
         }
     }
 }
@@ -127,13 +138,14 @@ function createItemElement(slot) {
     let newItem = document.createElement("div");
     newItem.classList.add("item");
     newItem.classList.add("tooltip");
+    newItem.style.backgroundColor=slot.item.stats.color;
     newItem.dataset.tooltipName = slot.item.stats.name;
     let spanNum = document.createElement("span");
     spanNum.classList.add("itemNumber");
     spanNum.textContent = slot.item.stack;
     console.log(slot);
     let img = document.createElement("img");
-    img.src = "images/ui/itemOre.png";
+    img.src = "images/ui/item "+slot.item.stats.name+".png";
     let spanName = document.createElement("span");
     spanName.textContent = slot.item.stats.name;
     newItem.appendChild(spanNum);
@@ -271,9 +283,16 @@ document.addEventListener("mouseup", () => {
     dragging = false;
     if (draggedItem) {
         if (mouseInInventory) {
-            draggedItem.classList.remove("draggedItem");
-            draggedItemOrigin.textContent = "";
-            draggedItemOrigin.appendChild(draggedItem);
+            if(hoveredSlot !=null && hoveredSlot != draggedItemOrigin){
+                draggedItem.remove();
+                slotsToSwap = { from:draggedItemOrigin.dataset.slotId,to:hoveredSlot.dataset.slotId };
+                actionIDs.push(ActionId.SwapSlots);
+            }
+            else{
+                draggedItem.classList.remove("draggedItem");
+                draggedItemOrigin.textContent = "";
+                draggedItemOrigin.appendChild(draggedItem);
+            }
         } else {
             draggedItem.remove();
             //let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
