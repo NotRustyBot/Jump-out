@@ -25,6 +25,7 @@ const toggleInventory = document.getElementById("sidebarInventory");
 const inventoryElement = document.getElementsByClassName("inventory")[0];
 const inventoryGrid = document.getElementById("inventoryGrid");
 const inventorySlotElements = document.getElementsByClassName("inventoryCell");
+const inventorySpecialSections = document.getElementsByClassName("inventorySpecialSlots");
 
 
 const itemElements = document.getElementsByClassName("item");
@@ -54,6 +55,7 @@ let hoverTime = 0;
 let tooltipDelay = .3;
 
 let dragging = false;
+let draggingItem = false;
 let resizing = false;
 let dragMoved = { x: 0, y: 0 };
 let dragStart = { x: 0, y: 0 };
@@ -100,26 +102,61 @@ let tooltipSize = { x: 0, y: 0 }
 function generateInventory() {
     for (let i = 0; i < localPlayer.ship.inventory.slots.length; i++) {
         const slot = localPlayer.ship.inventory.slots[i];
+        let newSlot = document.createElement("div");
+        newSlot.dataset.slotId = i;
+        slotElements[i] = newSlot;
         if (slot.filter == -1) {
-            let newSlot = document.createElement("div");
-            newSlot.dataset.slotId = i;
-            slotElements[i] = newSlot;
             newSlot.classList.add("inventoryCell");
-            if (slot.item.stack == 0) {
+            /* if (slot.item.stack == 0) {
                 newSlot.appendChild(document.createElement("div"));
             }
             else {
                 createItemElement(slot)
-            }
+            } */
             inventoryGrid.appendChild(newSlot);
-            newSlot.addEventListener("mouseenter", e => {
-                hoveredSlot = newSlot;
-            })
-            newSlot.addEventListener("mouseleave", e => {
-                hoveredSlot = null;
-            })
+
         }
+        else {
+            newSlot.classList.add("inventorySlotSpecial");
+            /**@type {HTMLElement} */
+            let section;
+            let container = document.createElement("div");
+            let parent = document.createElement("div");
+            let divNum = document.createElement("div");
+            let spanNum = document.createElement("span");
+            let spanName = document.createElement("span");
+            if (i == 0 || i == 2) {
+                section = inventorySpecialSections[0];
+                container.style.flexDirection = "row";
+                divNum.classList.add("slotsLeft");
+            }
+            else {
+                section = inventorySpecialSections[1];
+                container.style.flexDirection = "rowReverse";
+                divNum.classList.add("slotsRight");
+            }
+            spanNum.textContent = "000";
+            spanName.textContent = "test";
+            divNum.classList.add("specialSlotNumber", "itemNumber");
+            section.appendChild(container);
+            container.appendChild(divNum);
+            container.appendChild(parent);
+            divNum.appendChild(spanNum);
+            parent.appendChild(newSlot);
+            parent.appendChild(spanName);
+        }
+        generateEmptyItem(slot);
+        refreshSlotElement(slot);
+        newSlot.addEventListener("mouseenter", e => {
+            hoveredSlot = newSlot;
+        })
+        newSlot.addEventListener("mouseleave", e => {
+            hoveredSlot = null;
+        })
     }
+    draggedItem = generateEmptyItem();
+    draggedItem.classList.add("draggedItem");
+    draggedItem.style.display = "none";
 }
 
 function findSlotElement(id) {
@@ -131,76 +168,122 @@ function findSlotElement(id) {
     }
     return null;
 }
+
+
 /**@param {Slot} slot */
-function createItemElement(slot) {
-    let slotElement = slotElements[slot.id];
-    slotElement.textContent = "";
+function generateEmptyItem(slot) {
+    /**@type {HTMLElement} */
+    let slotElement;
+    let addDetails = true;
+    if (slot) {
+        slotElement = slotElements[slot.id];
+        slotElement.textContent = "";
+        if (slot.filter != -1) {
+            addDetails = false
+        }
+    }
+    else {
+        slotElement = document.body;
+    }
     let newItem = document.createElement("div");
     newItem.classList.add("item");
-    newItem.classList.add("tooltip");
-    newItem.style.backgroundColor=slot.item.stats.color;
-    newItem.dataset.tooltipName = slot.item.stats.name;
-    let spanNum = document.createElement("span");
-    spanNum.classList.add("itemNumber");
-    spanNum.textContent = slot.item.stack;
-    console.log(slot);
+    newItem.style.backgroundColor = "#000000";
+    newItem.dataset.tooltipName = "Empty slot";
+    let spanNum, spanName;
+    if (addDetails) {
+        spanNum = document.createElement("span");
+        spanNum.classList.add("itemNumber");
+        spanNum.textContent = "0";
+    }
     let img = document.createElement("img");
-    img.src = "images/ui/item "+slot.item.stats.name+".png";
-    let spanName = document.createElement("span");
-    spanName.textContent = slot.item.stats.name;
-    newItem.appendChild(spanNum);
+    if (addDetails) {
+        spanName = document.createElement("span");
+        spanName.textContent = "No item";
+    }
+    if (addDetails) newItem.appendChild(spanNum);
     newItem.appendChild(img);
-    newItem.appendChild(spanName);
+    if (addDetails) newItem.appendChild(spanName);
     slotElement.appendChild(newItem);
 
-    newItem.addEventListener("mousedown", () => {
-        newItem.style.left = "unset";
-        newItem.style.top = "unset";
-        newItem.classList.add("draggedItem");
-        draggedItemInfo = slot.item;
-        dragStart = { x: newItem.offsetLeft + inventoryElement.offsetLeft, y: newItem.offsetTop + inventoryElement.offsetTop };
-        dragMoved = { x: 0, y: 0 };
-        draggedItemOrigin = slotElement;
-        document.getElementById("guiContainer").appendChild(newItem);
-        draggedItemOrigin.appendChild(document.createElement("div"));
-        newItem.style.left = (dragStart.x) + "px";
-        newItem.style.top = (dragStart.y) + "px";
-        draggedElement = newItem;
-        draggedItem = newItem;
-        dragging = true;
-    });
+    if (slot) {
 
-    newItem.addEventListener("mouseenter", e => {
-        hoverTime = 0;
-        tooltipChanged = true;
-        tooltipStack.push(newItem);
-    })
-    newItem.addEventListener("mouseleave", e => {
-        hoverTime = 0;
-        tooltipChanged = true;
-        tooltipStack.pop();
-    })
+        newItem.addEventListener("mousedown", () => {
+            if (slot.item.stack > 0) {
+                draggedItem.style.display = "flex";
+                refreshItemElement(draggedItem, slot);
+                draggedItemInfo = slot.item;
+                dragStart = { x: newItem.offsetLeft + inventoryElement.offsetLeft, y: newItem.offsetTop + inventoryElement.offsetTop };
+                dragMoved = { x: 0, y: 0 };
+                draggedItemOrigin = slotElement;
+                draggedItem.style.left = (dragStart.x) + "px";
+                draggedItem.style.top = (dragStart.y) + "px";
+                draggedElement = draggedItem;
+                draggingItem = true;
+                dragging = true;
+                slotElement.classList.add("emptySlot");
+            }
+        });
+
+        newItem.addEventListener("mouseenter", e => {
+            if (slot.item.stack > 0) {
+                hoverTime = 0;
+                tooltipChanged = true;
+                tooltipStack.push(newItem);
+            }
+        })
+        newItem.addEventListener("mouseleave", e => {
+            if (slot.item.stack > 0) {
+                hoverTime = 0;
+                tooltipChanged = true;
+                tooltipStack.pop();
+            }
+        })
+    }
+
+    return newItem;
+
 }
+
 /**@param {Slot} slot */
 function refreshSlotElement(slot) {
     let slotElement = slotElements[slot.id];
+    let itemElement = slotElement.firstElementChild;
     if (slot.item.stack > 0) {
-        let itemElement = slotElements[slot.id].firstElementChild;
-        if (itemElement.classList.contains("item")) {
-            let spanNum = itemElement.children[0];
-            let img = itemElement.children[1];
-            let spanName = itemElement.children[2];
+        slotElement.classList.remove("emptySlot");
 
+    }
+    else {
+        slotElement.classList.add("emptySlot");
+    }
+    refreshItemElement(itemElement, slot);
+}
+/**
+ * @param {HTMLElement} itemElement 
+ * @param {Slot} slot 
+*/
+
+function refreshItemElement(itemElement, slot) {
+    let img;
+    let slotElement = itemElement.parentElement;
+    if (slot.item.stack > 0) {
+        if (slot.filter == -1 || slotElement == document.body) {
+            let spanNum = itemElement.children[0];
+            img = itemElement.children[1];
+            let spanName = itemElement.children[2];
             spanNum.textContent = slot.item.stack;
             spanName.textContent = slot.item.stats.name;
         }
         else {
-            createItemElement(slot);
+            img = itemElement.children[0];
+            slotElement.parentElement.children[1].textContent = slot.item.stats.name;
+            slotElement.parentElement.parentElement.children[0].firstElementChild.textContent = slot.item.stack;
         }
+        img.src = "images/ui/item " + slot.item.stats.name + ".png";
+        itemElement.style.backgroundColor = slot.item.stats.color;
     }
-    else {
-        slotElement.textContent = "";
-        slotElement.appendChild(document.createElement("div"));
+    else if (slot.filter != -1) {
+        slotElement.parentElement.children[1].textContent = "Empty";
+        slotElement.parentElement.parentElement.children[0].firstElementChild.textContent = "0";
     }
 }
 
@@ -278,36 +361,41 @@ Array.from(resizeButtons).forEach(element => {
 });
 
 document.addEventListener("mouseup", () => {
-    draggedElement = null;
-    resizing = false;
-    dragging = false;
-    if (draggedItem) {
+
+    if (draggingItem) {
+        /**@type {Slot}*/
+        let originSlot = localPlayer.ship.inventory.slots[draggedItemOrigin.dataset.slotId];
+        /**@type {Slot}*/
+        let targetSlot;
+        if (hoveredSlot) targetSlot = localPlayer.ship.inventory.slots[hoveredSlot.dataset.slotId];
         if (mouseInInventory) {
-            if(hoveredSlot !=null && hoveredSlot != draggedItemOrigin){
-                draggedItem.remove();
-                slotsToSwap = { from:draggedItemOrigin.dataset.slotId,to:hoveredSlot.dataset.slotId };
+            if (hoveredSlot != null && hoveredSlot != draggedItemOrigin && originSlot.filter == -1 && (targetSlot.filter == draggedItemInfo.stats.tag || targetSlot.filter == -1)) {
+                draggedItem.style.display = "none";
+                slotsToSwap = { from: draggedItemOrigin.dataset.slotId, to: hoveredSlot.dataset.slotId };
                 actionIDs.push(ActionId.SwapSlots);
             }
-            else{
-                draggedItem.classList.remove("draggedItem");
-                draggedItemOrigin.textContent = "";
-                draggedItemOrigin.appendChild(draggedItem);
+            else {
+                draggedItem.style.display = "none";
+                draggedItemOrigin.classList.remove("emptySlot");
             }
         } else {
-            draggedItem.remove();
+            draggedItem.style.display = "none";
             //let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
             let pos = screenToWorldPos(mousePosition.result().sub(screen.center).clamp(500 * camera.zoom).add(screen.center));
             //let item = new DroppedItem("as", DroppedItem.list.size, 1, pos, localPlayer.ship.position);
-            itemToDrop = { position: pos, stack: draggedItemInfo.stack, slotId:draggedItemOrigin.dataset.slotId };
+            itemToDrop = { position: pos, stack: draggedItemInfo.stack, slotId: draggedItemOrigin.dataset.slotId };
             actionIDs.push(ActionId.DropItem);
         }
         //refreshSlotElement(localPlayer.ship.inventory.slots[draggedItemOrigin.dataset.slotId]);
 
     }
-    draggedItem = null;
+    draggedElement = null;
+    resizing = false;
+    dragging = false;
+    draggingItem = false;
     dragMoved = { x: 0, y: 0 };
     dragStart = { x: 0, y: 0 };
-})
+});
 
 toggleInventory.addEventListener("click", () => {
     inventoryElement.classList.toggle("closed");

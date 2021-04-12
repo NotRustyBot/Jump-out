@@ -425,7 +425,7 @@ body {
 
 #inventoryTop {
     width: 100%;
-    /*height:300px;*/
+    height:340px;
     display: flex;
     flex-direction: row;
     flex-grow: 0;
@@ -477,11 +477,15 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    letter-spacing: .1em
+    letter-spacing: .1em;
+    justify-content: center;
+    width:calc(var(--ui-scale)*240px);
+    flex-shrink: 0;
+    
 }
 
 .inventorySpecialSlots>div {
-    flex-grow: 1;
+    /* flex-grow: 1; */
     width: 100%;
     display: flex;
     justify-content: center;
@@ -530,14 +534,14 @@ body {
 }
 
 .inventorySpecialSlots>div>.specialSlotNumber>span {
-    line-height: calc(var(--ui-scale)*100px);
+    line-height: calc(var(--ui-scale)*120px);
     width: 100%;
 }
 
 .inventorySlotSpecial {
-    width: calc(var(--ui-scale)*100px);
-    height: calc(var(--ui-scale)*100px);
-    border: calc(var(--ui-scale)*5px) dashed #434343;
+    width: calc(var(--ui-scale)*120px);
+    height: calc(var(--ui-scale)*120px);
+    /* border: calc(var(--ui-scale)*5px) dashed #434343; */
     /*box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.473) inset;*/
     border-radius: calc(var(--ui-scale)*10px);
     box-sizing: border-box;
@@ -598,15 +602,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: calc(var(--ui-scale)*10px);
 }
 
-.inventoryCell>div {
+/* .inventoryCell>div {
     height: calc(var(--ui-scale)*200px);
     width: calc(var(--ui-scale)*200px);
     border-radius: calc(var(--ui-scale)*10px);
     border: calc(var(--ui-scale)*5px) dashed #434343;
     box-sizing: border-box;
-}
+} */
 
 .inventoryCell>.item {
     border: none;
@@ -615,8 +620,10 @@ body {
 .item {
     border: none;
     box-sizing: border-box;
-    height: calc(var(--ui-scale)*200px);
-    width: calc(var(--ui-scale)*200px);
+    /* height: calc(var(--ui-scale)*200px);
+    width: calc(var(--ui-scale)*200px); */
+    width:100%;
+    height:100%;
     border-radius: calc(var(--ui-scale)*10px);
     box-sizing: border-box;
     border: none;
@@ -689,6 +696,8 @@ body {
 }
 
 .draggedItem {
+    height: calc(var(--ui-scale)*200px);
+    width: calc(var(--ui-scale)*200px);
     transform: scale(1.05) rotate(15deg);
     position: absolute;
     transition: transform .3s;
@@ -703,4 +712,11 @@ body {
 .gauges img{
     height: calc(var(--ui-scale)*50px);
     width: calc(var(--ui-scale)*50px);
+}
+
+.emptySlot > div{
+    display: none;
+}
+.emptySlot{
+    border: calc(var(--ui-scale)*5px) dashed #434343;
 }
