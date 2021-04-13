@@ -729,6 +729,9 @@ function parseMessage(message) {
                 case serverHeaders.gasScan:
                     parseGasScan(view);
                     break;
+                case serverHeaders.objectScan:
+                    parseObjectScan(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -950,13 +953,23 @@ function parseDebug(view) {
 let scannedGas = [];
 function parseGasScan(view) {
     let count = view.getUint16();
-    //console.log(count);
     for (let i = 0; i < count; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.GasScan);
         scannedGas[temp.x * 1000 / minimapScale + temp.y] = temp.gas;
     }
 
+}
+
+
+let scannedObjects = new Map();
+function parseObjectScan(view){
+    let count = view.getUint16();
+    for (let i = 0; i < count; i++) {
+        let temp = {};
+        view.deserealize(temp, Datagrams.ObjectScan);
+        scannedObjects.set(temp.id, {position: temp.position, type: temp.type});
+    }
 }
 
 let upBytes = 0;
