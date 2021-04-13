@@ -426,7 +426,7 @@ body {
 
 #inventoryTop {
     width: 100%;
-    height: 340px;
+    height: calc(var(--ui-scale) * 340px);
     display: flex;
     flex-direction: row;
     flex-grow: 0;
