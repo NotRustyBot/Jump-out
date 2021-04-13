@@ -980,12 +980,16 @@ function parseGasScan(view) {
 
 
 let scannedObjects = new Map();
-function parseObjectScan(view){
+function parseObjectScan(view) {
     let count = view.getUint16();
     for (let i = 0; i < count; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.ObjectScan);
-        scannedObjects.set(temp.id, {position: temp.position, type: temp.type});
+        if (temp.type == 0) {
+            scannedObjects.delete(temp.id);
+        }else{
+            scannedObjects.set(temp.id, { position: temp.position, type: temp.type });
+        }
     }
 }
 

@@ -378,6 +378,7 @@ GasScan.add(types.uint8, "gas");
 Datagrams.GasScan = GasScan;
 
 let ObjectScan = new Datagram();
+ObjectScan.add(types.uint16, "id");
 ObjectScan.add(types.vector32, "position");
 ObjectScan.add(types.uint8, "type");
 Datagrams.ObjectScan = ObjectScan;
