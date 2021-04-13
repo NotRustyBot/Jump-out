@@ -27,6 +27,10 @@ const inventoryGrid = document.getElementById("inventoryGrid");
 const inventorySlotElements = document.getElementsByClassName("inventoryCell");
 const inventorySpecialSections = document.getElementsByClassName("inventorySpecialSlots");
 
+const gaugeInventory = document.getElementById("gaugeInventory");
+const gaugeInventoryPreview = document.getElementById("gaugeInventoryPreview");
+const gaugeNumberInventory = document.getElementById("gaugeNumberInventory");
+
 
 const itemElements = document.getElementsByClassName("item");
 
@@ -156,7 +160,6 @@ function generateInventory() {
     }
     draggedItem = generateEmptyItem();
     draggedItem.classList.add("draggedItem");
-    draggedItem.style.display = "none";
 }
 
 function findSlotElement(id) {
@@ -209,7 +212,7 @@ function generateEmptyItem(slot) {
 
         newItem.addEventListener("mousedown", () => {
             if (slot.item.stack > 0) {
-                draggedItem.style.display = "flex";
+                draggedItem.classList.add("visible");
                 refreshItemElement(draggedItem, slot);
                 draggedItemInfo = slot.item;
                 dragStart = { x: newItem.offsetLeft + inventoryElement.offsetLeft, y: newItem.offsetTop + inventoryElement.offsetTop };
@@ -370,16 +373,16 @@ document.addEventListener("mouseup", () => {
         if (hoveredSlot) targetSlot = localPlayer.ship.inventory.slots[hoveredSlot.dataset.slotId];
         if (mouseInInventory) {
             if (hoveredSlot != null && hoveredSlot != draggedItemOrigin && originSlot.filter == -1 && (targetSlot.filter == draggedItemInfo.stats.tag || targetSlot.filter == -1)) {
-                draggedItem.style.display = "none";
+                draggedItem.classList.remove("visible");
                 slotsToSwap = { from: draggedItemOrigin.dataset.slotId, to: hoveredSlot.dataset.slotId };
                 actionIDs.push(ActionId.SwapSlots);
             }
             else {
-                draggedItem.style.display = "none";
+                draggedItem.classList.remove("visible");
                 draggedItemOrigin.classList.remove("emptySlot");
             }
         } else {
-            draggedItem.style.display = "none";
+            draggedItem.classList.remove("visible");
             //let item = new Item("as",Item.list.size,1,localPlayer.ship.position.result().add(new Vector(500,0).rotate(Math.random()*Math.PI*2)));
             let pos = screenToWorldPos(mousePosition.result().sub(screen.center).clamp(500 * camera.zoom).add(screen.center));
             //let item = new DroppedItem("as", DroppedItem.list.size, 1, pos, localPlayer.ship.position);
