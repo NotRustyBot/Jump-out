@@ -249,20 +249,6 @@ fpsText.style.fontFamily = "Overpass Mono";
 fpsText.position.set(110, 10);
 guiContainer.addChild(fpsText);
 
-
-var miniMap = new PIXI.Container();
-miniMap.pivot.set(0.5);
-miniMap.position.set(screen.width - 300, screen.height - 300);
-guiContainer.addChild(miniMap);
-
-//miniMapBG.anchor.set(0.5);
-
-
-var miniMapZoom = 300 / (5000 * 80);
-
-var mapGraphics = new PIXI.Graphics();
-//miniMap.addChild(mapGraphics);
-
 //#endregion
 
 /*
@@ -283,11 +269,6 @@ function start() {
 
     app.stage.addChild(gameContainer);
     app.stage.addChild(guiContainer);
-    var miniMapBG = new PIXI.Sprite(loader.resources.minimap.texture);
-    miniMapBG.anchor.set(0);
-    miniMapBG.scale.set(1);
-    //miniMapBG.position.set(-150);
-    miniMap.addChild(miniMapBG);
 
 
     app.ticker.add(graphicsUpdate);
@@ -449,11 +430,8 @@ function updatePlayers(deltaTime) {
         player.ship.update(deltaTime);
         player.nameText.x = player.ship.position.x;
         player.nameText.y = player.ship.position.y - 80;
-        player.miniMapMarker.position.set(player.ship.position.x * miniMapZoom, player.ship.position.y * miniMapZoom);
 
-    });
-    localPlayer.miniMapMarker.rotation = localPlayer.ship.rotation + Math.PI / 2;
-}
+    });}
 
 let detachCamera = false;
 
@@ -559,17 +537,6 @@ function updateTrails(deltaTime) {
 }
 
 function updateGui(deltaTime) {
-    mapGraphics.clear();
-    /*mapGraphics.beginFill(0x111133);
-    mapGraphics.lineStyle(5, 0x334488);
-    mapGraphics.drawCircle(0, 0, 120);
-    mapGraphics.endFill();
-    */
-    mapGraphics.beginFill(0x0000FF);
-    mapGraphics.lineStyle(0, 0x000000);
-    mapGraphics.drawStar(localPlayer.ship.position.x * miniMapZoom, localPlayer.ship.position.y * miniMapZoom, 3, 6, 3, localPlayer.ship.rotation + Math.PI / 2);
-    mapGraphics.endFill();
-
     let shieldRatio = 75;
     let hullRatio = 75;
     let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
@@ -1266,7 +1233,5 @@ function generateGas() {
 
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
-    localPlayer.miniMapMarker.texture = loader.resources.marker2.texture;
-    localPlayer.miniMapMarker.anchor.set(0.5, 0.6);
 }
 

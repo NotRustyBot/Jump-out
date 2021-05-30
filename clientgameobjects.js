@@ -367,7 +367,6 @@ function Player(id, type) {
             ps.delete();
         });
         Player.players.delete(this.id);
-        miniMap.removeChild(this.miniMapMarker);
     }
     //this.lensFlare = new LensFlare(this.ship);
 
@@ -377,10 +376,6 @@ function Player(id, type) {
         let sin = Math.sin(this.ship.rotation);
         return new Vector(vector.x * cos - vector.y * sin, vector.x * sin + vector.y * cos).add(this.ship.position);
     };
-    this.miniMapMarker = new PIXI.Sprite(loader.resources.marker1.texture);
-    miniMap.addChild(this.miniMapMarker);
-    this.miniMapMarker.anchor.set(0.5);
-    this.miniMapMarker.tint = Math.floor(Math.random() * 16777215);
 }
 /**@type {Map<number,Player>}*/
 Player.players = new Map();
