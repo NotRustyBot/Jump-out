@@ -644,6 +644,8 @@ body {
     justify-content: center;
     transform: scale(1) rotate(0);
     transition: transform 0.3s;
+
+    z-index: 1000;
 }
 
 .item:hover {
