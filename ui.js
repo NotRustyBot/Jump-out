@@ -1,10 +1,12 @@
 const min_minimap = document.getElementById("minimize-minimap");
+const open_map = document.getElementById("open-map");
 const minimap = document.getElementsByClassName("map")[0];
 const minimap_canvas = document.getElementById("minimap");
 const minimap_zoomIn = document.getElementById("zoomIn");
 const minimap_zoomOut = document.getElementById("zoomOut");
 
 const bigmap_canvas = document.getElementById("bigMap");
+const bigmap = document.getElementsByClassName("bigmap")[0];
 
 const min_powercells = document.getElementById("minimize-powercells");
 const powercells = document.getElementsByClassName("powercells")[0];
@@ -552,7 +554,12 @@ function UpdateMinimap(deltaTime) {
 
 
 
-let bigMapShown = false;
+open_map.addEventListener("click", () => {
+    bigmap.classList.toggle("closed");
+    bigMapShown = !bigMapShown;
+});
+
+let bigMapShown = true;
 
 let bigMapApp = new PIXI.Application({
     view: bigmap_canvas,
@@ -570,12 +577,12 @@ bigMapApp.renderer.backgroundColor = 0x181818;
 
 let big_gasPXs = [];
 
-let big_mapControl = { zoom: 3, density: 60, minZoom: 1, maxZoom: 80, zoomStep: 1.1, x: 500, y: 500 };
+let big_mapControl = { zoom: 3, density: 60, minZoom: 1, maxZoom: 13, zoomStep: 1.1, x: 500, y: 500 };
 for (let x = 0; x < big_mapControl.density; x++) {
     for (let y = 0; y < big_mapControl.density; y++) {
         let gasPX = new PIXI.Sprite.from("images/minimap/circle.png");
-        gasPX.position.x = x * (bigmap_canvas.width / big_mapControl.density);
-        gasPX.position.y = y * (bigmap_canvas.height / big_mapControl.density);
+        gasPX.position.x = (x+0.5) * (bigmap_canvas.width / big_mapControl.density);
+        gasPX.position.y = (y+0.5) * (bigmap_canvas.height / big_mapControl.density);
         big_gasPXs[x * big_mapControl.density + y] = gasPX;
         gasPX.anchor.set(0.5);
         gasPX.oscilation = Math.random();
