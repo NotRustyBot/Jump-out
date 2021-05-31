@@ -955,7 +955,23 @@ function parseObjectScan(view) {
         if (temp.type == 0) {
             scannedObjects.delete(temp.id);
         }else{
-            scannedObjects.set(temp.id, { position: temp.position, type: temp.type });
+            let obj = { position: temp.position, type: temp.type };
+            if (!scannedObjects.has(temp.id)) {
+                obj.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+                obj.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+                if (obj.type == 1) {
+                    obj.bigSprite.tint = 0x00ffaa;
+                    obj.miniSprite.tint = 0x00ffaa;
+                }else{
+                    obj.bigSprite.tint = 0xffaa00;
+                    obj.miniSprite.tint = 0xffaa00;
+                }
+                pixi_minimap.stage.addChild(obj.miniSprite);
+                bigMapApp.stage.addChild(obj.bigSprite);
+                obj.miniSprite.anchor.set(0.5);
+                obj.bigSprite.anchor.set(0.5);
+            }
+            scannedObjects.set(temp.id, obj);
         }
     }
 }
@@ -1071,11 +1087,15 @@ window.addEventListener("wheel", e => {
         if (e.deltaY > 0) {
             if (big_mapControl.zoom * big_mapControl.zoomStep <= big_mapControl.maxZoom) {
                 big_mapControl.zoom *= big_mapControl.zoomStep;
+            }else{
+                big_mapControl.zoom = big_mapControl.maxZoom;
             }
         }
         if (e.deltaY < 0) {
             if (big_mapControl.zoom / big_mapControl.zoomStep >= big_mapControl.minZoom) {
                 big_mapControl.zoom /= big_mapControl.zoomStep;
+            }else{
+                big_mapControl.zoom = big_mapControl.minZoom;
             }
         }
     } else {

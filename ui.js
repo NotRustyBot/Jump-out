@@ -519,6 +519,11 @@ const minimapScale = 2;
 function UpdateMinimap(deltaTime) {
     UpdateBigmap(deltaTime);
     if (!minimapShown) return;
+    scannedObjects.forEach(e => {
+        e.miniSprite.position.x = (e.position.x - localPlayer.ship.position.x) / minimapControl.density / minimapScale / minimapControl.zoom + 350 / 2;
+        e.miniSprite.position.y = (e.position.y - localPlayer.ship.position.y) / minimapControl.density / minimapScale / minimapControl.zoom + 350 / 2;
+    });
+
     for (let x = 0; x < minimapControl.density; x++) {
         for (let y = 0; y < minimapControl.density; y++) {
             let gasPX = gasPXs[x * minimapControl.density + y];
@@ -535,7 +540,7 @@ function UpdateMinimap(deltaTime) {
             let pbl = (2 - ((lx % 1) + 1 - (ly % 1))) / 2;
             let pbr = (2 - (1 - (lx % 1) + 1 - (ly % 1))) / 2;
 
-
+            //ale co když ten zoom není 1 (-_-')
 
             gasPX.oscilation += deltaTime;
             if (scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.floor(ly)] == undefined) {
@@ -595,12 +600,15 @@ let big_mapDrag = bigmap_canvas.width / big_mapControl.density / minimapScale;
 
 function UpdateBigmap(deltaTime) {
     if (!bigMapShown) return;
+    scannedObjects.forEach(e => {
+        e.bigSprite.position.x = (e.position.x/gasParticleSpacing - big_mapControl.x)/big_mapControl.zoom * (bigmap_canvas.width/big_mapControl.density/minimapScale) + bigmap_canvas.width / 2;
+        e.bigSprite.position.y = (e.position.y/gasParticleSpacing - big_mapControl.y)/big_mapControl.zoom * (bigmap_canvas.width/big_mapControl.density/minimapScale) + bigmap_canvas.height / 2;
+    });
     for (let x = 0; x < big_mapControl.density; x++) {
         for (let y = 0; y < big_mapControl.density; y++) {
             let gasPX = big_gasPXs[x * big_mapControl.density + y];
             let lx = Math.floor((big_mapControl.x / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + x * big_mapControl.zoom);
             let ly = Math.floor((big_mapControl.y / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + y * big_mapControl.zoom);
-
 
             gasPX.oscilation += deltaTime;
             if (scannedGas[lx * 1000 / minimapScale + ly] == undefined) {
