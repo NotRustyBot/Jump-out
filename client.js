@@ -437,8 +437,8 @@ let detachCamera = false;
 
 function updateCamera(deltaTime) {
     if (!detachCamera) {
-        camera.x = localPlayer.ship.position.x;
-        camera.y = localPlayer.ship.position.y;
+        camera.x = localPlayer.ship.position.x + localPlayer.ship.velocity.x / 10;
+        camera.y = localPlayer.ship.position.y + localPlayer.ship.velocity.y / 10;
     }
 
     gameContainer.scale.set(camera.zoom);

@@ -591,13 +591,14 @@ for (let x = 0; x < big_mapControl.density; x++) {
         big_gasPXs[x * big_mapControl.density + y] = gasPX;
         gasPX.anchor.set(0.5);
         gasPX.oscilation = Math.random();
+        gasPX.gridOffset = {x: 0, y: 0};
 
         big_gasPx_container.addChild(gasPX);
     }
 }
 
 let big_mapDrag = bigmap_canvas.width / big_mapControl.density / minimapScale;
-
+let temptest = 1.1;
 function UpdateBigmap(deltaTime) {
     if (!bigMapShown) return;
     scannedObjects.forEach(e => {
@@ -607,12 +608,29 @@ function UpdateBigmap(deltaTime) {
     for (let x = 0; x < big_mapControl.density; x++) {
         for (let y = 0; y < big_mapControl.density; y++) {
             let gasPX = big_gasPXs[x * big_mapControl.density + y];
-            let lx = Math.floor((big_mapControl.x / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + x * big_mapControl.zoom);
-            let ly = Math.floor((big_mapControl.y / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + y * big_mapControl.zoom);
+            let lxa = (big_mapControl.x / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + x * big_mapControl.zoom;
+            let lya = (big_mapControl.y / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + y * big_mapControl.zoom;
+            
+            let lx = Math.floor(lxa);
+            let ly = Math.floor(lya);
+
+            gasPX.position.x += gasPX.gridOffset.x;
+            gasPX.position.y += gasPX.gridOffset.y;
+
+            let xoffset = (lxa - lx) * bigmap_canvas.width/big_mapControl.density * temptest;
+            let yoffset = (lya - ly) * bigmap_canvas.width/big_mapControl.density * temptest;
+
+            gasPX.position.x -= xoffset;
+            gasPX.position.y -= yoffset;
+
+            gasPX.gridOffset.x = xoffset;
+            gasPX.gridOffset.y = yoffset;
+            
 
             gasPX.oscilation += deltaTime;
             if (scannedGas[lx * 1000 / minimapScale + ly] == undefined) {
-                gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation), 0) / 2 + 0.3);
+                gasPX.scale.set(0.3);
+                //gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation), 0) / 2 + 0.3);
                 if (gasPX.oscilation > 2) {
                     gasPX.oscilation -= 3;
                 }
