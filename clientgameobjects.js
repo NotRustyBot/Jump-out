@@ -232,6 +232,12 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     }
 }
 
+const shipMarkerColors = [
+    0xff5533,
+    0x33ddff,
+    0x5533ff,
+    0xddff33
+];
 
 function Ship(type, player) {
     /**@type {Player}*/
@@ -254,19 +260,16 @@ function Ship(type, player) {
     }
     this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize }, true);
 
-    this.init = function (type) {
-        this.stats = type;
-        let minimarker = { position: this.position, type: 0 };
-        minimarker.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
-        minimarker.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
-        minimarker.bigSprite.tint = 0xaa00ff;
-        minimarker.miniSprite.tint = 0xaa00ff;
-        pixi_minimap.stage.addChild(minimarker.miniSprite);
-        bigMapApp.stage.addChild(minimarker.bigSprite);
-        minimarker.miniSprite.anchor.set(0.5);
-        minimarker.bigSprite.anchor.set(0.5);
-        scannedObjects.set(-id - 1, minimarker);
-    };
+    let minimarker = { position: this.position, type: 0 };
+    minimarker.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+    minimarker.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+    minimarker.bigSprite.tint = shipMarkerColors[this.player.id % 4];
+    minimarker.miniSprite.tint = shipMarkerColors[this.player.id % 4];
+    pixi_minimap.stage.addChild(minimarker.miniSprite);
+    bigMapApp.stage.addChild(minimarker.bigSprite);
+    minimarker.miniSprite.anchor.set(0.5);
+    minimarker.bigSprite.anchor.set(0.5);
+    scannedObjects.set(-this.player.id - 1, minimarker);
 
     this.update = function (dt) {
 
@@ -274,6 +277,8 @@ function Ship(type, player) {
         this.position.y += this.velocity.y * dt;
 
         this.rotation += this.rotationSpeed * dt;
+
+        scannedObjects.get(-this.player.id - 1).position = this.position;
 
         this.sprite.update({ directional: true, rotation: sunAngle });
     };
