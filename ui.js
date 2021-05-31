@@ -561,7 +561,7 @@ open_map.addEventListener("click", () => {
     bigMapShown = !bigMapShown;
 });
 
-let bigMapShown = true;
+let bigMapShown = false;
 
 let bigMapApp = new PIXI.Application({
     view: bigmap_canvas,
