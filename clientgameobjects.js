@@ -382,8 +382,8 @@ function Player(id, type) {
             ps.delete();
         });
         let minimarker = scannedObjects.get(-this.id - 1);
-        minimarket.miniSprite.destroy();
-        minimarket.bigSprite.destroy();
+        minimarker.miniSprite.destroy();
+        minimarker.bigSprite.destroy();
         scannedObjects.delete(-this.id - 1);
         Player.players.delete(this.id);
     }
