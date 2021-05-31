@@ -256,6 +256,16 @@ function Ship(type, player) {
 
     this.init = function (type) {
         this.stats = type;
+        let minimarker = { position: this.position, type: 0 };
+        minimarker.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+        minimarker.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+        minimarker.bigSprite.tint = 0xaa00ff;
+        minimarker.miniSprite.tint = 0xaa00ff;
+        pixi_minimap.stage.addChild(minimarker.miniSprite);
+        bigMapApp.stage.addChild(minimarker.bigSprite);
+        minimarker.miniSprite.anchor.set(0.5);
+        minimarker.bigSprite.anchor.set(0.5);
+        scannedObjects.set(-id - 1, minimarker);
     };
 
     this.update = function (dt) {
@@ -284,12 +294,12 @@ Actions.MineRock = function (view) {
 Actions.DropItem = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.DropItem }, Datagrams.SmartAction);
-    view.serialize({ position: itemToDrop.position, stack: itemToDrop.stack, slot:itemToDrop.slotId }, SmartActionData[ActionId.DropItem]);
+    view.serialize({ position: itemToDrop.position, stack: itemToDrop.stack, slot: itemToDrop.slotId }, SmartActionData[ActionId.DropItem]);
 }
 Actions.SwapSlots = function (view) {
     view.setUint8(clientHeaders.smartAction);
-    view.serialize({ handle: 1, actionId: ActionId.SwapSlots}, Datagrams.SmartAction);
-    view.serialize({ slot1: slotsToSwap.from, slot2: slotsToSwap.to}, SmartActionData[ActionId.SwapSlots]);
+    view.serialize({ handle: 1, actionId: ActionId.SwapSlots }, Datagrams.SmartAction);
+    view.serialize({ slot1: slotsToSwap.from, slot2: slotsToSwap.to }, SmartActionData[ActionId.SwapSlots]);
 }
 
 ShipType = defineShips(Actions);
@@ -366,6 +376,10 @@ function Player(id, type) {
         this.particleSystems.forEach(ps => {
             ps.delete();
         });
+        let minimarker = scannedObjects.get(-this.id - 1);
+        minimarket.miniSprite.delete();
+        minimarket.bigSprite.delete();
+        scannedObjects.delete(-this.id - 1);
         Player.players.delete(this.id);
     }
     //this.lensFlare = new LensFlare(this.ship);
