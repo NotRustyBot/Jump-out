@@ -953,6 +953,9 @@ function parseObjectScan(view) {
         let temp = {};
         view.deserealize(temp, Datagrams.ObjectScan);
         if (temp.type == 0) {
+            let obj = scannedObjects.get(temp.id);
+            obj.bigSprite.delete();
+            obj.miniSprite.delete();
             scannedObjects.delete(temp.id);
         }else{
             let obj = { position: temp.position, type: temp.type };
