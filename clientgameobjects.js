@@ -260,7 +260,7 @@ function Ship(type, player) {
     }
     this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize }, true);
 
-    let minimarker = { position: this.position, type: 0 };
+    let minimarker = { position: this.position, type: 100 };
     minimarker.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
     minimarker.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
     minimarker.bigSprite.tint = shipMarkerColors[this.player.id % 4];
@@ -382,8 +382,8 @@ function Player(id, type) {
             ps.delete();
         });
         let minimarker = scannedObjects.get(-this.id - 1);
-        minimarket.miniSprite.delete();
-        minimarket.bigSprite.delete();
+        minimarket.miniSprite.destroy();
+        minimarket.bigSprite.destroy();
         scannedObjects.delete(-this.id - 1);
         Player.players.delete(this.id);
     }
