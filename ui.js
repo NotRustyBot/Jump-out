@@ -597,7 +597,9 @@ let oscilationPhase = 0;
 
 let big_mapDrag = bigmap_canvas.width / big_mapControl.density / minimapScale;
 function UpdateBigmap(deltaTime) {
-    oscilationPhase += 0.02;
+    big_mapControl.x = Math.max(Math.min(big_mapControl.x, 1000), 0);
+    big_mapControl.y = Math.max(Math.min(big_mapControl.y, 1000), 0);
+    oscilationPhase += deltaTime;
     if (!bigMapShown) return;
     scannedObjects.forEach(e => {
         e.bigSprite.position.x = (e.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
@@ -619,7 +621,7 @@ function UpdateBigmap(deltaTime) {
             gasPX.position.x = (x + 0.5) * (bigmap_canvas.width / big_mapControl.density) - xoffset;
             gasPX.position.y = (y + 0.5) * (bigmap_canvas.width / big_mapControl.density) - yoffset;
 
-            if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined) {
+            if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
                 gasPX.scale.set(0.3);
                 gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 4 + 0.3);
                 gasPX.tint = 0x555555;
