@@ -2,6 +2,7 @@
 let app = new PIXI.Application({
     antialias: true,
 });
+
 let loader = PIXI.Loader.shared;
 document.body.appendChild(app.renderer.view);
 
@@ -373,6 +374,10 @@ let performanceData = {
     }
 }
 
+function updateAppend(dt){
+
+}
+
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
 
@@ -391,15 +396,15 @@ function graphicsUpdate(deltaTimeFactor) {
         }
         averageFPS.shift();
         minFPS.shift();
+        performanceData.start();
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateTrails(deltaTime);
         updateCamera(deltaTime);
-        performanceData.start();
-        updateGui(deltaTime);
         performanceData.logAndNext();
-        performanceData.stop();
-
+        updateGui(deltaTime);
+        updateAppend(deltaTime);
+        performanceData.log();
 
         Player.players.forEach(player => {
             if (player.lensFlare)
@@ -414,14 +419,15 @@ function graphicsUpdate(deltaTimeFactor) {
             item.update(deltaTime);
         });
 
-
+        performanceData.next();
 
         //gasParticleContainers[5][5].visible = true;
         gasParticleChunksDisplay();
+        performanceData.logAndNext();
+        performanceData.stop();
 
         sunAngle += deltaTime * 0.1;
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
-
     }
 }
 
@@ -578,8 +584,6 @@ function updateGui(deltaTime) {
 
 
     updateTooltip(deltaTime);
-
-    performanceData.logAndNext();
 
     UpdateMinimap(deltaTime);
 

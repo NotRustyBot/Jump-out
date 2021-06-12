@@ -407,7 +407,6 @@ toggleInventory.addEventListener("click", () => {
 })
 
 function updateTooltip(deltaTime) {
-    performanceData.logAndNext();
     hoverTime += deltaTime;
 
     //If hover active or changed recently
@@ -520,8 +519,8 @@ function UpdateMinimap(deltaTime) {
     UpdateBigmap(deltaTime);
     if (!minimapShown) return;
     scannedObjects.forEach(e => {
-        e.miniSprite.position.x = (e.position.x - localPlayer.ship.position.x)/gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale ) + 350 / 2;
-        e.miniSprite.position.y = (e.position.y - localPlayer.ship.position.y)/gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale ) + 350 / 2;
+        e.miniSprite.position.x = (e.position.x - localPlayer.ship.position.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        e.miniSprite.position.y = (e.position.y - localPlayer.ship.position.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
     });
 
     let xpos = localPlayer.ship.position.x / gasParticleSpacing / minimapScale / minimapControl.zoom;
@@ -542,13 +541,13 @@ function UpdateMinimap(deltaTime) {
             gasPX.position.x = (x + 0.5) * (minimap_canvas.width / minimapControl.density) - xoffset;
             gasPX.position.y = (y + 0.5) * (minimap_canvas.width / minimapControl.density) - yoffset;
 
-            if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined) {
+            if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
                 gasPX.scale.set(0.3);
                 gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 4 + 0.3);
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(Math.floor(scannedGas[lxa * 1000 / minimapScale + lya] / 20)/5);
+                gasPX.scale.set(Math.floor(scannedGas[lxa * 1000 / minimapScale + lya] / 20) / 5);
             }
         }
     }
@@ -599,7 +598,7 @@ let big_mapDrag = bigmap_canvas.width / big_mapControl.density / minimapScale;
 function UpdateBigmap(deltaTime) {
     big_mapControl.x = Math.max(Math.min(big_mapControl.x, 1000), 0);
     big_mapControl.y = Math.max(Math.min(big_mapControl.y, 1000), 0);
-    oscilationPhase += deltaTime;
+    oscilationPhase += deltaTime * 0.1;
     if (!bigMapShown) return;
     scannedObjects.forEach(e => {
         e.bigSprite.position.x = (e.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
