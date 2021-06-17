@@ -98,7 +98,7 @@ function Entity(type, id) {
     this.sprite = new ShadedSprite(this, objectDictionary[this.type].name, objectDictionary[this.type]);
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
-        this.sprite.update({ directional: true, rotation: sunAngle });
+        this.sprite.update({ directional: true, rotation: sunDirection });
     };
 
     this.remove = function () {
@@ -126,7 +126,7 @@ function DroppedItem(type, id, stack, targetPos, sourcePos) {
             this.rotation = (1 - this.animProgress) * this.targetRotation;
             this.position = sourcePos.lerp(targetPos, 1 - (this.animProgress));
         }
-        this.sprite.update({ directional: true, rotation: sunAngle });
+        this.sprite.update({ directional: true, rotation: sunDirection });
     };
 
     this.remove = function () {
@@ -137,92 +137,102 @@ function DroppedItem(type, id, stack, targetPos, sourcePos) {
 DroppedItem.list = new Map();
 
 
-let sunAngle = 0;
+let sunDirection = [1, 0];
+let prog = new PIXI.Program.from(shadeVertCode, shadeFragCode);
 
 function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     this.container = new PIXI.Container();
     this.parent = parent;
     this.sizeObject = sizeObject;
-    this.base = new PIXI.Sprite(loader.resources[prefix + "_base"].texture);
-    this.dark = new PIXI.Sprite(loader.resources[prefix + "_dark"].texture);
-    this.outline = new PIXI.Sprite(loader.resources[prefix + "_outline"].texture);
-    this.lightMask = new PIXI.Sprite(loader.resources["lightMask"].texture);
-    this.outlineMask = new PIXI.Sprite(loader.resources["outlineMask"].texture);
+
+    this.uniforms = {
+        uOutlineSampler: loader.resources[prefix + "_outline"].texture,
+        uDarkSampler: loader.resources[prefix + "_dark"].texture,
+        lightDir: [1, 0],
+        rotation: 0
+    };
+
+    this.material = new PIXI.MeshMaterial(loader.resources[prefix + "_base"].texture, {
+        program: prog,
+        uniforms: this.uniforms
+    });
+
+    this.geometry = new PIXI.Geometry();
+
+    let width = loader.resources[prefix + "_base"].texture.width / 2;
+    let height = loader.resources[prefix + "_base"].texture.height / 2;
+
+    this.geometry.addAttribute('aVertexPosition', [-width, -height, width, -height, width, height, -width, height], 2);
+    this.geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+    this.geometry.addIndex([0, 1, 2, 2, 3, 0]);
+
+    this.mesh = new PIXI.Mesh(this.geometry, this.material);
+
     if (!disableShadow)
         this.shadow = new PIXI.Sprite(loader.resources["shadow"].texture);
 
-    this.base.anchor.set(0.5);
-    this.dark.anchor.set(0.5);
-    this.outline.anchor.set(0.5);
-    this.lightMask.anchor.set(0.5);
-    this.outlineMask.anchor.set(0.5);
+    //this.base.anchor.set(0.5);
     if (!disableShadow) {
         this.shadow.anchor.set(0.5, 0.09);
         this.shadow.scale.set(sizeObject.size / 1.5, 1);
         this.shadow.alpha = 0.2;
     }
 
-    this.lightMask.scale.set(sizeObject.size);
-    this.outlineMask.scale.set(sizeObject.size);
-
-
-    this.base.mask = this.lightMask;
-    this.outline.mask = this.outlineMask;
-
-    this.container.addChild(
-        this.dark,
-        this.base,
-        this.outline,
-        this.lightMask,
-        this.outlineMask
-    );
-
     if (isPlayer) {
-        playerContainer.addChild(this.container);
+        playerContainer.addChild(this.mesh);
     }
     else {
-        entityContainer.addChild(this.container);
+        entityContainer.addChild(this.mesh);
     }
     if (!disableShadow)
         shadowContainer.addChild(this.shadow);
 
     this.update = function (source) {
-        if (!isOnScreen(this.parent.position, 100)) {
-            this.container.visible = false;
+        let rotation;
+        if (!isOnScreen(this.parent.position, 5000)) {
             if (!disableShadow)
                 this.shadow.visible = false;
+
+            this.mesh.visible = false;
             return;
         } else {
-            this.container.visible = true;
-            if (!disableShadow)
+            if (!isOnScreen(this.parent.position, Math.max(this.mesh.width, this.mesh.height))) {
+                this.mesh.visible = false;
+            }else{
+                this.mesh.visible = true;
+            }
+
+            this.mesh.position.set(this.parent.position.x, this.parent.position.y);
+
+            if (!disableShadow){
                 this.shadow.visible = true;
+                this.shadow.position.set(this.parent.position.x, this.parent.position.y);
+                if (!source.directional) {
+                    rotation = [source.position.y - this.mesh.y, source.position.x - this.mesh.x];
+                } else {
+                    rotation = source.rotation;
+                }
+                this.shadow.rotation = new Vector(rotation[0], rotation[1]).toAngle() + Math.PI / 2;
+            }
+
+            if (!this.mesh.visible) return;
+
         }
-
-        this.container.position.set(this.parent.position.x, this.parent.position.y);
-        if (!disableShadow)
-            this.shadow.position.set(this.parent.position.x, this.parent.position.y);
-
-        this.dark.rotation = (this.parent.rotation);
-        this.base.rotation = (this.parent.rotation);
-        this.outline.rotation = (this.parent.rotation);
-
-        let rotation;
+            
         let distanceRatio;
         if (!source.directional) {
-            distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.container.y, 2) + Math.pow(source.position.x - this.container.x, 2));
-            rotation = Math.atan2(source.position.y - this.container.y, source.position.x - this.container.x);
+            distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.mesh.y, 2) + Math.pow(source.position.x - this.mesh.x, 2));
+            this.material.uniforms.lightDir = [source.position.y - this.mesh.y, source.position.x - this.mesh.x];
         } else {
-            rotation = source.rotation;
+            this.material.uniforms.lightDir = source.rotation;
             distanceRatio = 1;
         }
+        
+        this.mesh.rotation = this.parent.rotation;
+        this.material.uniforms.rotation = this.mesh.rotation;
 
-        this.lightMask.rotation = rotation;
-        this.outlineMask.rotation = rotation;
-
-        this.lightMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);
-        this.outlineMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);
-        if (!disableShadow)
-            this.shadow.rotation = rotation + Math.PI / 2;
+        //this.lightMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);
+        //this.outlineMask.alpha = Math.pow(Math.min(distanceRatio, 1), 2);            
     }
 
     this.remove = function () {
@@ -280,7 +290,7 @@ function Ship(type, player) {
 
         scannedObjects.get(-this.player.id - 1).position = this.position;
 
-        this.sprite.update({ directional: true, rotation: sunAngle });
+        this.sprite.update({ directional: true, rotation: sunDirection });
     };
 }
 

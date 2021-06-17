@@ -103,6 +103,14 @@ var screen = {
 };
 
 isOnScreen = function (position, size) {
+    if (detachCamera) {
+        return (
+            position.x + size > localPlayer.ship.position.x - screen.center.x / camera.zoom &&
+            position.x - size < localPlayer.ship.position.x + screen.center.x / camera.zoom &&
+            position.y + size > localPlayer.ship.position.y - screen.center.y / camera.zoom &&
+            position.y - size < localPlayer.ship.position.y + screen.center.y / camera.zoom
+        );
+    }
     return (
         position.x + size > camera.x - screen.center.x / camera.zoom &&
         position.x - size < camera.x + screen.center.x / camera.zoom &&
@@ -374,10 +382,11 @@ let performanceData = {
     }
 }
 
-function updateAppend(dt){
+function updateAppend(dt) {
 
 }
 
+let sunAngle = 0;
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
 
@@ -404,7 +413,7 @@ function graphicsUpdate(deltaTimeFactor) {
         performanceData.logAndNext();
         updateGui(deltaTime);
         updateAppend(deltaTime);
-        performanceData.log();
+        performanceData.logAndNext();
 
         Player.players.forEach(player => {
             if (player.lensFlare)
@@ -419,7 +428,7 @@ function graphicsUpdate(deltaTimeFactor) {
             item.update(deltaTime);
         });
 
-        performanceData.next();
+        performanceData.logAndNext();
 
         //gasParticleContainers[5][5].visible = true;
         gasParticleChunksDisplay();
@@ -427,6 +436,7 @@ function graphicsUpdate(deltaTimeFactor) {
         performanceData.stop();
 
         sunAngle += deltaTime * 0.1;
+        sunDirection = [Math.cos(sunAngle), Math.sin(sunAngle)];
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
     }
 }
@@ -437,14 +447,31 @@ function updatePlayers(deltaTime) {
         player.nameText.x = player.ship.position.x;
         player.nameText.y = player.ship.position.y - 80;
 
-    });}
+    });
+}
 
 let detachCamera = false;
+let disconnectCamera = false;
+
+let screentangle = new PIXI.Graphics();
+gameContainer.addChild(screentangle);
+
 
 function updateCamera(deltaTime) {
-    if (!detachCamera) {
+    if (!detachCamera && !disconnectCamera) {
         camera.x = localPlayer.ship.position.x + localPlayer.ship.velocity.x / 10;
         camera.y = localPlayer.ship.position.y + localPlayer.ship.velocity.y / 10;
+    }
+
+    screentangle.visible = false;
+    if (detachCamera) {
+        screentangle.visible = true;
+        screentangle.clear();
+        screentangle.lineStyle(10, 0xffaa00);
+        screentangle.drawRect(localPlayer.ship.position.x - screen.center.x / camera.zoom,
+            localPlayer.ship.position.y - screen.center.y / camera.zoom,
+            screen.width / camera.zoom,
+            screen.height / camera.zoom);
     }
 
     gameContainer.scale.set(camera.zoom);
@@ -961,7 +988,7 @@ function parseObjectScan(view) {
             obj.bigSprite.destroy();
             obj.miniSprite.destroy();
             scannedObjects.delete(temp.id);
-        }else{
+        } else {
             let obj = { position: temp.position, type: temp.type };
             if (!scannedObjects.has(temp.id)) {
                 obj.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
@@ -969,7 +996,7 @@ function parseObjectScan(view) {
                 if (obj.type == 1) {
                     obj.bigSprite.tint = 0x00ffaa;
                     obj.miniSprite.tint = 0x00ffaa;
-                }else{
+                } else {
                     obj.bigSprite.tint = 0xffaa00;
                     obj.miniSprite.tint = 0xffaa00;
                 }
@@ -1055,8 +1082,18 @@ function handleInput() {
         actionIDs.push(1);
         keyDown.e = false;
     } else if (keyDown.c) {
-        detachCamera = !detachCamera;
         keyDown.c = false;
+        if (detachCamera) {
+            detachCamera = false;
+            disconnectCamera = true;
+            return;
+        } else {
+            if (disconnectCamera) {
+                disconnectCamera = false;
+            } else {
+                detachCamera = true;
+            }
+        }
     } else if (keyDown.k) {
         window.open("debug/index.html?data=" + performanceData.string());
         performanceData.data = [];
@@ -1094,14 +1131,14 @@ window.addEventListener("wheel", e => {
         if (e.deltaY > 0) {
             if (big_mapControl.zoom * big_mapControl.zoomStep <= big_mapControl.maxZoom) {
                 big_mapControl.zoom *= big_mapControl.zoomStep;
-            }else{
+            } else {
                 big_mapControl.zoom = big_mapControl.maxZoom;
             }
         }
         if (e.deltaY < 0) {
             if (big_mapControl.zoom / big_mapControl.zoomStep >= big_mapControl.minZoom) {
                 big_mapControl.zoom /= big_mapControl.zoomStep;
-            }else{
+            } else {
                 big_mapControl.zoom = big_mapControl.minZoom;
             }
         }
@@ -1165,64 +1202,97 @@ gasColorMap = new ColorGraph([0x397367, 0x63ccca, 0x5da399, 0x42858c, 0x35393c,]
 
 let gasParticles = [];
 let gasDisplay = [];
+let avalible = [];
+
+let gasCollector = false;
 
 function gasParticleChunksDisplay() {
     if (gasLoaded) {
 
-        gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
-        gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
-        let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
-        let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
-        let avalible = [];
+        gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom+3);
+        gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom+3);
+        let gasPosX;
+        let gasPosY;
+        if (detachCamera) {
+            gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
+            gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
+        } else {
+            gasPosX = Math.floor(camera.x / gasParticleSpacing);
+            gasPosY = Math.floor(camera.y / gasParticleSpacing);
+        }
+
         gasPosX = Math.max(Math.min(gasPosX, 1000 - 1), 0);
         gasPosY = Math.max(Math.min(gasPosY, 1000 - 1), 0);
         gasHere = Universe.gasMap[gasPosX][gasPosY];
 
-        for (let i = 0; i < gasParticles.length; i++) {
-            const g = gasParticles[i];
+        if (gasCollector) {
+            for (let i = 0; i < gasParticles.length; i++) {
+                const g = gasParticles[i];
 
-            let gX = Math.floor(g.x / gasParticleSpacing);
-            let gY = Math.floor(g.y / gasParticleSpacing);
-            // mimo obrazovke
-            if (gX > gasPosX + gasCamWidth / 2 ||
-                gX < gasPosX - gasCamWidth / 2 ||
-                gY > gasPosY + gasCamHeight / 2 ||
-                gY < gasPosY - gasCamHeight / 2
-            ) { // zneviditelint
-                avalible.push(g);
-                gasDisplay[gX][gY] = false;
-                g.visible = false;
-            } else {
-                let e = Universe.gasMap[gX][gY];
-                g.alpha = e / 200 + 0.5;
-                g.rotation += 0.03 * g.alpha + 0.008;
-                g.tint = gasColorMap.evaluate(e / 100);
-                gasDisplay[gX][gY] = true;
-                g.visible = true;
+                let gX = Math.floor(g.x / gasParticleSpacing);
+                let gY = Math.floor(g.y / gasParticleSpacing);
+                // mimo obrazovke
+                if (gX > gasPosX + gasCamWidth / 2 ||
+                    gX < gasPosX - gasCamWidth / 2 ||
+                    gY > gasPosY + gasCamHeight / 2 ||
+                    gY < gasPosY - gasCamHeight / 2
+                ) { // zneviditelint
+                    avalible.push(g);
+                    gasDisplay[gX][gY] = false;
+                    g.visible = false;
+                }
             }
+            gasCollector = false;
         }
 
 
-        for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
-            for (let py = Math.max(gasPosY - gasCamHeight / 2, 0); py < gasPosY + gasCamHeight / 2; py++) {
+        for (let px = Math.max(gasPosX - Math.floor(gasCamWidth / 2) - 2, 0); px < gasPosX + Math.floor(gasCamWidth / 2) + 2; px++) {
+            for (let py = Math.max(gasPosY - Math.floor(gasCamHeight / 2) - 2, 0); py < gasPosY + Math.floor(gasCamHeight / 2) + 2; py++) {
                 if (px >= 1000 || py >= 1000) {
                     continue;
                 }
-                if (!gasDisplay[px][py]) {
-                    let g = avalible.pop();
-                    if (g != undefined) {
-                        let e = Universe.gasMap[px][py];
-                        gasDisplay[px][py] = true;
-                        g.alpha = e / 200 + 0.5;
-                        g.visible = true;
-                        g.tint = gasColorMap.evaluate(e / 100);
-                        g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random(), py * gasParticleSpacing + gasParticleSpacing * Math.random());
+                if (
+                    px <= gasPosX - gasCamWidth / 2 ||
+                    py <= gasPosY - gasCamHeight / 2 ||
+                    px >= gasPosX + gasCamWidth / 2 ||
+                    py >= gasPosY + gasCamHeight / 2
+                ) {
+                    let g = gasDisplay[px][py];
+                    if (g) {
+                        avalible.push(g);
+                        g.visible = false;
+                        gasDisplay[px][py] = false;
+                    }
+                } else {
+                    if (!gasDisplay[px][py]) {
+                        let g = avalible.shift();
+                        if (visibleGasUpdate(px, py, g)) {
+                            g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random(), py * gasParticleSpacing + gasParticleSpacing * Math.random());
+                        } else {
+                            gasCollector = true;
+                        }
+                    }else{
+                        let g = gasDisplay[px][py]
+                        g.rotation += g.valueCache * 0.01;
                     }
                 }
             }
         }
     }
+}
 
+function visibleGasUpdate(x, y, g) {
+    if (g != undefined) {
+        let e = Universe.gasMap[x][y];
+        g.alpha = e / 200 + 0.5;
+        g.visible = true;
+        gasDisplay[x][y] = g;
+        if (e != g.valueCache) {
+            g.valueCache = e;
+            g.tint = gasColorMap.evaluate(Math.floor(e / 10)/10);
+        }
+        return true;
+    }
 }
 
 function generateGas() {
@@ -1239,6 +1309,9 @@ function generateGas() {
         gasParticle.anchor.set(0.53);
         gasParticle.scale.set(6);
         gasParticle.rotation = Math.random() * 6.28;
+        gasParticle.visible = false;
+
+        avalible.push(gasParticle);
 
         gasContainer.addChild(gasParticle);
 
