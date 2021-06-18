@@ -1,13 +1,16 @@
 const shadeVertCode=`
+#version 300 es
 
-attribute vec2 aVertexPosition;
-attribute vec2 aTextureCoord;
+precision mediump float;
+
+in vec2 aVertexPosition;
+in vec2 aTextureCoord;
 
 uniform mat3 projectionMatrix;
 uniform mat3 translationMatrix;
 uniform mat3 uTextureMatrix;
 
-varying vec2 vTextureCoord;
+out vec2 vTextureCoord;
 
 void main(void)
 {

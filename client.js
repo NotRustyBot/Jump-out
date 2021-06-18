@@ -431,7 +431,7 @@ function graphicsUpdate(deltaTimeFactor) {
         performanceData.logAndNext();
 
         //gasParticleContainers[5][5].visible = true;
-        gasParticleChunksDisplay(deltaTime);
+        gasUpdate(deltaTime);
         performanceData.logAndNext();
         performanceData.stop();
 
@@ -761,10 +761,15 @@ function parseMessage(message) {
 
 }
 
+let gasColorArray;
+let gasSize = { width: 0, height: 0 };
 function parseGas(view) {
     gasParticleSpacing = view.getUint16();
     let w = view.getUint16();
     let h = view.getUint16();
+    gasSize.width = w;
+    gasSize.height = h;
+    gasColorArray = new Uint8Array(w * h);
     let bytes = 4;
     for (let x = 0; x < w; x++) {
         Universe.gasMap[x] = [];
@@ -772,6 +777,7 @@ function parseGas(view) {
             const e = view.getUint8();
             bytes++;
             Universe.gasMap[x][y] = e;
+            gasColorArray[x + y * w] = e;
         }
     }
 
@@ -1184,8 +1190,6 @@ window.addEventListener('mouseup', e => {
 
 //#region GAS
 
-let gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
-let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
 let gasColorMap = new ColorGraph([0x161A1C, 0xa04060]);
@@ -1199,149 +1203,73 @@ gasColorMap = new ColorGraph([0x397367, 0x63ccca, 0x5da399, 0x42858c, 0x35393c,]
 
 //gasColorMap = new ColorGraph([0xedcb96,0xf7c4a5,0x9e7682,0x605770,0x4d4861]);
 
-
-let gasParticles = [];
-let gasDisplay = [];
-let avalible = [];
-
-let gasCollector = false;
-let gasSprite = new PIXI.Sprite();
-app.stage.addChild(gasSprite);
-gasSprite.visible = false
-function gasParticleChunksDisplay(dt) {
+let gasSprite;
+let gasTime = 0;
+function gasUpdate(dt) {
     if (gasLoaded) {
+        gasTime +=dt;
+        gasSprite.scale.x = screen.width;
+        gasSprite.scale.y = screen.height;
 
-        gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 3);
-        gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 3);
-        let buffer = new Float32Array((gasCamWidth + 1) * (gasCamHeight + 1) * 4);
-        let gasPosX;
-        let gasPosY;
-        if (detachCamera) {
-            gasPosX = localPlayer.ship.position.x / gasParticleSpacing;
-            gasPosY = localPlayer.ship.position.y / gasParticleSpacing;
-        } else {
-            gasPosX = camera.x / gasParticleSpacing;
-            gasPosY = camera.y / gasParticleSpacing;
-        }
+        const mapPixelWidth = gasSize.width * gasParticleSpacing;
+        const mapPixelHeight = gasSize.width * gasParticleSpacing;
+        gasSprite.material.uniforms.rectangle = [
+            (camera.x - screen.width/2 / camera.zoom) / mapPixelWidth,
+            (camera.y - screen.height/2 / camera.zoom) / mapPixelHeight,
+            (screen.width / camera.zoom) / mapPixelWidth,
+            (screen.height / camera.zoom) / mapPixelHeight,
+        ];
 
-        let gasOffsetX = Math.floor(gasPosX) - gasPosX;
-        let gasOffsetY = Math.floor(gasPosY) - gasPosY;
+        gasSprite.material.uniforms.time = gasTime;
 
-        gasPosX = Math.max(Math.min(Math.floor(gasPosX), 1000 - 1), 0);
-        gasPosY = Math.max(Math.min(Math.floor(gasPosY), 1000 - 1), 0);
-        gasHere = Universe.gasMap[gasPosX][gasPosY];
-
-        if (gasCollector) {
-            for (let i = 0; i < gasParticles.length; i++) {
-                const g = gasParticles[i];
-
-                let gX = Math.floor(g.x / gasParticleSpacing);
-                let gY = Math.floor(g.y / gasParticleSpacing);
-                // mimo obrazovke
-                if (gX > gasPosX + gasCamWidth / 2 ||
-                    gX < gasPosX - gasCamWidth / 2 ||
-                    gY > gasPosY + gasCamHeight / 2 ||
-                    gY < gasPosY - gasCamHeight / 2
-                ) { // zneviditelint
-                    avalible.push(g);
-                    gasDisplay[gX][gY] = false;
-                    g.visible = false;
-                }
-            }
-            gasCollector = false;
-        }
-
-
-        let index = 0;
-        for (let py = Math.max(gasPosY - Math.floor(gasCamHeight / 2) - 2, 0); py < gasPosY + Math.floor(gasCamHeight / 2) + 2; py++) {
-            for (let px = Math.max(gasPosX - Math.floor(gasCamWidth / 2) - 2, 0); px < gasPosX + Math.floor(gasCamWidth / 2) + 2; px++) {
-                if (px >= 1000 || py >= 1000) {
-                    continue;
-                }
-                if (
-                    px < gasPosX - gasCamWidth / 2 ||
-                    py < gasPosY - gasCamHeight / 2 ||
-                    px > gasPosX + gasCamWidth / 2 ||
-                    py > gasPosY + gasCamHeight / 2
-                ) {
-                    let g = gasDisplay[px][py];
-                    if (g) {
-                        avalible.push(g);
-                        g.visible = false;
-                        gasDisplay[px][py] = false;
-                    }
-                } else {
-                    let clr = Universe.gasMap[px][py] / 100;
-                    buffer[index++] = clr;
-                    buffer[index++] = clr;
-                    buffer[index++] = clr;
-                    buffer[index++] = 1;
-                    if (!gasDisplay[px][py]) {
-                        let g = avalible.shift();
-                        if (visibleGasUpdate(px, py, g)) {
-                            g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random()*0, py * gasParticleSpacing + gasParticleSpacing * Math.random()*0);
-                        } else {
-                            gasCollector = true;
-                        }
-                    } else {
-                        let g = gasDisplay[px][py];
-                        //g.rotation += g.valueCache * 0.01 * dt;
-                    }
-                }
-            }
-        }
-
-        gasSprite.x = (gasOffsetX-3) * gasParticleSpacing * camera.zoom;
-        gasSprite.y = (gasOffsetY-3) * gasParticleSpacing * camera.zoom;
-        gasSprite.scale.x = screen.width/(gasCamWidth - 5);
-        gasSprite.scale.y = screen.height/(gasCamHeight - 5);
-        gasSprite.texture = PIXI.Texture.fromBuffer(buffer, gasCamWidth + 1, gasCamHeight + 1);
+        gasHere = Universe.gasMap[Math.floor(camera.x/gasParticleSpacing)][Math.floor(camera.y/gasParticleSpacing)];
     }
 }
 
-function visibleGasUpdate(x, y, g) {
-    if (g != undefined) {
-        let e = Universe.gasMap[x][y];
-        g.alpha = e / 200 + 0.5;
-        g.visible = true;
-        gasDisplay[x][y] = g;
-        if (e != g.valueCache) {
-            g.valueCache = e;
-            g.tint = gasColorMap.evaluate(Math.floor(e/10)/10);
-        }
-        return true;
-    }
-}
 
 function generateGas() {
     console.log("generating");
 
     document.getElementById("loadingBar").style.transition = "width .2s";
 
-
-    for (let i = 0; i < 2000; i++) {
-        let gasParticle = new PIXI.Sprite(loader.resources.square600.texture);
-
-        gasParticles[i] = gasParticle;
-
-        gasParticle.anchor.set(0.53);
-        gasParticle.scale.set(0.57);
-        gasParticle.rotation = 0;// Math.random() * 6.28;
-        gasParticle.visible = false;
-
-        avalible.push(gasParticle);
-
-        gasContainer.addChild(gasParticle);
-
-        gasCount++;
+    let colorMapBuffer = new Uint8Array(300);
+    for (let i = 0; i < 300; i+=3) {
+        colorMapBuffer[i+0] = Math.floor(gasColorMap.red.evaluate(i/300));
+        colorMapBuffer[i+1] = Math.floor(gasColorMap.green.evaluate(i/300));
+        colorMapBuffer[i+2] = Math.floor(gasColorMap.blue.evaluate(i/300));
     }
 
-    for (let x = 0; x < 1000; x++) {
-        gasDisplay[x] = [];
-        for (let y = 0; y < 1000; y++) {
-            gasDisplay[x][y] = false;
-        }
-    }
+    let colorMap = new PIXI.Texture(PIXI.BaseTexture.fromBuffer(colorMapBuffer, 100, 1, {
+        scaleMode: PIXI.settings.SCALE_MODE.NEAREST,
+        format: PIXI.FORMATS.RGB
+    }));
+
+    let gasProg = new PIXI.Program.from(shadeVertCode, gasFragCode);
+    let uniforms = {
+        rectangle: [0, 0, 0, 0],
+        time: 0,
+        uMapSampler: colorMap
+    };
+
+    let material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
+        program: gasProg,
+        uniforms: uniforms
+    });
+
+    let geometry = new PIXI.Geometry();
+    geometry.addAttribute('aVertexPosition', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+    geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+    geometry.addIndex([0, 1, 2, 2, 3, 0]);
+
+    gasSprite = new PIXI.Mesh(geometry, material);
+    gasSprite.scale.x = screen.width;
+    gasSprite.scale.y = screen.height;
+    app.stage.addChild(gasSprite);
+
+    gasSprite.texture = new PIXI.Texture(PIXI.BaseTexture.fromBuffer(gasColorArray, gasSize.width, gasSize.height, {
+        scaleMode: PIXI.settings.SCALE_MODE.LINEAR,
+        format: PIXI.FORMATS.ALPHA
+    }));
 
     closeLoadingScreen();
     gasLoaded = true;
