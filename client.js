@@ -1199,13 +1199,8 @@ gasColorMap = new ColorGraph([0x397367, 0x63ccca, 0x5da399, 0x42858c, 0x35393c,]
 
 //gasColorMap = new ColorGraph([0xedcb96,0xf7c4a5,0x9e7682,0x605770,0x4d4861]);
 
-/**
- * @type {GasSprite[]}
- */
+
 let gasParticles = [];
-/**
- * @type {GasSprite[]}
- */
 let gasDisplay = [];
 let avalible = [];
 
@@ -1281,51 +1276,38 @@ function gasParticleChunksDisplay(dt) {
                     buffer[index++] = clr;
                     buffer[index++] = clr;
                     buffer[index++] = 1;
-
-                    let a = Universe.gasMap[px][py]/100;
-                    let b = Universe.gasMap[px + 1][py]/100;
-                    let c = Universe.gasMap[px + 1][py + 1]/100;
-                    let d = Universe.gasMap[px][py + 1]/100;
                     if (!gasDisplay[px][py]) {
                         let g = avalible.shift();
                         if (visibleGasUpdate(px, py, g)) {
-                            g.mesh.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random() * 0, py * gasParticleSpacing + gasParticleSpacing * Math.random() * 0);
-                            g.update(a, b, c, d);
+                            g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random()*0, py * gasParticleSpacing + gasParticleSpacing * Math.random()*0);
                         } else {
                             gasCollector = true;
                         }
                     } else {
                         let g = gasDisplay[px][py];
-
-
-                        if (a != g.valueCache) {
-                            g.valueCache = a;
-                            g.mesh.tint = gasColorMap.evaluate(a / 100);
-                            g.update(a, b, c, d);
-                        }
                         //g.rotation += g.valueCache * 0.01 * dt;
                     }
                 }
             }
         }
-        /*
-                gasSprite.x = (gasOffsetX - 3) * gasParticleSpacing * camera.zoom;
-                gasSprite.y = (gasOffsetY - 3) * gasParticleSpacing * camera.zoom;
-                gasSprite.scale.x = screen.width / (gasCamWidth - 5);
-                gasSprite.scale.y = screen.height / (gasCamHeight - 5);
-                gasSprite.texture = PIXI.Texture.fromBuffer(buffer, gasCamWidth + 1, gasCamHeight + 1);*/
+
+        gasSprite.x = (gasOffsetX-3) * gasParticleSpacing * camera.zoom;
+        gasSprite.y = (gasOffsetY-3) * gasParticleSpacing * camera.zoom;
+        gasSprite.scale.x = screen.width/(gasCamWidth - 5);
+        gasSprite.scale.y = screen.height/(gasCamHeight - 5);
+        gasSprite.texture = PIXI.Texture.fromBuffer(buffer, gasCamWidth + 1, gasCamHeight + 1);
     }
 }
 
 function visibleGasUpdate(x, y, g) {
     if (g != undefined) {
         let e = Universe.gasMap[x][y];
-        g.mesh.alpha = e / 200 + 0.5;
-        g.mesh.visible = true;
+        g.alpha = e / 200 + 0.5;
+        g.visible = true;
         gasDisplay[x][y] = g;
         if (e != g.valueCache) {
             g.valueCache = e;
-            g.mesh.tint = gasColorMap.evaluate(e / 100);
+            g.tint = gasColorMap.evaluate(Math.floor(e/10)/10);
         }
         return true;
     }
@@ -1338,14 +1320,18 @@ function generateGas() {
 
 
     for (let i = 0; i < 2000; i++) {
-        let gasParticle = new GasSprite(gasParticleSpacing);
+        let gasParticle = new PIXI.Sprite(loader.resources.square600.texture);
 
         gasParticles[i] = gasParticle;
-        gasParticle.mesh.visible = false;
+
+        gasParticle.anchor.set(0.53);
+        gasParticle.scale.set(0.57);
+        gasParticle.rotation = 0;// Math.random() * 6.28;
+        gasParticle.visible = false;
 
         avalible.push(gasParticle);
 
-        gasContainer.addChild(gasParticle.mesh);
+        gasContainer.addChild(gasParticle);
 
         gasCount++;
     }

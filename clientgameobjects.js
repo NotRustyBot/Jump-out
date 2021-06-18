@@ -141,7 +141,6 @@ let gasProg = new PIXI.Program.from(shadeVertCode, gasFragCode);
 function GasSprite(size) {
     this.uniforms = {
         corners: [0, 0, 0, 0],
-        tint: [0, 0, 0, 0],
     };
 
     this.material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
@@ -155,10 +154,8 @@ function GasSprite(size) {
     this.geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
     this.geometry.addIndex([0, 1, 2, 2, 3, 0]);
 
-    this.mesh = new PIXI.Mesh(this.geometry, this.material);
-        
     this.update = function(a,b,c,d) {
-        this.material.uniforms.corners = [a,b,c,d];        
+        this.material.uniforms.corners = [a,b,c,d];
     }
 }
 
