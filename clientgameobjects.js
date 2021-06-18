@@ -136,12 +136,33 @@ function DroppedItem(type, id, stack, targetPos, sourcePos) {
 }
 DroppedItem.list = new Map();
 
+let gasProg = new PIXI.Program.from(shadeVertCode, gasFragCode);
+
+function GasSprite(size) {
+    this.uniforms = {
+        corners: [0, 0, 0, 0],
+    };
+
+    this.material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
+        program: gasProg,
+        uniforms: this.uniforms
+    });
+
+    size = size/2;
+    this.geometry = new PIXI.Geometry();
+    this.geometry.addAttribute('aVertexPosition', [-size, -size, size, -size, size, size, -size, size], 2);
+    this.geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+    this.geometry.addIndex([0, 1, 2, 2, 3, 0]);
+
+    this.update = function(a,b,c,d) {
+        this.material.uniforms.corners = [a,b,c,d];
+    }
+}
 
 let sunDirection = [1, 0];
 let prog = new PIXI.Program.from(shadeVertCode, shadeFragCode);
 
 function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
-    this.container = new PIXI.Container();
     this.parent = parent;
     this.sizeObject = sizeObject;
 
@@ -198,13 +219,13 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
         } else {
             if (!isOnScreen(this.parent.position, Math.max(this.mesh.width, this.mesh.height))) {
                 this.mesh.visible = false;
-            }else{
+            } else {
                 this.mesh.visible = true;
             }
 
             this.mesh.position.set(this.parent.position.x, this.parent.position.y);
 
-            if (!disableShadow){
+            if (!disableShadow) {
                 this.shadow.visible = true;
                 this.shadow.position.set(this.parent.position.x, this.parent.position.y);
                 if (!source.directional) {
@@ -218,7 +239,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             if (!this.mesh.visible) return;
 
         }
-            
+
         let distanceRatio;
         if (!source.directional) {
             distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.mesh.y, 2) + Math.pow(source.position.x - this.mesh.x, 2));
@@ -227,7 +248,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             this.material.uniforms.lightDir = source.rotation;
             distanceRatio = 1;
         }
-        
+
         this.mesh.rotation = this.parent.rotation;
         this.material.uniforms.rotation = this.mesh.rotation;
 
@@ -236,7 +257,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     }
 
     this.remove = function () {
-        this.container.destroy();
+        this.mesh.destroy();
         if (!disableShadow)
             this.shadow.destroy();
     }
@@ -381,7 +402,7 @@ function Player(id, type) {
         rotationSpeed: new Ramp(-2, 2)
     });*/
     //entityContainer.addChild(this.sprite);
-    this.nameText = new PIXI.Text(this.nick + this.id, { fontFamily: "Montserrat", fontSize: 30, fill: 0xFFFFFF, align: "center" });
+    this.nameText = new PIXI.Text(this.nick + this.id, { fontFamily: "Montserrat", fontSize: 60, fill: 0xffffff, align: "center" });
     effectsContainer.addChild(this.nameText);
     this.nameText.anchor.set(0.5);
     this.delete = function () {
