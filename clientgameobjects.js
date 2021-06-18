@@ -136,29 +136,6 @@ function DroppedItem(type, id, stack, targetPos, sourcePos) {
 }
 DroppedItem.list = new Map();
 
-let gasProg = new PIXI.Program.from(shadeVertCode, gasFragCode);
-
-function GasSprite(size) {
-    this.uniforms = {
-        corners: [0, 0, 0, 0],
-    };
-
-    this.material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
-        program: gasProg,
-        uniforms: this.uniforms
-    });
-
-    size = size/2;
-    this.geometry = new PIXI.Geometry();
-    this.geometry.addAttribute('aVertexPosition', [-size, -size, size, -size, size, size, -size, size], 2);
-    this.geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
-    this.geometry.addIndex([0, 1, 2, 2, 3, 0]);
-
-    this.update = function(a,b,c,d) {
-        this.material.uniforms.corners = [a,b,c,d];
-    }
-}
-
 let sunDirection = [1, 0];
 let prog = new PIXI.Program.from(shadeVertCode, shadeFragCode);
 
