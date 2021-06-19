@@ -405,6 +405,7 @@ function Player(id, type) {
         minimarker.bigSprite.destroy();
         scannedObjects.delete(-this.id - 1);
         Player.players.delete(this.id);
+        this.ship.sprite.remove();
     }
     //this.lensFlare = new LensFlare(this.ship);
 
