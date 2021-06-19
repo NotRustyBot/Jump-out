@@ -168,7 +168,10 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
 
     this.mesh = new PIXI.Mesh(this.geometry, this.material);
 
-    
+    /*
+    if(isPlayer)
+    this.mesh.filters = [new PIXI.filters.OutlineFilter(5,shipMarkerColors[parent.player.id % 4],.3)];
+    */
 
     if (!disableShadow)
         this.shadow = new PIXI.Sprite(loader.resources["shadow"].texture);
