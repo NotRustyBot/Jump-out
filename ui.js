@@ -136,7 +136,7 @@ function generateInventory() {
             }
             else {
                 section = inventorySpecialSections[1];
-                container.style.flexDirection = "rowReverse";
+                container.style.flexDirection = "row-reverse";
                 divNum.classList.add("slotsRight");
             }
             spanNum.textContent = "000";

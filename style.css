@@ -602,6 +602,9 @@ body {
 }
 
 .inventoryCell {
+    height: calc(var(--ui-scale)*200px);
+    width: calc(var(--ui-scale)*200px);
+    box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: center;
