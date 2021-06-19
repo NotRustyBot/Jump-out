@@ -86,6 +86,7 @@ objectDictionary[1] = { name: "asteroid1", size: 3 };
 objectDictionary[2] = { name: "asteroid2", size: 3 };
 objectDictionary[3] = { name: "asteroid3", size: 3 };
 objectDictionary[4] = { name: "asteroid4", size: 3 };
+objectDictionary[5] = { name: "shape", size: 3 };
 objectDictionary[101] = { name: "r300", size: 3 };
 objectDictionary[102] = { name: "r300", size: 3 };
 
@@ -150,17 +151,30 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     this.sizeObject = sizeObject;
     this.hidden = false;
 
-    this.uniforms = {
-        uOutlineSampler: loader.resources[prefix + "_outline"].texture,
-        uDarkSampler: loader.resources[prefix + "_dark"].texture,
-        lightDir: [1, 0],
-        rotation: 0
-    };
+    if (loader.resources.includes == prefix + "_base") {
+        this.uniforms = {
+            uOutlineSampler: loader.resources[prefix + "_outline"].texture,
+            uDarkSampler: loader.resources[prefix + "_dark"].texture,
+            lightDir: [1, 0],
+            rotation: 0
+        };
+        this.material = new PIXI.MeshMaterial(loader.resources[prefix + "_base"].texture, {
+            program: prog,
+            uniforms: this.uniforms
+        });
+    }else{
+        this.uniforms = {
+            uOutlineSampler: loader.resources[prefix].texture,
+            uDarkSampler: loader.resources[prefix].texture,
+            lightDir: [1, 0],
+            rotation: 0
+        };
+        this.material = new PIXI.MeshMaterial(loader.resources[prefix].texture, {
+            program: prog,
+            uniforms: this.uniforms
+        });
+    }
 
-    this.material = new PIXI.MeshMaterial(loader.resources[prefix + "_base"].texture, {
-        program: prog,
-        uniforms: this.uniforms
-    });
 
     this.geometry = new PIXI.Geometry();
 
