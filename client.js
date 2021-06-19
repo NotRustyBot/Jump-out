@@ -1105,9 +1105,6 @@ function handleInput() {
     } else if (keyDown.e) {
         actionIDs.push(1);
         keyDown.e = false;
-    } else if (keyDown.q) {
-        actionIDs.push(4);
-        keyDown.q = false;
     } else if (keyDown.c) {
         keyDown.c = false;
         if (detachCamera) {
@@ -1190,14 +1187,39 @@ window.addEventListener("wheel", e => {
 });
 
 let mapDragging = false;
+let marking = false;
+let markerObject = {};
 bigmap_canvas.addEventListener('mousedown', e => {
-    mapDragging = true;
+    if (e.button == 1) {
+        markerObject = {
+            position: new Vector(
+                ((e.offsetX - 400) / big_mapDrag * big_mapControl.zoom + big_mapControl.x) * gasParticleSpacing,
+                ((e.offsetY - 400) / big_mapDrag * big_mapControl.zoom + big_mapControl.y) * gasParticleSpacing),
+            parameter: new Vector(0, 0), type: 1
+        }
+        actionIDs.push(4);
+        e.preventDefault();
+        marking = true;
+    } else {
+        mapDragging = true;
+    }
 });
 
 bigmap_canvas.addEventListener('mousemove', e => {
-    if (mapDragging === true) {
-        big_mapControl.x -= e.movementX / big_mapDrag * big_mapControl.zoom;
-        big_mapControl.y -= e.movementY / big_mapDrag * big_mapControl.zoom;
+    if (marking) {
+        markerObject = {
+            position: new Vector(
+                ((e.offsetX - 400) / big_mapDrag * big_mapControl.zoom + big_mapControl.x) * gasParticleSpacing,
+                ((e.offsetY - 400) / big_mapDrag * big_mapControl.zoom + big_mapControl.y) * gasParticleSpacing),
+            parameter: new Vector(0, 0), type: 1
+        }
+        actionIDs.push(4);
+        e.preventDefault();
+    } else {
+        if (mapDragging === true) {
+            big_mapControl.x -= e.movementX / big_mapDrag * big_mapControl.zoom;
+            big_mapControl.y -= e.movementY / big_mapDrag * big_mapControl.zoom;
+        }
     }
 });
 
@@ -1205,6 +1227,7 @@ window.addEventListener('mouseup', e => {
     if (mapDragging === true) {
         mapDragging = false;
     }
+    marking = false;
 });
 
 //#endregion
@@ -1299,7 +1322,7 @@ function generateGas() {
 function gasShader(gasFrag) {
     gasSprite.material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
         uniforms: gasSprite.material,
-        program: new PIXI.Program(shadeVertCode,gasFrag)
+        program: new PIXI.Program(shadeVertCode, gasFrag)
     });
 }
 

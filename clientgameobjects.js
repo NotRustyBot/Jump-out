@@ -320,7 +320,7 @@ Actions.SwapSlots = function (view) {
 Actions.CreateMarker = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.CreateMarker }, Datagrams.SmartAction);
-    view.serialize({ position: localPlayer.ship.position, parameter: new Vector(0,0), type: 1 }, SmartActionData[ActionId.CreateMarker]);
+    view.serialize(markerObject, SmartActionData[ActionId.CreateMarker]);
 }
 
 ShipType = defineShips(Actions);
