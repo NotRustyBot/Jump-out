@@ -271,8 +271,8 @@ function Ship(type, player) {
     this.sprite = new ShadedSprite(this, type.name, { size: this.stats.spriteSize }, true);
 
     let minimarker = { position: this.position, type: 100 };
-    minimarker.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
-    minimarker.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+    minimarker.bigSprite = new PIXI.Sprite(loader.resources["marker_arrow"].texture);
+    minimarker.miniSprite = new PIXI.Sprite(loader.resources["marker_arrow"].texture);
     minimarker.bigSprite.tint = shipMarkerColors[this.player.id % 4];
     minimarker.miniSprite.tint = shipMarkerColors[this.player.id % 4];
     pixi_minimap.stage.addChild(minimarker.miniSprite);
@@ -288,7 +288,10 @@ function Ship(type, player) {
 
         this.rotation += this.rotationSpeed * dt;
 
-        scannedObjects.get(-this.player.id - 1).position = this.position;
+        let mark = scannedObjects.get(-this.player.id - 1);
+        mark.position = this.position;
+        mark.bigSprite.rotation = this.rotation;
+        mark.miniSprite.rotation = this.rotation;
 
         this.sprite.update(lightObject);
     };
@@ -896,18 +899,20 @@ function Marker(id, position, type, playerId, parameter) {
     this.playerId = playerId;
     this.parameter = parameter;
 
-    this.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
-    this.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+    this.bigSprite = new PIXI.Sprite(loader.resources["marker_ping"].texture);
+    this.miniSprite = new PIXI.Sprite(loader.resources["marker_ping"].texture);
     this.bigSprite.tint = 0xffaa00;
     this.miniSprite.tint = 0xffaa00;
     pixi_minimap.stage.addChild(this.miniSprite);
     bigMapApp.stage.addChild(this.bigSprite);
 
-    this.miniSprite.anchor.set(0.5);
-    this.bigSprite.anchor.set(0.5);
+    this.miniSprite.anchor.x = 0.5;
+    this.miniSprite.anchor.y = 1;
+    this.bigSprite.anchor.x = 0.5;
+    this.bigSprite.anchor.y = 1;
 
-    this.miniSprite.scale.set(2);
-    this.bigSprite.scale.set(2);
+    //this.miniSprite.scale.set(2);
+    //this.bigSprite.scale.set(2);
 
     this.miniSprite.alpha = 0.3;
     this.bigSprite.alpha = 0.3;

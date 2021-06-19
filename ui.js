@@ -483,6 +483,7 @@ min_powercells.addEventListener("click", () => {
 });
 
 let pixi_minimap = new PIXI.Application({
+    antialias: true,
     view: minimap_canvas,
     width: 350, height: 350,
 });
@@ -502,7 +503,7 @@ let minimapControl = { zoom: 3, density: 25, minZoom: 1, maxZoom: 10, zoomStep: 
 
 for (let x = 0; x < minimapControl.density; x++) {
     for (let y = 0; y < minimapControl.density; y++) {
-        let gasPX = new PIXI.Sprite.from("images/minimap/circle.png");
+        let gasPX = new PIXI.Sprite.from("images/ui/minimap/marker_circleFull.png");
         gasPX.position.x = x * (350 / minimapControl.density);
         gasPX.position.y = y * (350 / minimapControl.density);
         gasPXs[x * minimapControl.density + y] = gasPX;
@@ -544,16 +545,15 @@ function UpdateMinimap(deltaTime) {
             let lxa = Math.floor(lx);
             let lya = Math.floor(ly);
 
-            gasPX.position.x = (x + 0.5) * (minimap_canvas.width / minimapControl.density) - xoffset;
-            gasPX.position.y = (y + 0.5) * (minimap_canvas.width / minimapControl.density) - yoffset;
+            gasPX.position.x = Math.floor((x + 0.5) * (minimap_canvas.width / minimapControl.density) - xoffset);
+            gasPX.position.y = Math.floor((y + 0.5) * (minimap_canvas.width / minimapControl.density) - yoffset);
 
             if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
-                gasPX.scale.set(0.3);
-                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 4 + 0.3);
+                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 8 + 0.1);
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(Math.floor(scannedGas[lxa * 1000 / minimapScale + lya] / 20) / 5);
+                gasPX.scale.set(scannedGas[lxa * 1000 / minimapScale + lya] / 200);
             }
         }
     }
@@ -588,7 +588,7 @@ let big_gasPXs = [];
 let big_mapControl = { zoom: 3, density: 60, minZoom: 1, maxZoom: 13, zoomStep: 1.1, x: 500, y: 500 };
 for (let x = 0; x < big_mapControl.density; x++) {
     for (let y = 0; y < big_mapControl.density; y++) {
-        let gasPX = new PIXI.Sprite.from("images/minimap/circle.png");
+        let gasPX = new PIXI.Sprite.from("images/ui/minimap/marker_circleFull.png");
         gasPX.position.x = (x + 0.5) * (bigmap_canvas.width / big_mapControl.density);
         gasPX.position.y = (y + 0.5) * (bigmap_canvas.height / big_mapControl.density);
         big_gasPXs[x * big_mapControl.density + y] = gasPX;
@@ -632,12 +632,11 @@ function UpdateBigmap(deltaTime) {
             gasPX.position.y = (y + 0.5) * (bigmap_canvas.width / big_mapControl.density) - yoffset;
 
             if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
-                gasPX.scale.set(0.3);
-                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 4 + 0.3);
+                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 8 + 0.1);
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(scannedGas[lxa * 1000 / minimapScale + lya] / 100);
+                gasPX.scale.set(scannedGas[lxa * 1000 / minimapScale + lya] / 200);
             }
         }
     }

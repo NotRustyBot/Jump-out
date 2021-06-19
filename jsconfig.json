@@ -9,5 +9,6 @@
         "ui.js",
         "shipTypes.js",
         "inventory.js",
+        "loader.js",
       ]
   }
