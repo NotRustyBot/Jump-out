@@ -354,6 +354,9 @@ function graphicsUpdate(deltaTimeFactor) {
 
         sunAngle += deltaTime * 0.1;
         sunDirection = [Math.cos(sunAngle), Math.sin(sunAngle)];
+
+        //gameContainer.filters = [new PIXI.filters.MotionBlurFilter(localPlayer.ship.velocity.result().mult(Math.pow(camera.zoom,2)*0.05),13)];
+        //gameContainer.filters = [new PIXI.filters.AdvancedBloomFilter({threshold:0.7,blur:10,quality:20})];
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
     }
 }
