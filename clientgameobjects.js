@@ -100,6 +100,7 @@ function Entity(type, id) {
     this.sprite = new ShadedSprite(this, objectDictionary[this.type].name, objectDictionary[this.type]);
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
+        this.sprite.hidden = (this.level != localPlayer.ship.level);
         this.sprite.update(lightObject);
     };
 
@@ -110,9 +111,10 @@ function Entity(type, id) {
 }
 Entity.list = new Map();
 
-function DroppedItem(type, id, stack, targetPos, sourcePos) {
+function DroppedItem(type, id, stack, targetPos, sourcePos, level) {
     this.animSpeed = 4;
     this.animProgress = 1;
+    this.level = level;
     this.sourcePos = sourcePos.result();
     this.targetPos = targetPos.result();
     this.position = sourcePos.result();
@@ -128,6 +130,7 @@ function DroppedItem(type, id, stack, targetPos, sourcePos) {
             this.rotation = (1 - this.animProgress) * this.targetRotation;
             this.position = sourcePos.lerp(targetPos, 1 - (this.animProgress));
         }
+        this.sprite.hidden = (this.level != localPlayer.ship.level);
         this.sprite.update(lightObject);
     };
 
@@ -144,6 +147,7 @@ let prog = new PIXI.Program.from(shadeVertCode, shadeFragCode);
 function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     this.parent = parent;
     this.sizeObject = sizeObject;
+    this.hidden = false;
 
     this.uniforms = {
         uOutlineSampler: loader.resources[prefix + "_outline"].texture,
@@ -190,6 +194,12 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
         shadowContainer.addChild(this.shadow);
 
     this.update = function (source) {
+        if (this.hidden) {
+            this.mesh.visible = false;
+            if (!disableShadow)
+                this.shadow.visible = false;
+            return;
+        }
         let rotation;
         if (!isOnScreen(this.parent.position, 5000)) {
             if (!disableShadow)
@@ -257,6 +267,7 @@ function Ship(type, player) {
     /**@type {ShipType}*/
     this.stats = type;
     console.log(type);
+    this.level = 0;
     this.inventory = new Inventory(this.stats.cargoCapacity, this.player.id, this.stats.inventory);
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
@@ -290,12 +301,17 @@ function Ship(type, player) {
 
         this.rotation += this.rotationSpeed * dt;
 
-        let mark = scannedObjects.get(-this.player.id - 1);
-        mark.position = this.position;
-        mark.bigSprite.rotation = this.rotation;
-        mark.miniSprite.rotation = this.rotation;
+        if (this.level == 0) {
+            let mark = scannedObjects.get(-this.player.id - 1);
+            mark.position = this.position;
+            mark.bigSprite.rotation = this.rotation;
+            mark.miniSprite.rotation = this.rotation; 
+        }
+
+        this.sprite.hidden = (this.level != localPlayer.ship.level);
 
         this.sprite.update(lightObject);
+        
     };
 }
 
@@ -904,8 +920,8 @@ function Marker(id, position, type, playerId, parameter) {
 
     this.bigSprite = new PIXI.Sprite(loader.resources["marker_ping"].texture);
     this.miniSprite = new PIXI.Sprite(loader.resources["marker_ping"].texture);
-    this.bigSprite.tint = 0xffaa00;
-    this.miniSprite.tint = 0xffaa00;
+    this.bigSprite.tint = shipMarkerColors[playerId % 4];
+    this.miniSprite.tint = shipMarkerColors[playerId % 4];
     pixi_minimap.stage.addChild(this.miniSprite);
     bigMapApp.stage.addChild(this.bigSprite);
 
@@ -916,9 +932,6 @@ function Marker(id, position, type, playerId, parameter) {
 
     //this.miniSprite.scale.set(2);
     //this.bigSprite.scale.set(2);
-
-    this.miniSprite.alpha = 0.3;
-    this.bigSprite.alpha = 0.3;
 
     Marker.list.set(this.id, this);
 

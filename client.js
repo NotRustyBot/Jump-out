@@ -486,7 +486,9 @@ function updateParticles(deltaTime) {
 function updateTrails(deltaTime) {
     graphics.clear();
     Trail.trails.forEach(trail => {
-        trail.update(deltaTime);
+        if (trail.emitter.level == localPlayer.ship.level) {
+            trail.update(deltaTime);
+        }
     });
 }
 
@@ -864,8 +866,8 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
-    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position, temp.source);
-    //id, position, item, stack
+    console.log(temp);
+    let newItem = new DroppedItem(temp.item, temp.id, temp.stack, temp.position, temp.source, temp.level);
 }
 
 function parseItemRemove(view) {
@@ -1163,6 +1165,14 @@ let gasTime = 0;
 function gasUpdate(dt) {
     if (gasLoaded) {
         gasTime += dt;
+
+        if (localPlayer.ship.level == 0) {
+            gasSprite.visible = true;
+        }else{
+            gasSprite.visible = false;
+            return;
+        }
+
         gasSprite.scale.x = screen.width;
         gasSprite.scale.y = screen.height;
 
@@ -1177,7 +1187,11 @@ function gasUpdate(dt) {
 
         gasSprite.material.uniforms.time = gasTime;
 
-        gasHere = Universe.gasMap[Math.floor(camera.x / gasParticleSpacing)][Math.floor(camera.y / gasParticleSpacing)];
+        if (localPlayer.ship.level == 0) {
+            gasHere = Universe.gasMap[Math.floor(camera.x / gasParticleSpacing)][Math.floor(camera.y / gasParticleSpacing)];
+        }else{
+            gasHere = 0;
+        }
     }
 }
 

@@ -516,22 +516,28 @@ for (let x = 0; x < minimapControl.density; x++) {
 
 
 const minimapScale = 2;
+let minimapPosition = {x:0, y:0};
 function UpdateMinimap(deltaTime) {
     UpdateBigmap(deltaTime);
+    if (localPlayer.ship.level == 0) {
+        minimapPosition.x = localPlayer.ship.position.x;
+        minimapPosition.y = localPlayer.ship.position.y;
+    }
+
     if (!minimapShown) return;
     scannedObjects.forEach(e => {
-        e.miniSprite.position.x = (e.position.x - localPlayer.ship.position.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
-        e.miniSprite.position.y = (e.position.y - localPlayer.ship.position.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        e.miniSprite.position.x = (e.position.x - minimapPosition.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        e.miniSprite.position.y = (e.position.y - minimapPosition.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
     });
 
     Marker.list.forEach(m => {
-        m.miniSprite.position.x = (m.position.x - localPlayer.ship.position.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
-        m.miniSprite.position.y = (m.position.y - localPlayer.ship.position.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        m.miniSprite.position.x = (m.position.x - minimapPosition.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        m.miniSprite.position.y = (m.position.y - minimapPosition.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
 
     });
 
-    let xpos = localPlayer.ship.position.x / gasParticleSpacing / minimapScale / minimapControl.zoom;
-    let ypos = localPlayer.ship.position.y / gasParticleSpacing / minimapScale / minimapControl.zoom;
+    let xpos = minimapPosition.x / gasParticleSpacing / minimapScale / minimapControl.zoom;
+    let ypos = minimapPosition.y / gasParticleSpacing / minimapScale / minimapControl.zoom;
 
     let xoffset = (xpos - Math.floor(xpos)) * minimap_canvas.width / minimapControl.density;
     let yoffset = (ypos - Math.floor(ypos)) * minimap_canvas.height / minimapControl.density;
@@ -539,8 +545,8 @@ function UpdateMinimap(deltaTime) {
     for (let x = 0; x < minimapControl.density; x++) {
         for (let y = 0; y < minimapControl.density; y++) {
             let gasPX = gasPXs[x * minimapControl.density + y];
-            let lx = Math.floor(localPlayer.ship.position.x / gasParticleSpacing / minimapScale / minimapControl.zoom) * minimapControl.zoom - minimapControl.density / 2 * minimapControl.zoom + x * minimapControl.zoom;
-            let ly = Math.floor(localPlayer.ship.position.y / gasParticleSpacing / minimapScale / minimapControl.zoom) * minimapControl.zoom - minimapControl.density / 2 * minimapControl.zoom + y * minimapControl.zoom;
+            let lx = Math.floor(minimapPosition.x / gasParticleSpacing / minimapScale / minimapControl.zoom) * minimapControl.zoom - minimapControl.density / 2 * minimapControl.zoom + x * minimapControl.zoom;
+            let ly = Math.floor(minimapPosition.y / gasParticleSpacing / minimapScale / minimapControl.zoom) * minimapControl.zoom - minimapControl.density / 2 * minimapControl.zoom + y * minimapControl.zoom;
 
             let lxa = Math.floor(lx);
             let lya = Math.floor(ly);
