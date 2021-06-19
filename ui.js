@@ -545,15 +545,23 @@ function UpdateMinimap(deltaTime) {
             let lxa = Math.floor(lx);
             let lya = Math.floor(ly);
 
-            gasPX.position.x = Math.floor((x + 0.5) * (minimap_canvas.width / minimapControl.density) - xoffset);
-            gasPX.position.y = Math.floor((y + 0.5) * (minimap_canvas.width / minimapControl.density) - yoffset);
+            gasPX.position.x = (x + 0.5) * (minimap_canvas.width / minimapControl.density) - xoffset;
+            gasPX.position.y = (y + 0.5) * (minimap_canvas.width / minimapControl.density) - yoffset;
 
             if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
-                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 8 + 0.1);
+                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 8 + 0.2);
                 gasPX.tint = 0x555555;
+                gasPX.alpha = 1;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(scannedGas[lxa * 1000 / minimapScale + lya] / 200);
+                let scale = scannedGas[lxa * 1000 / minimapScale + lya] / 200;
+                if (scale < 0.2) {
+                    gasPX.scale.set(0.2);
+                    gasPX.alpha = scale*5;
+                }else{
+                    gasPX.scale.set(scale);
+                    gasPX.alpha = 1;
+                }
             }
         }
     }

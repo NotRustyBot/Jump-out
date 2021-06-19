@@ -222,7 +222,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
         let distanceRatio;
         if (!source.directional) {
             distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.mesh.y, 2) + Math.pow(source.position.x - this.mesh.x, 2));
-            this.material.uniforms.lightDir = [source.position.y - this.mesh.y, source.position.x - this.mesh.x];
+            this.material.uniforms.lightDir = [source.position.x - this.mesh.x, source.position.y - this.mesh.y];
         } else {
             this.material.uniforms.lightDir = source.rotation;
             distanceRatio = 1;
