@@ -26,13 +26,15 @@ void main(void)
     vec2 pos=coords.xy-vec2(.5,.5);
     //vec2 normLight=vec2(cos(_LightAngle),sin(_LightAngle));
     vec2 normLight=normalize(lightDir);
-    float light = dot(pos, rot*normLight) + 0.5;
+    float light = dot(pos, rot*normLight)*1.5+0.5;
+    light = max(0.,min(1.,light));
     
     base*=light;
     dark*=1.-light;
     outline*=pow(light,5.);
     
     fragColor=base+dark+outline;
+    //fragColor = vec4(light,light,light,1);
 }
 
 `;
