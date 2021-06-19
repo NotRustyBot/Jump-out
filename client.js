@@ -375,6 +375,11 @@ gameContainer.addChild(screentangle);
 
 
 function updateCamera(deltaTime) {
+    if(!disconnectCamera){
+        if (camera.zoom > maxZoom) camera.zoom = maxZoom;
+        if (camera.zoom < minZoom) camera.zoom = minZoom;
+    }
+
     if (!detachCamera && !disconnectCamera) {
         camera.x = localPlayer.ship.position.x + localPlayer.ship.velocity.x / 10;
         camera.y = localPlayer.ship.position.y + localPlayer.ship.velocity.y / 10;
@@ -395,9 +400,8 @@ function updateCamera(deltaTime) {
     gameContainer.x = -camera.x * camera.zoom + window.innerWidth / 2;
     gameContainer.y = -camera.y * camera.zoom + window.innerHeight / 2;
 
-    if (camera.zoom > maxZoom) camera.zoom = maxZoom;
-    if (camera.zoom < minZoom) camera.zoom = minZoom;
 }
+
 
 function updateParticles(deltaTime) {
     if (running) {
@@ -1018,6 +1022,11 @@ function handleInput() {
     if (keyDown.a) controlVector.x = -1;
     if (keyDown.shift) controlVector.afterBurner = 1;
 
+    if (disconnectCamera && keyDown.arrowright) camera.x += 20/camera.zoom;
+    if (disconnectCamera && keyDown.arrowleft) camera.x -= 20/camera.zoom;
+    if (disconnectCamera && keyDown.arrowdown) camera.y += 20/camera.zoom;
+    if (disconnectCamera && keyDown.arrowup) camera.y -= 20/camera.zoom;
+
     if (keyDown.f) {
         actionIDs.push(0);
         keyDown.f = false;
@@ -1089,19 +1098,16 @@ window.addEventListener("wheel", e => {
         //var oldTargetZoom = targetZoom;
         let targetZoom = camera.zoom;
         if (e.deltaY < 0) {
-            if (targetZoom <= maxZoom) targetZoom *= zoomStep;
+            targetZoom *= zoomStep;
         }
         if (e.deltaY > 0) {
-            if (targetZoom >= minZoom) targetZoom /= zoomStep;
+             targetZoom /= zoomStep;
         }
         /*if (targetZoom != oldTargetZoom) {
             zoomDuration = 0;
             startZoom = zoom;
         }*/
         camera.zoom = targetZoom;
-
-        if (camera.zoom > maxZoom) camera.zoom = maxZoom;
-        if (camera.zoom < minZoom) camera.zoom = minZoom;
     }
 });
 
