@@ -555,7 +555,7 @@ function UpdateMinimap(deltaTime) {
                 let scale = scannedGas[lxa * 1000 / minimapScale + lya] / 200;
                 if (scale < 0.2) {
                     gasPX.scale.set(0.2);
-                    gasPX.alpha = Math.min(scale*5,0.2);
+                    gasPX.alpha = Math.max(scale*5,0.05);
                 }else{
                     gasPX.scale.set(scale);
                     gasPX.alpha = 1;
