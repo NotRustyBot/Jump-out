@@ -2,6 +2,7 @@
 let app = new PIXI.Application({
     antialias: true,
 });
+
 let loader = PIXI.Loader.shared;
 document.body.appendChild(app.renderer.view);
 
@@ -102,6 +103,14 @@ var screen = {
 };
 
 isOnScreen = function (position, size) {
+    if (detachCamera) {
+        return (
+            position.x + size > localPlayer.ship.position.x - screen.center.x / camera.zoom &&
+            position.x - size < localPlayer.ship.position.x + screen.center.x / camera.zoom &&
+            position.y + size > localPlayer.ship.position.y - screen.center.y / camera.zoom &&
+            position.y - size < localPlayer.ship.position.y + screen.center.y / camera.zoom
+        );
+    }
     return (
         position.x + size > camera.x - screen.center.x / camera.zoom &&
         position.x - size < camera.x + screen.center.x / camera.zoom &&
@@ -249,20 +258,6 @@ fpsText.style.fontFamily = "Overpass Mono";
 fpsText.position.set(110, 10);
 guiContainer.addChild(fpsText);
 
-
-var miniMap = new PIXI.Container();
-miniMap.pivot.set(0.5);
-miniMap.position.set(screen.width - 300, screen.height - 300);
-guiContainer.addChild(miniMap);
-
-//miniMapBG.anchor.set(0.5);
-
-
-var miniMapZoom = 300 / (5000 * 80);
-
-var mapGraphics = new PIXI.Graphics();
-//miniMap.addChild(mapGraphics);
-
 //#endregion
 
 /*
@@ -283,11 +278,6 @@ function start() {
 
     app.stage.addChild(gameContainer);
     app.stage.addChild(guiContainer);
-    var miniMapBG = new PIXI.Sprite(loader.resources.minimap.texture);
-    miniMapBG.anchor.set(0);
-    miniMapBG.scale.set(1);
-    //miniMapBG.position.set(-150);
-    miniMap.addChild(miniMapBG);
 
 
     app.ticker.add(graphicsUpdate);
@@ -392,6 +382,11 @@ let performanceData = {
     }
 }
 
+function updateAppend(dt) {
+
+}
+
+let sunAngle = 0;
 function graphicsUpdate(deltaTimeFactor) {
     if (running) {
 
@@ -410,15 +405,15 @@ function graphicsUpdate(deltaTimeFactor) {
         }
         averageFPS.shift();
         minFPS.shift();
+        performanceData.start();
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateTrails(deltaTime);
         updateCamera(deltaTime);
-        performanceData.start();
-        updateGui(deltaTime);
         performanceData.logAndNext();
-        performanceData.stop();
-
+        updateGui(deltaTime);
+        updateAppend(deltaTime);
+        performanceData.logAndNext();
 
         Player.players.forEach(player => {
             if (player.lensFlare)
@@ -433,14 +428,16 @@ function graphicsUpdate(deltaTimeFactor) {
             item.update(deltaTime);
         });
 
-
+        performanceData.logAndNext();
 
         //gasParticleContainers[5][5].visible = true;
-        gasParticleChunksDisplay();
+        gasUpdate(deltaTime);
+        performanceData.logAndNext();
+        performanceData.stop();
 
         sunAngle += deltaTime * 0.1;
+        sunDirection = [Math.cos(sunAngle), Math.sin(sunAngle)];
         //glitchEffect.scale.x = (Math.random()-0.5)*160;
-
     }
 }
 
@@ -448,19 +445,33 @@ function updatePlayers(deltaTime) {
     Player.players.forEach(player => {
         player.ship.update(deltaTime);
         player.nameText.x = player.ship.position.x;
-        player.nameText.y = player.ship.position.y - 80;
-        player.miniMapMarker.position.set(player.ship.position.x * miniMapZoom, player.ship.position.y * miniMapZoom);
+        player.nameText.y = player.ship.position.y - 180;
 
     });
-    localPlayer.miniMapMarker.rotation = localPlayer.ship.rotation + Math.PI / 2;
 }
 
 let detachCamera = false;
+let disconnectCamera = false;
+
+let screentangle = new PIXI.Graphics();
+gameContainer.addChild(screentangle);
+
 
 function updateCamera(deltaTime) {
-    if (!detachCamera) {
-        camera.x = localPlayer.ship.position.x;
-        camera.y = localPlayer.ship.position.y;
+    if (!detachCamera && !disconnectCamera) {
+        camera.x = localPlayer.ship.position.x + localPlayer.ship.velocity.x / 10;
+        camera.y = localPlayer.ship.position.y + localPlayer.ship.velocity.y / 10;
+    }
+
+    screentangle.visible = false;
+    if (detachCamera) {
+        screentangle.visible = true;
+        screentangle.clear();
+        screentangle.lineStyle(10, 0xffaa00);
+        screentangle.drawRect(localPlayer.ship.position.x - screen.center.x / camera.zoom,
+            localPlayer.ship.position.y - screen.center.y / camera.zoom,
+            screen.width / camera.zoom,
+            screen.height / camera.zoom);
     }
 
     gameContainer.scale.set(camera.zoom);
@@ -559,17 +570,6 @@ function updateTrails(deltaTime) {
 }
 
 function updateGui(deltaTime) {
-    mapGraphics.clear();
-    /*mapGraphics.beginFill(0x111133);
-    mapGraphics.lineStyle(5, 0x334488);
-    mapGraphics.drawCircle(0, 0, 120);
-    mapGraphics.endFill();
-    */
-    mapGraphics.beginFill(0x0000FF);
-    mapGraphics.lineStyle(0, 0x000000);
-    mapGraphics.drawStar(localPlayer.ship.position.x * miniMapZoom, localPlayer.ship.position.y * miniMapZoom, 3, 6, 3, localPlayer.ship.rotation + Math.PI / 2);
-    mapGraphics.endFill();
-
     let shieldRatio = 75;
     let hullRatio = 75;
     let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
@@ -611,8 +611,6 @@ function updateGui(deltaTime) {
 
 
     updateTooltip(deltaTime);
-
-    performanceData.logAndNext();
 
     UpdateMinimap(deltaTime);
 
@@ -746,6 +744,15 @@ function parseMessage(message) {
                 case serverHeaders.gasScan:
                     parseGasScan(view);
                     break;
+                case serverHeaders.objectScan:
+                    parseObjectScan(view);
+                    break;
+                case serverHeaders.markerCreate:
+                    parseMarkerCreate(view);
+                    break;
+                case serverHeaders.markerRemove:
+                    parseMarkerRemove(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -760,10 +767,15 @@ function parseMessage(message) {
 
 }
 
+let gasColorArray;
+let gasSize = { width: 0, height: 0 };
 function parseGas(view) {
     gasParticleSpacing = view.getUint16();
     let w = view.getUint16();
     let h = view.getUint16();
+    gasSize.width = w;
+    gasSize.height = h;
+    gasColorArray = new Uint8Array(w * h);
     let bytes = 4;
     for (let x = 0; x < w; x++) {
         Universe.gasMap[x] = [];
@@ -771,6 +783,7 @@ function parseGas(view) {
             const e = view.getUint8();
             bytes++;
             Universe.gasMap[x][y] = e;
+            gasColorArray[x + y * w] = e;
         }
     }
 
@@ -967,13 +980,58 @@ function parseDebug(view) {
 let scannedGas = [];
 function parseGasScan(view) {
     let count = view.getUint16();
-    //console.log(count);
     for (let i = 0; i < count; i++) {
         let temp = {};
         view.deserealize(temp, Datagrams.GasScan);
         scannedGas[temp.x * 1000 / minimapScale + temp.y] = temp.gas;
     }
 
+}
+
+
+let scannedObjects = new Map();
+function parseObjectScan(view) {
+    let count = view.getUint16();
+    for (let i = 0; i < count; i++) {
+        let temp = {};
+        view.deserealize(temp, Datagrams.ObjectScan);
+        if (temp.type == 0) {
+            let obj = scannedObjects.get(temp.id);
+            obj.bigSprite.destroy();
+            obj.miniSprite.destroy();
+            scannedObjects.delete(temp.id);
+        } else {
+            let obj = { position: temp.position, type: temp.type };
+            if (!scannedObjects.has(temp.id)) {
+                obj.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+                obj.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+                if (obj.type == 1) {
+                    obj.bigSprite.tint = 0x00ffaa;
+                    obj.miniSprite.tint = 0x00ffaa;
+                } else {
+                    obj.bigSprite.tint = 0xffaa00;
+                    obj.miniSprite.tint = 0xffaa00;
+                }
+                pixi_minimap.stage.addChild(obj.miniSprite);
+                bigMapApp.stage.addChild(obj.bigSprite);
+                obj.miniSprite.anchor.set(0.5);
+                obj.bigSprite.anchor.set(0.5);
+            }
+            scannedObjects.set(temp.id, obj);
+        }
+    }
+}
+
+function parseMarkerCreate(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.MarkerCreate);
+    new Marker(temp.id, temp.position, temp.type, temp.playerId, temp.parameter);
+}
+
+function parseMarkerRemove(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.MarkerRemove);
+    Marker.list.get(temp.id).remove();
 }
 
 let upBytes = 0;
@@ -1047,9 +1105,22 @@ function handleInput() {
     } else if (keyDown.e) {
         actionIDs.push(1);
         keyDown.e = false;
+    } else if (keyDown.q) {
+        actionIDs.push(4);
+        keyDown.q = false;
     } else if (keyDown.c) {
-        detachCamera = !detachCamera;
         keyDown.c = false;
+        if (detachCamera) {
+            detachCamera = false;
+            disconnectCamera = true;
+            return;
+        } else {
+            if (disconnectCamera) {
+                disconnectCamera = false;
+            } else {
+                detachCamera = true;
+            }
+        }
     } else if (keyDown.k) {
         window.open("debug/index.html?data=" + performanceData.string());
         performanceData.data = [];
@@ -1087,11 +1158,15 @@ window.addEventListener("wheel", e => {
         if (e.deltaY > 0) {
             if (big_mapControl.zoom * big_mapControl.zoomStep <= big_mapControl.maxZoom) {
                 big_mapControl.zoom *= big_mapControl.zoomStep;
+            } else {
+                big_mapControl.zoom = big_mapControl.maxZoom;
             }
         }
         if (e.deltaY < 0) {
             if (big_mapControl.zoom / big_mapControl.zoomStep >= big_mapControl.minZoom) {
                 big_mapControl.zoom /= big_mapControl.zoomStep;
+            } else {
+                big_mapControl.zoom = big_mapControl.minZoom;
             }
         }
     } else {
@@ -1136,8 +1211,6 @@ window.addEventListener('mouseup', e => {
 
 //#region GAS
 
-let gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
-let gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xbf5eff);
 //let gasColorMap = new ColorRamp(0x161A1C, 0xa04060);
 let gasColorMap = new ColorGraph([0x161A1C, 0xa04060]);
@@ -1151,105 +1224,88 @@ gasColorMap = new ColorGraph([0x397367, 0x63ccca, 0x5da399, 0x42858c, 0x35393c,]
 
 //gasColorMap = new ColorGraph([0xedcb96,0xf7c4a5,0x9e7682,0x605770,0x4d4861]);
 
-
-let gasParticles = [];
-let gasDisplay = [];
-
-function gasParticleChunksDisplay() {
+let gasSprite;
+let gasTime = 0;
+function gasUpdate(dt) {
     if (gasLoaded) {
+        gasTime += dt;
+        gasSprite.scale.x = screen.width;
+        gasSprite.scale.y = screen.height;
 
-        gasCamWidth = 2 * Math.floor(screen.width / gasParticleSpacing / 2 / camera.zoom + 5);
-        gasCamHeight = 2 * Math.floor(screen.height / gasParticleSpacing / 2 / camera.zoom + 5);
-        let gasPosX = Math.floor(localPlayer.ship.position.x / gasParticleSpacing);
-        let gasPosY = Math.floor(localPlayer.ship.position.y / gasParticleSpacing);
-        let avalible = [];
-        gasPosX = Math.max(Math.min(gasPosX, 1000 - 1), 0);
-        gasPosY = Math.max(Math.min(gasPosY, 1000 - 1), 0);
-        gasHere = Universe.gasMap[gasPosX][gasPosY];
+        const mapPixelWidth = gasSize.width * gasParticleSpacing;
+        const mapPixelHeight = gasSize.width * gasParticleSpacing;
+        gasSprite.material.uniforms.rectangle = [
+            (camera.x - screen.width / 2 / camera.zoom) / mapPixelWidth,
+            (camera.y - screen.height / 2 / camera.zoom) / mapPixelHeight,
+            (screen.width / camera.zoom) / mapPixelWidth,
+            (screen.height / camera.zoom) / mapPixelHeight,
+        ];
 
-        for (let i = 0; i < gasParticles.length; i++) {
-            const g = gasParticles[i];
+        gasSprite.material.uniforms.time = gasTime;
 
-            let gX = Math.floor(g.x / gasParticleSpacing);
-            let gY = Math.floor(g.y / gasParticleSpacing);
-            // mimo obrazovke
-            if (gX > gasPosX + gasCamWidth / 2 ||
-                gX < gasPosX - gasCamWidth / 2 ||
-                gY > gasPosY + gasCamHeight / 2 ||
-                gY < gasPosY - gasCamHeight / 2
-            ) { // zneviditelint
-                avalible.push(g);
-                gasDisplay[gX][gY] = false;
-                g.visible = false;
-            } else {
-                let e = Universe.gasMap[gX][gY];
-                g.alpha = e / 200 + 0.5;
-                g.rotation += 0.03 * g.alpha + 0.008;
-                g.tint = gasColorMap.evaluate(e / 100);
-                gasDisplay[gX][gY] = true;
-                g.visible = true;
-            }
-        }
-
-
-        for (let px = Math.max(gasPosX - gasCamWidth / 2, 0); px < gasPosX + gasCamWidth / 2; px++) {
-            for (let py = Math.max(gasPosY - gasCamHeight / 2, 0); py < gasPosY + gasCamHeight / 2; py++) {
-                if (px >= 1000 || py >= 1000) {
-                    continue;
-                }
-                if (!gasDisplay[px][py]) {
-                    let g = avalible.pop();
-                    if (g != undefined) {
-                        let e = Universe.gasMap[px][py];
-                        gasDisplay[px][py] = true;
-                        g.alpha = e / 200 + 0.5;
-                        g.visible = true;
-                        g.tint = gasColorMap.evaluate(e / 100);
-                        g.position.set(px * gasParticleSpacing + gasParticleSpacing * Math.random(), py * gasParticleSpacing + gasParticleSpacing * Math.random());
-                    }
-                }
-            }
-        }
+        gasHere = Universe.gasMap[Math.floor(camera.x / gasParticleSpacing)][Math.floor(camera.y / gasParticleSpacing)];
     }
-
 }
+
 
 function generateGas() {
     console.log("generating");
 
     document.getElementById("loadingBar").style.transition = "width .2s";
 
-
-    for (let i = 0; i < 2000; i++) {
-        let gasParticle = new PIXI.Sprite(loader.resources.smooth.texture);
-
-        gasParticles[i] = gasParticle;
-
-        gasParticle.anchor.set(0.53);
-        gasParticle.scale.set(6);
-        gasParticle.rotation = Math.random() * 6.28;
-
-        gasContainer.addChild(gasParticle);
-
-        gasCount++;
+    let colorMapBuffer = new Uint8Array(300);
+    for (let i = 0; i < 300; i += 3) {
+        colorMapBuffer[i + 0] = Math.floor(gasColorMap.red.evaluate(i / 300));
+        colorMapBuffer[i + 1] = Math.floor(gasColorMap.green.evaluate(i / 300));
+        colorMapBuffer[i + 2] = Math.floor(gasColorMap.blue.evaluate(i / 300));
     }
 
-    for (let x = 0; x < 1000; x++) {
-        gasDisplay[x] = [];
-        for (let y = 0; y < 1000; y++) {
-            gasDisplay[x][y] = false;
-        }
-    }
+    let colorMap = new PIXI.Texture(PIXI.BaseTexture.fromBuffer(colorMapBuffer, 100, 1, {
+        scaleMode: PIXI.settings.SCALE_MODE.NEAREST,
+        format: PIXI.FORMATS.RGB
+    }));
+
+    let gasProg = new PIXI.Program.from(shadeVertCode, gasFragCode);
+    let uniforms = {
+        rectangle: [0, 0, 0, 0],
+        time: 0,
+        uMapSampler: colorMap
+    };
+
+    let material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
+        program: gasProg,
+        uniforms: uniforms
+    });
+
+    let geometry = new PIXI.Geometry();
+    geometry.addAttribute('aVertexPosition', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+    geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+    geometry.addIndex([0, 1, 2, 2, 3, 0]);
+
+    gasSprite = new PIXI.Mesh(geometry, material);
+    gasSprite.scale.x = screen.width;
+    gasSprite.scale.y = screen.height;
+    app.stage.addChild(gasSprite);
+
+    gasSprite.texture = new PIXI.Texture(PIXI.BaseTexture.fromBuffer(gasColorArray, gasSize.width, gasSize.height, {
+        scaleMode: PIXI.settings.SCALE_MODE.LINEAR,
+        format: PIXI.FORMATS.ALPHA
+    }));
 
     closeLoadingScreen();
     gasLoaded = true;
+}
+
+function gasShader(gasFrag) {
+    gasSprite.material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
+        uniforms: gasSprite.material,
+        program: new PIXI.Program(shadeVertCode,gasFrag)
+    });
 }
 
 //#endregion
 
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
-    localPlayer.miniMapMarker.texture = loader.resources.marker2.texture;
-    localPlayer.miniMapMarker.anchor.set(0.5, 0.6);
 }
 

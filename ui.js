@@ -1,10 +1,12 @@
 const min_minimap = document.getElementById("minimize-minimap");
+const open_map = document.getElementById("open-map");
 const minimap = document.getElementsByClassName("map")[0];
 const minimap_canvas = document.getElementById("minimap");
 const minimap_zoomIn = document.getElementById("zoomIn");
 const minimap_zoomOut = document.getElementById("zoomOut");
 
 const bigmap_canvas = document.getElementById("bigMap");
+const bigmap = document.getElementsByClassName("bigmap")[0];
 
 const min_powercells = document.getElementById("minimize-powercells");
 const powercells = document.getElementsByClassName("powercells")[0];
@@ -405,7 +407,6 @@ toggleInventory.addEventListener("click", () => {
 })
 
 function updateTooltip(deltaTime) {
-    performanceData.logAndNext();
     hoverTime += deltaTime;
 
     //If hover active or changed recently
@@ -517,34 +518,42 @@ const minimapScale = 2;
 function UpdateMinimap(deltaTime) {
     UpdateBigmap(deltaTime);
     if (!minimapShown) return;
+    scannedObjects.forEach(e => {
+        e.miniSprite.position.x = (e.position.x - localPlayer.ship.position.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        e.miniSprite.position.y = (e.position.y - localPlayer.ship.position.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+    });
+
+    Marker.list.forEach(m => {
+        m.miniSprite.position.x = (m.position.x - localPlayer.ship.position.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        m.miniSprite.position.y = (m.position.y - localPlayer.ship.position.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+
+    });
+
+    let xpos = localPlayer.ship.position.x / gasParticleSpacing / minimapScale / minimapControl.zoom;
+    let ypos = localPlayer.ship.position.y / gasParticleSpacing / minimapScale / minimapControl.zoom;
+
+    let xoffset = (xpos - Math.floor(xpos)) * minimap_canvas.width / minimapControl.density;
+    let yoffset = (ypos - Math.floor(ypos)) * minimap_canvas.height / minimapControl.density;
+
     for (let x = 0; x < minimapControl.density; x++) {
         for (let y = 0; y < minimapControl.density; y++) {
             let gasPX = gasPXs[x * minimapControl.density + y];
-            let lx = (localPlayer.ship.position.x / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + x * minimapControl.zoom;
-            let ly = (localPlayer.ship.position.y / gasParticleSpacing / minimapScale) - minimapControl.density / 2 * minimapControl.zoom + y * minimapControl.zoom;
+            let lx = Math.floor(localPlayer.ship.position.x / gasParticleSpacing / minimapScale / minimapControl.zoom) * minimapControl.zoom - minimapControl.density / 2 * minimapControl.zoom + x * minimapControl.zoom;
+            let ly = Math.floor(localPlayer.ship.position.y / gasParticleSpacing / minimapScale / minimapControl.zoom) * minimapControl.zoom - minimapControl.density / 2 * minimapControl.zoom + y * minimapControl.zoom;
 
-            let gtl = scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.floor(ly)] || 0;
-            let gtr = scannedGas[Math.ceil(lx) * 1000 / minimapScale + Math.floor(ly)] || 0;
-            let gbl = scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.ceil(ly)] || 0;
-            let gbr = scannedGas[Math.ceil(lx) * 1000 / minimapScale + Math.ceil(ly)] || 0;
+            let lxa = Math.floor(lx);
+            let lya = Math.floor(ly);
 
-            let ptl = (2 - ((lx % 1) + (ly % 1))) / 2;
-            let ptr = (2 - (1 - (lx % 1) + (ly % 1))) / 2;
-            let pbl = (2 - ((lx % 1) + 1 - (ly % 1))) / 2;
-            let pbr = (2 - (1 - (lx % 1) + 1 - (ly % 1))) / 2;
+            gasPX.position.x = (x + 0.5) * (minimap_canvas.width / minimapControl.density) - xoffset;
+            gasPX.position.y = (y + 0.5) * (minimap_canvas.width / minimapControl.density) - yoffset;
 
-
-
-            gasPX.oscilation += deltaTime;
-            if (scannedGas[Math.floor(lx) * 1000 / minimapScale + Math.floor(ly)] == undefined) {
-                gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation), 0) / 2 + 0.3);
-                if (gasPX.oscilation > 2) {
-                    gasPX.oscilation -= 3;
-                }
+            if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
+                gasPX.scale.set(0.3);
+                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 4 + 0.3);
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set((gtl * ptl + gtr * ptr + gbl * pbl + gbr * pbr) / 200);
+                gasPX.scale.set(Math.floor(scannedGas[lxa * 1000 / minimapScale + lya] / 20) / 5);
             }
         }
     }
@@ -552,7 +561,13 @@ function UpdateMinimap(deltaTime) {
 
 
 
+open_map.addEventListener("click", () => {
+    bigmap.classList.toggle("closed");
+    bigMapShown = !bigMapShown;
+});
+
 let bigMapShown = false;
+bigMapShown = false; // lol co
 
 let bigMapApp = new PIXI.Application({
     view: bigmap_canvas,
@@ -570,41 +585,59 @@ bigMapApp.renderer.backgroundColor = 0x181818;
 
 let big_gasPXs = [];
 
-let big_mapControl = { zoom: 3, density: 60, minZoom: 1, maxZoom: 80, zoomStep: 1.1, x: 500, y: 500 };
+let big_mapControl = { zoom: 3, density: 60, minZoom: 1, maxZoom: 13, zoomStep: 1.1, x: 500, y: 500 };
 for (let x = 0; x < big_mapControl.density; x++) {
     for (let y = 0; y < big_mapControl.density; y++) {
         let gasPX = new PIXI.Sprite.from("images/minimap/circle.png");
-        gasPX.position.x = x * (bigmap_canvas.width / big_mapControl.density);
-        gasPX.position.y = y * (bigmap_canvas.height / big_mapControl.density);
+        gasPX.position.x = (x + 0.5) * (bigmap_canvas.width / big_mapControl.density);
+        gasPX.position.y = (y + 0.5) * (bigmap_canvas.height / big_mapControl.density);
         big_gasPXs[x * big_mapControl.density + y] = gasPX;
         gasPX.anchor.set(0.5);
-        gasPX.oscilation = Math.random();
 
         big_gasPx_container.addChild(gasPX);
     }
 }
 
-let big_mapDrag = bigmap_canvas.width / big_mapControl.density / minimapScale;
+let oscilationPhase = 0;
 
+let big_mapDrag = bigmap_canvas.width / big_mapControl.density / minimapScale;
 function UpdateBigmap(deltaTime) {
+    big_mapControl.x = Math.max(Math.min(big_mapControl.x, 1000), 0);
+    big_mapControl.y = Math.max(Math.min(big_mapControl.y, 1000), 0);
+    oscilationPhase += deltaTime * 0.1;
     if (!bigMapShown) return;
+    scannedObjects.forEach(e => {
+        e.bigSprite.position.x = (e.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
+        e.bigSprite.position.y = (e.position.y / gasParticleSpacing - big_mapControl.y) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.height / 2;
+    });
+
+    Marker.list.forEach(m => {
+        m.bigSprite.position.x = (m.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
+        m.bigSprite.position.y = (m.position.y / gasParticleSpacing - big_mapControl.y) / big_mapControl.zoom * (bigmap_canvas.height / big_mapControl.density / minimapScale) + bigmap_canvas.height / 2;
+    });
+
+    let xoffset = (big_mapControl.x / minimapScale / big_mapControl.zoom - Math.floor(big_mapControl.x / minimapScale / big_mapControl.zoom)) * bigmap_canvas.width / big_mapControl.density;
+    let yoffset = (big_mapControl.y / minimapScale / big_mapControl.zoom - Math.floor(big_mapControl.y / minimapScale / big_mapControl.zoom)) * bigmap_canvas.height / big_mapControl.density;
+
     for (let x = 0; x < big_mapControl.density; x++) {
         for (let y = 0; y < big_mapControl.density; y++) {
             let gasPX = big_gasPXs[x * big_mapControl.density + y];
-            let lx = Math.floor((big_mapControl.x / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + x * big_mapControl.zoom);
-            let ly = Math.floor((big_mapControl.y / minimapScale) - big_mapControl.density / 2 * big_mapControl.zoom + y * big_mapControl.zoom);
+            let lx = Math.floor(big_mapControl.x / minimapScale / big_mapControl.zoom) * big_mapControl.zoom - big_mapControl.density / 2 * big_mapControl.zoom + x * big_mapControl.zoom;
+            let ly = Math.floor(big_mapControl.y / minimapScale / big_mapControl.zoom) * big_mapControl.zoom - big_mapControl.density / 2 * big_mapControl.zoom + y * big_mapControl.zoom;
 
+            let lxa = Math.floor(lx);
+            let lya = Math.floor(ly);
 
-            gasPX.oscilation += deltaTime;
-            if (scannedGas[lx * 1000 / minimapScale + ly] == undefined) {
-                gasPX.scale.set(Math.max(1 - Math.abs(gasPX.oscilation), 0) / 2 + 0.3);
-                if (gasPX.oscilation > 2) {
-                    gasPX.oscilation -= 3;
-                }
+            gasPX.position.x = (x + 0.5) * (bigmap_canvas.width / big_mapControl.density) - xoffset;
+            gasPX.position.y = (y + 0.5) * (bigmap_canvas.width / big_mapControl.density) - yoffset;
+
+            if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
+                gasPX.scale.set(0.3);
+                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 4 + 0.3);
                 gasPX.tint = 0x555555;
             } else {
                 gasPX.tint = 0xffffff;
-                gasPX.scale.set(scannedGas[lx * 1000 / minimapScale + ly] / 100);
+                gasPX.scale.set(scannedGas[lxa * 1000 / minimapScale + lya] / 100);
             }
         }
     }

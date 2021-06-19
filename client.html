@@ -34,7 +34,7 @@
             <div class="guiBar">
                 <h1>MAP</h1>
                 <div><img class="windowButton tooltip" src="images/ui/fullscreen.png"
-                        data-tooltip-name="Fullscreen map">
+                        data-tooltip-name="Fullscreen map" id="open-map">
                     <img class="windowButton tooltip" id="minimize-minimap" src="images/ui/minimize.png"
                         data-tooltip-name="Minimize">
                 </div>
@@ -132,8 +132,9 @@
                 </div>
             </div>
         </div>
-
-        <canvas id="bigMap"></canvas>
+        <div class="guiPanel bigmap closed">
+            <canvas id="bigMap"></canvas>
+        </div>
 
         <div class="guiPanel powercells tooltip" data-tooltip-name="Power Cell Management"
             data-tooltip-desc="Drag powercells to and from your storage.">
@@ -197,14 +198,18 @@
 <!--
 -->
 <script src="pixi.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pixi-filters@latest/dist/pixi-filters.js"></script>
 <script src="https://pixijs.io/examples/pixi-plugins/pixi-dragonbones.js"></script>
 <script>let exports = {};</script>
+<script src="programs/shadeFragment.glsl"></script>
+<script src="programs/shadeVert.glsl"></script>
+<script src="programs/gasFragment.glsl"></script>
 <script type="text/javascript" src="shipTypes.js" onerror="location.reload()"></script>
-<script type="text/javascript" src="clientgameobjects.js"onerror="location.reload()"></script>
-<script type="text/javascript" src="datagram.js"onerror="location.reload()"></script>
-<script type="text/javascript" src="ui.js"onerror="location.reload()"></script>
-<script type="text/javascript" src="inventory.js"onerror="location.reload()"></script>
-<script type="text/javascript" src="client.js"onerror="location.reload()"></script>
+<script type="text/javascript" src="clientgameobjects.js" onerror="location.reload()"></script>
+<script type="text/javascript" src="datagram.js" onerror="location.reload()"></script>
+<script type="text/javascript" src="ui.js" onerror="location.reload()"></script>
+<script type="text/javascript" src="inventory.js" onerror="location.reload()"></script>
+<script type="text/javascript" src="client.js" onerror="location.reload()"></script>
 
 
 </html>
