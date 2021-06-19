@@ -549,15 +549,13 @@ function UpdateMinimap(deltaTime) {
             gasPX.position.y = (y + 0.5) * (minimap_canvas.width / minimapControl.density) - yoffset;
 
             if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
-                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 8 + 0.2);
-                gasPX.tint = 0x555555;
-                gasPX.alpha = 1;
+                gasPX.alpha = 0;
             } else {
                 gasPX.tint = 0xffffff;
                 let scale = scannedGas[lxa * 1000 / minimapScale + lya] / 200;
                 if (scale < 0.2) {
                     gasPX.scale.set(0.2);
-                    gasPX.alpha = scale*5;
+                    gasPX.alpha = Math.min(scale*5,0.2);
                 }else{
                     gasPX.scale.set(scale);
                     gasPX.alpha = 1;
@@ -640,10 +638,10 @@ function UpdateBigmap(deltaTime) {
             gasPX.position.y = (y + 0.5) * (bigmap_canvas.width / big_mapControl.density) - yoffset;
 
             if (scannedGas[lxa * 1000 / minimapScale + lya] == undefined || lya > 1000 / minimapScale || lya < 0) {
-                gasPX.scale.set(Math.max(1 - Math.abs((oscilationPhase + lx / 500) % 2), 0) / 8 + 0.1);
-                gasPX.tint = 0x555555;
+                gasPX.alpha = 0;
             } else {
                 gasPX.tint = 0xffffff;
+                gasPX.alpha = 1;
                 gasPX.scale.set(scannedGas[lxa * 1000 / minimapScale + lya] / 200);
             }
         }
