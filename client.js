@@ -747,6 +747,12 @@ function parseMessage(message) {
                 case serverHeaders.objectScan:
                     parseObjectScan(view);
                     break;
+                case serverHeaders.markerCreate:
+                    parseMarkerCreate(view);
+                    break;
+                case serverHeaders.markerRemove:
+                    parseMarkerRemove(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -1016,6 +1022,18 @@ function parseObjectScan(view) {
     }
 }
 
+function parseMarkerCreate(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.MarkerCreate);
+    new Marker(temp.id, temp.position, temp.type, temp.playerId, temp.parameter);
+}
+
+function parseMarkerRemove(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.MarkerRemove);
+    Marker.list.get(temp.id).remove();
+}
+
 let upBytes = 0;
 let packetNumber = 0;
 let pingTime = [];
@@ -1087,6 +1105,9 @@ function handleInput() {
     } else if (keyDown.e) {
         actionIDs.push(1);
         keyDown.e = false;
+    } else if (keyDown.q) {
+        actionIDs.push(4);
+        keyDown.q = false;
     } else if (keyDown.c) {
         keyDown.c = false;
         if (detachCamera) {
@@ -1207,22 +1228,22 @@ let gasSprite;
 let gasTime = 0;
 function gasUpdate(dt) {
     if (gasLoaded) {
-        gasTime +=dt;
+        gasTime += dt;
         gasSprite.scale.x = screen.width;
         gasSprite.scale.y = screen.height;
 
         const mapPixelWidth = gasSize.width * gasParticleSpacing;
         const mapPixelHeight = gasSize.width * gasParticleSpacing;
         gasSprite.material.uniforms.rectangle = [
-            (camera.x - screen.width/2 / camera.zoom) / mapPixelWidth,
-            (camera.y - screen.height/2 / camera.zoom) / mapPixelHeight,
+            (camera.x - screen.width / 2 / camera.zoom) / mapPixelWidth,
+            (camera.y - screen.height / 2 / camera.zoom) / mapPixelHeight,
             (screen.width / camera.zoom) / mapPixelWidth,
             (screen.height / camera.zoom) / mapPixelHeight,
         ];
 
         gasSprite.material.uniforms.time = gasTime;
 
-        gasHere = Universe.gasMap[Math.floor(camera.x/gasParticleSpacing)][Math.floor(camera.y/gasParticleSpacing)];
+        gasHere = Universe.gasMap[Math.floor(camera.x / gasParticleSpacing)][Math.floor(camera.y / gasParticleSpacing)];
     }
 }
 
@@ -1233,10 +1254,10 @@ function generateGas() {
     document.getElementById("loadingBar").style.transition = "width .2s";
 
     let colorMapBuffer = new Uint8Array(300);
-    for (let i = 0; i < 300; i+=3) {
-        colorMapBuffer[i+0] = Math.floor(gasColorMap.red.evaluate(i/300));
-        colorMapBuffer[i+1] = Math.floor(gasColorMap.green.evaluate(i/300));
-        colorMapBuffer[i+2] = Math.floor(gasColorMap.blue.evaluate(i/300));
+    for (let i = 0; i < 300; i += 3) {
+        colorMapBuffer[i + 0] = Math.floor(gasColorMap.red.evaluate(i / 300));
+        colorMapBuffer[i + 1] = Math.floor(gasColorMap.green.evaluate(i / 300));
+        colorMapBuffer[i + 2] = Math.floor(gasColorMap.blue.evaluate(i / 300));
     }
 
     let colorMap = new PIXI.Texture(PIXI.BaseTexture.fromBuffer(colorMapBuffer, 100, 1, {

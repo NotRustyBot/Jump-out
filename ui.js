@@ -523,6 +523,12 @@ function UpdateMinimap(deltaTime) {
         e.miniSprite.position.y = (e.position.y - localPlayer.ship.position.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
     });
 
+    Marker.list.forEach(m => {
+        m.miniSprite.position.x = (m.position.x - localPlayer.ship.position.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        m.miniSprite.position.y = (m.position.y - localPlayer.ship.position.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+
+    });
+
     let xpos = localPlayer.ship.position.x / gasParticleSpacing / minimapScale / minimapControl.zoom;
     let ypos = localPlayer.ship.position.y / gasParticleSpacing / minimapScale / minimapControl.zoom;
 
@@ -603,6 +609,11 @@ function UpdateBigmap(deltaTime) {
     scannedObjects.forEach(e => {
         e.bigSprite.position.x = (e.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
         e.bigSprite.position.y = (e.position.y / gasParticleSpacing - big_mapControl.y) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.height / 2;
+    });
+
+    Marker.list.forEach(m => {
+        m.bigSprite.position.x = (m.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
+        m.bigSprite.position.y = (m.position.y / gasParticleSpacing - big_mapControl.y) / big_mapControl.zoom * (bigmap_canvas.height / big_mapControl.density / minimapScale) + bigmap_canvas.height / 2;
     });
 
     let xoffset = (big_mapControl.x / minimapScale / big_mapControl.zoom - Math.floor(big_mapControl.x / minimapScale / big_mapControl.zoom)) * bigmap_canvas.width / big_mapControl.density;

@@ -88,6 +88,8 @@ objectDictionary[3] = { name: "letadlo", size: 5 };
 objectDictionary[101] = { name: "r300", size: 3 };
 objectDictionary[102] = { name: "r300", size: 3 };
 
+let lightObject = { directional: false, position: new Vector(200000, 200000) };
+
 function Entity(type, id) {
     this.position = new Vector(0, 0);
     this.rotation = 0;
@@ -98,7 +100,7 @@ function Entity(type, id) {
     this.sprite = new ShadedSprite(this, objectDictionary[this.type].name, objectDictionary[this.type]);
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
-        this.sprite.update({ directional: true, rotation: sunDirection });
+        this.sprite.update(lightObject);
     };
 
     this.remove = function () {
@@ -126,7 +128,7 @@ function DroppedItem(type, id, stack, targetPos, sourcePos) {
             this.rotation = (1 - this.animProgress) * this.targetRotation;
             this.position = sourcePos.lerp(targetPos, 1 - (this.animProgress));
         }
-        this.sprite.update({ directional: true, rotation: sunDirection });
+        this.sprite.update(lightObject);
     };
 
     this.remove = function () {
@@ -206,7 +208,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
                 this.shadow.visible = true;
                 this.shadow.position.set(this.parent.position.x, this.parent.position.y);
                 if (!source.directional) {
-                    rotation = [source.position.y - this.mesh.y, source.position.x - this.mesh.x];
+                    rotation = [source.position.x - this.mesh.x, source.position.y - this.mesh.y];
                 } else {
                     rotation = source.rotation;
                 }
@@ -288,7 +290,7 @@ function Ship(type, player) {
 
         scannedObjects.get(-this.player.id - 1).position = this.position;
 
-        this.sprite.update({ directional: true, rotation: sunDirection });
+        this.sprite.update(lightObject);
     };
 }
 
@@ -313,6 +315,12 @@ Actions.SwapSlots = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.SwapSlots }, Datagrams.SmartAction);
     view.serialize({ slot1: slotsToSwap.from, slot2: slotsToSwap.to }, SmartActionData[ActionId.SwapSlots]);
+}
+
+Actions.CreateMarker = function (view) {
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.CreateMarker }, Datagrams.SmartAction);
+    view.serialize({ position: localPlayer.ship.position, parameter: new Vector(0,0), type: 1 }, SmartActionData[ActionId.CreateMarker]);
 }
 
 ShipType = defineShips(Actions);
@@ -880,5 +888,42 @@ function Point(vector, stop, age, color) {
     this.pos = { x: vector.x, y: vector.y };
     this.stop = stop ?? false;
 }
+
+function Marker(id, position, type, playerId, parameter) {
+    this.id = id;
+    this.position = position;
+    this.type = type;
+    this.playerId = playerId;
+    this.parameter = parameter;
+
+    this.bigSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+    this.miniSprite = new PIXI.Sprite.from("images/minimap/circle.png");
+    this.bigSprite.tint = 0xffaa00;
+    this.miniSprite.tint = 0xffaa00;
+    pixi_minimap.stage.addChild(this.miniSprite);
+    bigMapApp.stage.addChild(this.bigSprite);
+
+    this.miniSprite.anchor.set(0.5);
+    this.bigSprite.anchor.set(0.5);
+
+    this.miniSprite.scale.set(2);
+    this.bigSprite.scale.set(2);
+
+    this.miniSprite.alpha = 0.3;
+    this.bigSprite.alpha = 0.3;
+
+    Marker.list.set(this.id, this);
+
+    this.remove = function() {
+        this.miniSprite.destroy();
+        this.bigSprite.destroy();
+        Marker.list.delete(this.id);
+    }
+}
+
+/**
+ * @type {Map<number,Marker>}
+ */
+Marker.list = new Map();
 
 //#endregion
