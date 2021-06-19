@@ -1296,6 +1296,13 @@ function generateGas() {
     gasLoaded = true;
 }
 
+function gasShader(gasFrag) {
+    gasSprite.material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
+        uniforms: gasSprite.material,
+        program: new PIXI.Program(shadeVertCode,gasFrag)
+    });
+}
+
 //#endregion
 
 function initLocalPlayer() {
