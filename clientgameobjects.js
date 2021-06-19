@@ -82,9 +82,10 @@ var Universe = {};
 Universe.gasMap = [];
 
 let objectDictionary = [];
-objectDictionary[1] = { name: "asteroid", size: 3 };
-objectDictionary[2] = { name: "letadlo", size: 5 };
-objectDictionary[3] = { name: "letadlo", size: 5 };
+objectDictionary[1] = { name: "asteroid1", size: 3 };
+objectDictionary[2] = { name: "asteroid2", size: 3 };
+objectDictionary[3] = { name: "asteroid3", size: 3 };
+objectDictionary[4] = { name: "asteroid4", size: 3 };
 objectDictionary[101] = { name: "r300", size: 3 };
 objectDictionary[102] = { name: "r300", size: 3 };
 
