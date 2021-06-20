@@ -86,7 +86,7 @@ objectDictionary[1] = { name: "asteroid1", size: 3 };
 objectDictionary[2] = { name: "asteroid2", size: 3 };
 objectDictionary[3] = { name: "asteroid3", size: 3 };
 objectDictionary[4] = { name: "asteroid4", size: 3 };
-objectDictionary[5] = { name: "shape", size: 3 };
+objectDictionary[5] = { name: "shipwreck", size: 0, upscale: 3 };
 objectDictionary[101] = { name: "r300", size: 3 };
 objectDictionary[102] = { name: "r300", size: 3 };
 
@@ -151,14 +151,16 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     this.sizeObject = sizeObject;
     this.hidden = false;
 
-    if (loader.resources.includes == prefix + "_base") {
+    let baseTexture;
+    if (loader.resources[prefix + "_base"] != undefined) {
         this.uniforms = {
             uOutlineSampler: loader.resources[prefix + "_outline"].texture,
             uDarkSampler: loader.resources[prefix + "_dark"].texture,
             lightDir: [1, 0],
             rotation: 0
         };
-        this.material = new PIXI.MeshMaterial(loader.resources[prefix + "_base"].texture, {
+        baseTexture = loader.resources[prefix + "_base"].texture;
+        this.material = new PIXI.MeshMaterial(baseTexture, {
             program: prog,
             uniforms: this.uniforms
         });
@@ -169,23 +171,27 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             lightDir: [1, 0],
             rotation: 0
         };
-        this.material = new PIXI.MeshMaterial(loader.resources[prefix].texture, {
+        baseTexture = loader.resources[prefix].texture;
+        this.material = new PIXI.MeshMaterial(baseTexture, {
             program: prog,
             uniforms: this.uniforms
         });
     }
 
-
     this.geometry = new PIXI.Geometry();
 
-    let width = loader.resources[prefix + "_base"].texture.width / 2;
-    let height = loader.resources[prefix + "_base"].texture.height / 2;
+    this.sizeObject.upscale = this.sizeObject.upscale || 1;
+
+    let width = baseTexture.width / 2 * this.sizeObject.upscale;
+    let height = baseTexture.height / 2 * this.sizeObject.upscale;
 
     this.geometry.addAttribute('aVertexPosition', [-width, -height, width, -height, width, height, -width, height], 2);
     this.geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
     this.geometry.addIndex([0, 1, 2, 2, 3, 0]);
 
     this.mesh = new PIXI.Mesh(this.geometry, this.material);
+
+
 
     
     if(isPlayer){
@@ -228,7 +234,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             this.mesh.visible = false;
             return;
         } else {
-            if (!isOnScreen(this.parent.position, Math.max(this.mesh.width, this.mesh.height))) {
+            if (!isOnScreen(this.parent.position, Math.max(this.mesh.width, this.mesh.height)*this.sizeObject.upscale)) {
                 this.mesh.visible = false;
             } else {
                 this.mesh.visible = true;
