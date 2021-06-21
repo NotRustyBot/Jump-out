@@ -164,7 +164,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             program: prog,
             uniforms: this.uniforms
         });
-    }else{
+    } else {
         this.uniforms = {
             uOutlineSampler: loader.resources[prefix].texture,
             uDarkSampler: loader.resources[prefix].texture,
@@ -193,12 +193,12 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
 
 
 
-    
-    if(isPlayer){
-    //this.mesh.filters = [new PIXI.filters.OutlineFilter(5,shipMarkerColors[parent.player.id % 4],.3)];
-    //this.mesh.filters = [new PIXI.filters.ColorReplaceFilter(0xFF0000,shipMarkerColors[parent.player.id % 4])];
+
+    if (isPlayer) {
+        //this.mesh.filters = [new PIXI.filters.OutlineFilter(5,shipMarkerColors[parent.player.id % 4],.3)];
+        //this.mesh.filters = [new PIXI.filters.ColorReplaceFilter(0xFF0000,shipMarkerColors[parent.player.id % 4])];
     }
-    
+
 
     if (!disableShadow)
         this.shadow = new PIXI.Sprite(loader.resources["shadow"].texture);
@@ -234,7 +234,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             this.mesh.visible = false;
             return;
         } else {
-            if (!isOnScreen(this.parent.position, Math.max(this.mesh.width, this.mesh.height)*this.sizeObject.upscale)) {
+            if (!isOnScreen(this.parent.position, Math.max(this.mesh.width, this.mesh.height) * this.sizeObject.upscale)) {
                 this.mesh.visible = false;
             } else {
                 this.mesh.visible = true;
@@ -331,13 +331,13 @@ function Ship(type, player) {
             let mark = scannedObjects.get(-this.player.id - 1);
             mark.position = this.position;
             mark.bigSprite.rotation = this.rotation;
-            mark.miniSprite.rotation = this.rotation; 
+            mark.miniSprite.rotation = this.rotation;
         }
 
         this.sprite.hidden = (this.level != localPlayer.ship.level);
 
         this.sprite.update(lightObject);
-        
+
     };
 }
 
@@ -368,6 +368,12 @@ Actions.CreateMarker = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.CreateMarker }, Datagrams.SmartAction);
     view.serialize(markerObject, SmartActionData[ActionId.CreateMarker]);
+}
+
+Actions.Shoot = function (view) {
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.Shoot }, Datagrams.SmartAction);
+    view.serialize({}, SmartActionData[ActionId.Shoot]);
 }
 
 ShipType = defineShips(Actions);
@@ -961,7 +967,7 @@ function Marker(id, position, type, playerId, parameter) {
 
     Marker.list.set(this.id, this);
 
-    this.remove = function() {
+    this.remove = function () {
         this.miniSprite.destroy();
         this.bigSprite.destroy();
         Marker.list.delete(this.id);
@@ -972,5 +978,71 @@ function Marker(id, position, type, playerId, parameter) {
  * @type {Map<number,Marker>}
  */
 Marker.list = new Map();
+
+/**
+ * @param {number} id
+ * @param {Vector} position
+ * @param {number} level
+ * @param {number} rotation
+ * @param {number} type
+ */
+
+let projectileProg = new PIXI.Program.from(shadeVertCode, projectileFragCode);
+function Projectile(id, position, level, rotation, type) {
+    this.id = id;
+    this.position = position;
+    this.level = level;
+    this.type = type;
+    this.rotation = rotation;
+    this.stats = Projectile.stats[type];
+    this.velocity = Vector.fromAngle(rotation).normalize(this.stats.speed);
+
+    this.uniforms = {};
+    let baseTexture = loader.resources[this.stats.name].texture;
+    this.material = new PIXI.MeshMaterial(baseTexture, {
+        program: projectileProg,
+        uniforms: this.uniforms
+    });
+
+    this.geometry = new PIXI.Geometry();
+
+    let width = baseTexture.width / 2;
+    let height = baseTexture.height / 2;
+
+    this.geometry.addAttribute('aVertexPosition', [-width, -height, width, -height, width, height, -width, height], 2);
+    this.geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+    this.geometry.addIndex([0, 1, 2, 2, 3, 0]);
+
+    this.mesh = new PIXI.Mesh(this.geometry, this.material);
+    this.mesh.position.x = this.position.x;
+    this.mesh.position.y = this.position.y;
+    this.mesh.rotation = this.rotation;
+
+    projectileContainer.addChild(this.mesh);
+    this.mesh.scale.x = 10;
+
+    this.update = function (dt) {
+        this.position.add(this.velocity.result().mult(dt));
+        this.mesh.position.x = this.position.x;
+        this.mesh.position.y = this.position.y;
+        this.mesh.rotation = this.rotation;
+    }
+
+    this.remove = function () {
+        this.mesh.destroy();
+        Projectile.list.delete(this.id);
+    }
+
+    Projectile.list.set(this.id, this);
+}
+
+Projectile.stats = [
+    { speed: 1000, name: "marker_arrow" }
+];
+
+/**
+ * @type {Map<number,Projectile>}
+ */
+Projectile.list = new Map();
 
 //#endregion

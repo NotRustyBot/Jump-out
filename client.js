@@ -56,6 +56,7 @@ var bgContainer = new PIXI.Container();
 var entityContainer = new PIXI.Container();
 var playerContainer = new PIXI.Container();
 var playerEffectsContainer = new PIXI.Container();
+var projectileContainer = new PIXI.Container();
 var shadowContainer = new PIXI.Container();
 var effectsContainer = new PIXI.Container();
 var guiContainer = new PIXI.Container();
@@ -80,6 +81,7 @@ gameContainer.addChild(entityContainer);
 gameContainer.addChild(playerContainer);
 gameContainer.addChild(playerEffectsContainer);
 gameContainer.addChild(gasContainer);
+gameContainer.addChild(projectileContainer);
 gameContainer.addChild(shadowContainer);
 gameContainer.addChild(effectsContainer);
 effectsContainer.addChild(collisionContainer);
@@ -326,6 +328,7 @@ function graphicsUpdate(deltaTimeFactor) {
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateTrails(deltaTime);
+        updateProjectiles(deltaTime);
         updateCamera(deltaTime);
         performanceData.logAndNext();
         updateGui(deltaTime);
@@ -378,7 +381,7 @@ gameContainer.addChild(screentangle);
 
 
 function updateCamera(deltaTime) {
-    if(!disconnectCamera){
+    if (!disconnectCamera) {
         if (camera.zoom > maxZoom) camera.zoom = maxZoom;
         if (camera.zoom < minZoom) camera.zoom = minZoom;
     }
@@ -492,6 +495,12 @@ function updateTrails(deltaTime) {
         if (trail.emitter.level == localPlayer.ship.level) {
             trail.update(deltaTime);
         }
+    });
+}
+
+function updateProjectiles(deltaTime){
+    Projectile.list.forEach(p => {
+        p.update(deltaTime);
     });
 }
 
@@ -679,6 +688,12 @@ function parseMessage(message) {
                 case serverHeaders.markerRemove:
                     parseMarkerRemove(view);
                     break;
+                case serverHeaders.createProjectile:
+                    parseCreateProjectile(view);
+                    break;
+                case serverHeaders.removeProjectile:
+                    parseRemoveProjectile(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -829,34 +844,64 @@ function parseLeftPlayers(view) {
 function parseCollision(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.CollisionEvent);
-    let ship = Player.players.get(temp.shipId).ship;
-    let speed = ship.velocity.length() / 800;
-    //console.log(speed);
-    let p = new ParticleSystem({
-        container: collisionContainer,
-        infinite: false,
-        duration: 0.1,
-        offset: new Vector(0, 0),
-        enabled: true,
-        texture: loader.resources.spark.texture,
-        maxParticles: 50 * speed,
-        emitRate: 500 * speed,
-        inheritVelocity: 0.03,
-        inheritRotation: 0,
-        rotateToVelocity: true,
-        randomRotation: false,
-        randomVelocity: 50,
-        scale: new Ramp(3, 0),
-        alpha: new Ramp(1, 0),
-        velocity: new Ramp(400 + 500 * speed, 0),
-        color: new ColorRamp(0xffdd88, 0xff9911),
-        lifetime: new Ramp(0.1, 0.5 + 0.5 * speed),
-        rotationSpeed: new Ramp(0, 0),
-    });
-    p.setEmitter(temp.position, ship.velocity, ship.rotation);
-    //Player.players.get(temp.shipId).ship.rotation
-    p.emitter.oldPosition = p.emitter.position;
-    //particles go here
+    if (temp.type == 0) {
+        let ship = Player.players.get(temp.firstId).ship;
+        let speed = ship.velocity.length() / 800;
+        //console.log(speed);
+        let p = new ParticleSystem({
+            container: collisionContainer,
+            infinite: false,
+            duration: 0.1,
+            offset: new Vector(0, 0),
+            enabled: true,
+            texture: loader.resources.spark.texture,
+            maxParticles: 50 * speed,
+            emitRate: 500 * speed,
+            inheritVelocity: 0.03,
+            inheritRotation: 0,
+            rotateToVelocity: true,
+            randomRotation: false,
+            randomVelocity: 50,
+            scale: new Ramp(3, 0),
+            alpha: new Ramp(1, 0),
+            velocity: new Ramp(400 + 500 * speed, 0),
+            color: new ColorRamp(0xffdd88, 0xff9911),
+            lifetime: new Ramp(0.1, 0.5 + 0.5 * speed),
+            rotationSpeed: new Ramp(0, 0),
+        });
+        p.setEmitter(temp.position, ship.velocity, ship.rotation);
+        //Player.players.get(temp.shipId).ship.rotation
+        p.emitter.oldPosition = p.emitter.position;
+    } else if (temp.type == 1) {
+        //projectile hit
+        //console.log(speed);
+        let p = new ParticleSystem({
+            container: collisionContainer,
+            infinite: false,
+            duration: 0.1,
+            offset: new Vector(0, 0),
+            enabled: true,
+            texture: loader.resources.spark.texture,
+            maxParticles: 50,
+            emitRate: 500,
+            inheritVelocity: 0.03,
+            inheritRotation: 0,
+            rotateToVelocity: true,
+            randomRotation: false,
+            randomVelocity: 50,
+            scale: new Ramp(3, 0),
+            alpha: new Ramp(1, 0),
+            velocity: new Ramp(400 + 500, 0),
+            color: new ColorRamp(0xffaa00, 0xcc0000),
+            lifetime: new Ramp(0.1, 0.5 + 0.5),
+            rotationSpeed: new Ramp(0, 0),
+        });
+        p.setEmitter(temp.position, new Vector(0,0), 0);
+        //Player.players.get(temp.shipId).ship.rotation
+        p.emitter.oldPosition = p.emitter.position;
+        console.log(temp);
+    }
+
 }
 
 function parseActionReply(view) {
@@ -923,9 +968,9 @@ function parseObjectScan(view) {
         view.deserealize(temp, Datagrams.ObjectScan);
         if (temp.type == 0) {
             let obj = scannedObjects.get(temp.id);
+            scannedObjects.delete(temp.id);
             obj.bigSprite.destroy();
             obj.miniSprite.destroy();
-            scannedObjects.delete(temp.id);
         } else {
             let obj = { position: temp.position, type: temp.type };
             if (!scannedObjects.has(temp.id)) {
@@ -962,10 +1007,24 @@ function parseMarkerRemove(view) {
     Marker.list.get(temp.id).remove();
 }
 
+function parseCreateProjectile(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.CreateProjectile);
+    new Projectile(temp.id, temp.position, temp.level, temp.rotation, temp.type);
+}
+
+function parseRemoveProjectile(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.RemoveProjectile);
+    console.log(temp);
+    Projectile.list.get(temp.id).remove();
+}
+
+
 let upBytes = 0;
 let packetNumber = 0;
 let pingTime = [];
-const buffer = new ArrayBuffer(1000);
+const buffer = new ArrayBuffer(10000);
 function sendControls() {
     handleInput();
     const view = new AutoView(buffer);
@@ -1027,10 +1086,10 @@ function handleInput() {
     if (keyDown.a) controlVector.x = -1;
     if (keyDown.shift) controlVector.afterBurner = 1;
 
-    if (disconnectCamera && keyDown.arrowright) camera.x += 20/camera.zoom;
-    if (disconnectCamera && keyDown.arrowleft) camera.x -= 20/camera.zoom;
-    if (disconnectCamera && keyDown.arrowdown) camera.y += 20/camera.zoom;
-    if (disconnectCamera && keyDown.arrowup) camera.y -= 20/camera.zoom;
+    if (disconnectCamera && keyDown.arrowright) camera.x += 20 / camera.zoom;
+    if (disconnectCamera && keyDown.arrowleft) camera.x -= 20 / camera.zoom;
+    if (disconnectCamera && keyDown.arrowdown) camera.y += 20 / camera.zoom;
+    if (disconnectCamera && keyDown.arrowup) camera.y -= 20 / camera.zoom;
 
     if (keyDown.f) {
         actionIDs.push(0);
@@ -1038,6 +1097,8 @@ function handleInput() {
     } else if (keyDown.e) {
         actionIDs.push(1);
         keyDown.e = false;
+    } else if (keyDown[" "]) {
+        actionIDs.push(5);
     } else if (keyDown.c) {
         keyDown.c = false;
         if (detachCamera) {
@@ -1106,7 +1167,7 @@ window.addEventListener("wheel", e => {
             targetZoom *= zoomStep;
         }
         if (e.deltaY > 0) {
-             targetZoom /= zoomStep;
+            targetZoom /= zoomStep;
         }
         /*if (targetZoom != oldTargetZoom) {
             zoomDuration = 0;
@@ -1171,7 +1232,7 @@ function gasUpdate(dt) {
 
         if (localPlayer.ship.level == 0) {
             gasSprite.visible = true;
-        }else{
+        } else {
             gasSprite.visible = false;
             return;
         }
@@ -1192,7 +1253,7 @@ function gasUpdate(dt) {
 
         if (localPlayer.ship.level == 0) {
             gasHere = Universe.gasMap[Math.floor(camera.x / gasParticleSpacing)][Math.floor(camera.y / gasParticleSpacing)];
-        }else{
+        } else {
             gasHere = 0;
         }
     }
