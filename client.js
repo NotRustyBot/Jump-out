@@ -1160,6 +1160,8 @@ function handleInput() {
   } else if (keyDown.e) {
     actionIDs.push(1);
     keyDown.e = false;
+} else if (keyDown[" "]) {
+    actionIDs.push(5);
   } else if (keyDown.c) {
     keyDown.c = false;
     if (detachCamera) {
