@@ -3,6 +3,7 @@
       "target": "es3"
     },
     "files": [
+        //"pixi.js",
         "client.js",
         "datagram.js",
         "clientgameobjects.js",

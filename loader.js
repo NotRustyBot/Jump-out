@@ -1,4 +1,5 @@
 //#region PIXI INIT
+var PIXI = PIXI;
 let app = new PIXI.Application({
     antialias: true,
 });
