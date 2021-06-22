@@ -1061,10 +1061,10 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.scale.x = 10;
 
     this.update = function (dt) {
-        this.position.add(this.velocity.result().mult(dt));
         this.mesh.position.x = this.position.x;
         this.mesh.position.y = this.position.y;
         this.mesh.rotation = this.rotation;
+        this.position.add(this.velocity.result().mult(dt));
     }
 
     this.remove = function () {
@@ -1076,7 +1076,7 @@ function Projectile(id, position, level, rotation, type) {
 }
 
 Projectile.stats = [
-    { speed: 1000, name: "marker_arrow" }
+    { speed: 9000, name: "marker_arrow" }
 ];
 
 /**

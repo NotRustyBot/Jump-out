@@ -83,11 +83,11 @@ var gasContainer = new PIXI.Container(10000, {
 gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 
 gameContainer.addChild(bgContainer);
+gameContainer.addChild(projectileContainer);
 gameContainer.addChild(entityContainer);
 gameContainer.addChild(playerContainer);
 gameContainer.addChild(playerEffectsContainer);
 gameContainer.addChild(gasContainer);
-gameContainer.addChild(projectileContainer);
 gameContainer.addChild(shadowContainer);
 gameContainer.addChild(effectsContainer);
 effectsContainer.addChild(collisionContainer);
@@ -369,6 +369,7 @@ function graphicsUpdate(deltaTimeFactor) {
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateTrails(deltaTime);
+        updateProjectiles(deltaTime);
         updateCamera(deltaTime);
         performanceData.logAndNext();
         updateGui(deltaTime);
