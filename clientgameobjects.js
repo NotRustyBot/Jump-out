@@ -67,6 +67,9 @@ function Vector(x, y) {
     this.lerp = function (target, value) {
         return new Vector(this.x + (target.x - this.x) * value, this.y + (target.y - this.y) * value);
     };
+    this.inbound = function (bound) {
+        return this.x < bound && this.x > -bound && this.y < bound && this.y > -bound
+    }
 }
 Vector.zero = function () {
     return new Vector(0, 0);
@@ -280,6 +283,36 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     }
 }
 
+function Enterance(id, position) {
+    this.id = id;
+    this.position = position;
+
+    Enterance.list.set(id, this);
+
+    this.update = function() {
+        if (localPlayer.ship.level == 0 && localPlayer.ship.position.result().sub(this.position).inbound(1000)) {
+            promptText.text = "Press [G] to enter";
+            if (keyDown.g) {
+                actionIDs.push(6);
+                keyDown.g = false;
+                console.log("....");
+            }
+        }
+        if (localPlayer.ship.level != 0 && localPlayer.ship.position.inbound(1000)) {
+            promptText.text = "Press [G] to exit";
+            if (keyDown.g) {
+                actionIDs.push(6);
+                keyDown.g = false;
+            }
+        }
+    }
+}
+
+/**
+ * @type {Map<number,Enterance>}
+ */
+Enterance.list = new Map();
+
 const shipMarkerColors = [
     0xff5533,
     0x33ddff,
@@ -374,6 +407,12 @@ Actions.Shoot = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.Shoot }, Datagrams.SmartAction);
     view.serialize({}, SmartActionData[ActionId.Shoot]);
+}
+
+Actions.LevelMove = function (view) {
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.LevelMove }, Datagrams.SmartAction);
+    view.serialize({}, SmartActionData[ActionId.LevelMove]);
 }
 
 ShipType = defineShips(Actions);
@@ -1022,10 +1061,10 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.scale.x = 10;
 
     this.update = function (dt) {
-        this.position.add(this.velocity.result().mult(dt));
         this.mesh.position.x = this.position.x;
         this.mesh.position.y = this.position.y;
         this.mesh.rotation = this.rotation;
+        this.position.add(this.velocity.result().mult(dt));
     }
 
     this.remove = function () {
@@ -1037,7 +1076,7 @@ function Projectile(id, position, level, rotation, type) {
 }
 
 Projectile.stats = [
-    { speed: 1000, name: "marker_arrow" }
+    { speed: 9000, name: "marker_arrow" }
 ];
 
 /**
