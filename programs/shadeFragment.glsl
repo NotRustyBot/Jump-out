@@ -8,6 +8,9 @@ uniform vec4 inputSize;
 uniform vec4 outputFrame;
 
 uniform vec2 lightDir;
+uniform vec2 effectDir;
+uniform vec4 effectColor;
+uniform float effectPower;
 uniform float rotation;
 uniform sampler2D uSampler;
 uniform sampler2D uOutlineSampler;
@@ -26,14 +29,19 @@ void main(void)
     vec2 pos=coords.xy-vec2(.5,.5);
     //vec2 normLight=vec2(cos(_LightAngle),sin(_LightAngle));
     vec2 normLight=normalize(lightDir);
+    vec2 normEffect=normalize(effectDir);
     float light = dot(pos, rot*normLight)*1.5+0.5;
+    float effect = dot(pos, rot*normEffect)*1.5+0.5;
+    effect = max(0.,min(1.,effect));
     light = max(0.,min(1.,light));
+
+    vec4 effectLight = effect*(effectPower)*effectColor*base.a;
     
     base*=light;
     dark*=1.-light;
     outline*=pow(light,5.);
     
-    fragColor=base+dark+outline;
+    fragColor=base+dark+outline+effectLight;
     //fragColor = vec4(light,light,light,1);
 }
 

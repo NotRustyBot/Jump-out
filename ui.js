@@ -516,7 +516,7 @@ for (let x = 0; x < minimapControl.density; x++) {
 
 
 const minimapScale = 2;
-let minimapPosition = {x:0, y:0};
+let minimapPosition = { x: 0, y: 0 };
 function UpdateMinimap(deltaTime) {
     UpdateBigmap(deltaTime);
     if (localPlayer.ship.level == 0) {
@@ -526,8 +526,10 @@ function UpdateMinimap(deltaTime) {
 
     if (!minimapShown) return;
     scannedObjects.forEach(e => {
-        e.miniSprite.position.x = (e.position.x - minimapPosition.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
-        e.miniSprite.position.y = (e.position.y - minimapPosition.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        if (e.miniSprite) {
+            e.miniSprite.position.x = (e.position.x - minimapPosition.x) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+            e.miniSprite.position.y = (e.position.y - minimapPosition.y) / gasParticleSpacing / minimapControl.zoom * (350 / minimapControl.density / minimapScale) + 350 / 2;
+        }
     });
 
     Marker.list.forEach(m => {
@@ -561,8 +563,8 @@ function UpdateMinimap(deltaTime) {
                 let scale = scannedGas[lxa * 1000 / minimapScale + lya] / 200;
                 if (scale < 0.2) {
                     gasPX.scale.set(0.2);
-                    gasPX.alpha = Math.max(scale*5,0.05);
-                }else{
+                    gasPX.alpha = Math.max(scale * 5, 0.05);
+                } else {
                     gasPX.scale.set(scale);
                     gasPX.alpha = 1;
                 }
@@ -619,8 +621,10 @@ function UpdateBigmap(deltaTime) {
     oscilationPhase += deltaTime * 0.1;
     if (!bigMapShown) return;
     scannedObjects.forEach(e => {
-        e.bigSprite.position.x = (e.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
-        e.bigSprite.position.y = (e.position.y / gasParticleSpacing - big_mapControl.y) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.height / 2;
+        if (e.bigSprite) {
+            e.bigSprite.position.x = (e.position.x / gasParticleSpacing - big_mapControl.x) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.width / 2;
+            e.bigSprite.position.y = (e.position.y / gasParticleSpacing - big_mapControl.y) / big_mapControl.zoom * (bigmap_canvas.width / big_mapControl.density / minimapScale) + bigmap_canvas.height / 2;
+        }
     });
 
     Marker.list.forEach(m => {

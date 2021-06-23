@@ -366,6 +366,7 @@ function graphicsUpdate(deltaTimeFactor) {
         averageFPS.shift();
         minFPS.shift();
         performanceData.start();
+        LightEffect.list.forEach(l => {l.update(deltaTime);});
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateTrails(deltaTime);

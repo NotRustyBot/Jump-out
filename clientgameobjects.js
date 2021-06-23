@@ -172,7 +172,9 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             uOutlineSampler: loader.resources[prefix].texture,
             uDarkSampler: loader.resources[prefix].texture,
             lightDir: [1, 0],
-            rotation: 0
+            effectDir: [1, 0],
+            effectColor: [1, 1, 0, 1],
+            rotation: 0,
         };
         baseTexture = loader.resources[prefix].texture;
         this.material = new PIXI.MeshMaterial(baseTexture, {
@@ -249,7 +251,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
                 this.shadow.visible = true;
                 this.shadow.position.set(this.parent.position.x, this.parent.position.y);
                 if (!source.directional) {
-                    rotation = [source.position.x - this.mesh.x, source.position.y - this.mesh.y];
+                    rotation = [source.position.x - this.mesh.position.x, source.position.y - this.mesh.position.y];
                 } else {
                     rotation = source.rotation;
                 }
@@ -262,12 +264,18 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
 
         let distanceRatio;
         if (!source.directional) {
-            distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.mesh.y, 2) + Math.pow(source.position.x - this.mesh.x, 2));
-            this.material.uniforms.lightDir = [source.position.x - this.mesh.x, source.position.y - this.mesh.y];
+            distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.mesh.position.y, 2) + Math.pow(source.position.x - this.mesh.position.x, 2));
+            this.material.uniforms.lightDir = [source.position.x - this.mesh.position.x, source.position.y - this.mesh.position.y];
         } else {
             this.material.uniforms.lightDir = source.rotation;
             distanceRatio = 1;
         }
+
+        let light = LightEffect.closest(new Vector(this.mesh.position.x, this.mesh.position.y));
+
+        this.material.uniforms.effectDir = [light.relativePosition.x, light.relativePosition.y];
+        this.material.uniforms.effectColor = light.effect.color;
+        this.material.uniforms.effectPower = light.usePower;
 
         this.mesh.rotation = this.parent.rotation;
         this.material.uniforms.rotation = this.mesh.rotation;
@@ -283,13 +291,66 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     }
 }
 
+function LightEffect(position, color, power, duration) {
+    this.position = position;
+    this.color = color;
+    this.power = power;
+    this.duration = duration ||-1;
+    this.time = duration ||-1;
+    this.id = LightEffect.nextId();
+    LightEffect.list.set(this.id, this);
+
+    this.update = function (dt) {
+        if (this.duration == -1) return;
+
+        this.time -= dt;
+        if (this.time < 0) {
+            LightEffect.list.delete(this.id);
+        }
+    }
+}
+LightEffect.id = 0;
+LightEffect.nextId = function () {
+    LightEffect.id++;
+    return LightEffect.id;
+};
+LightEffect.list = new Map();
+
+LightEffect.none = {
+    position: new Vector(0, 0),
+    color: [0, 0, 0, 0],
+    power: 0,
+    duration: 0,
+};
+
+LightEffect.closest = function (position) {
+    let distance = 5000;
+    let closest;
+    let closestRelative = new Vector(0, 0);
+    LightEffect.list.forEach(l => {
+        let relative = l.position.result().sub(position);
+        let dist = relative.length();
+        if (dist/l.power < distance) {
+            distance = dist;
+            closest = l;
+            closestRelative = relative;
+        }
+    });
+    if (closest) {
+        return { effect: closest, relativePosition: closestRelative, usePower: (closest.time/closest.duration) * closest.power*(1-distance/(5000*closest.power))}
+    } else {
+        return { effect: LightEffect.none, relativePosition: closestRelative, usePower: 0 }
+    }
+
+}
+
 function Enterance(id, position) {
     this.id = id;
     this.position = position;
 
     Enterance.list.set(id, this);
 
-    this.update = function() {
+    this.update = function () {
         if (localPlayer.ship.level == 0 && localPlayer.ship.position.result().sub(this.position).inbound(1000)) {
             promptText.text = "Press [G] to enter";
             if (keyDown.g) {
@@ -1056,6 +1117,7 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.position.x = this.position.x;
     this.mesh.position.y = this.position.y;
     this.mesh.rotation = this.rotation;
+    this.mesh.tint = 0xff0000;
 
     projectileContainer.addChild(this.mesh);
     this.mesh.scale.x = 10;
@@ -1069,8 +1131,11 @@ function Projectile(id, position, level, rotation, type) {
 
     this.remove = function () {
         this.mesh.destroy();
+        LightEffect.list.delete(this.lightId);
         Projectile.list.delete(this.id);
     }
+
+    this.lightId = new LightEffect(this.position, [1, 0, 0, 1], 0.3).id;
 
     Projectile.list.set(this.id, this);
 }
