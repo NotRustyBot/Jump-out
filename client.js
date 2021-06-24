@@ -963,6 +963,7 @@ function parseCollision(view) {
         p.setEmitter(temp.position, new Vector(0, 0), 0);
         //Player.players.get(temp.shipId).ship.rotation
         p.emitter.oldPosition = p.emitter.position;
+        new LightEffect(temp.position, [2, 1, 0, 2], 1, .5)
         console.log(temp);
     }
 

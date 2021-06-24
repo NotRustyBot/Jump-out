@@ -93,7 +93,6 @@ objectDictionary[5] = { name: "shipwreck", size: 0, upscale: 3 };
 objectDictionary[101] = { name: "r300", size: 3 };
 objectDictionary[102] = { name: "r300", size: 3 };
 
-let lightObject = { directional: false, position: new Vector(200000, 200000) };
 
 function Entity(type, id) {
     this.position = new Vector(0, 0);
@@ -106,7 +105,7 @@ function Entity(type, id) {
     this.update = function (dt) {
         this.rotation += this.rotationSpeed * dt;
         this.sprite.hidden = (this.level != localPlayer.ship.level);
-        this.sprite.update(lightObject);
+        this.sprite.update();
     };
 
     this.remove = function () {
@@ -136,7 +135,7 @@ function DroppedItem(type, id, stack, targetPos, sourcePos, level) {
             this.position = sourcePos.lerp(targetPos, 1 - (this.animProgress));
         }
         this.sprite.hidden = (this.level != localPlayer.ship.level);
-        this.sprite.update(lightObject);
+        this.sprite.update();
     };
 
     this.remove = function () {
@@ -224,14 +223,13 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     if (!disableShadow)
         shadowContainer.addChild(this.shadow);
 
-    this.update = function (source) {
+    this.update = function () {
         if (this.hidden) {
             this.mesh.visible = false;
             if (!disableShadow)
                 this.shadow.visible = false;
             return;
         }
-        let rotation;
         if (!isOnScreen(this.parent.position, 5000)) {
             if (!disableShadow)
                 this.shadow.visible = false;
@@ -250,32 +248,18 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
             if (!disableShadow) {
                 this.shadow.visible = true;
                 this.shadow.position.set(this.parent.position.x, this.parent.position.y);
-                if (!source.directional) {
-                    rotation = [source.position.x - this.mesh.position.x, source.position.y - this.mesh.position.y];
-                } else {
-                    rotation = source.rotation;
-                }
-                this.shadow.rotation = new Vector(rotation[0], rotation[1]).toAngle() + Math.PI / 2;
+                this.shadow.rotation = new Vector(this.parent.position.x - LightEffect.mainlight.position.x, this.parent.position.y - LightEffect.mainlight.position.y).toAngle() - Math.PI/2;
             }
 
             if (!this.mesh.visible) return;
 
         }
 
-        let distanceRatio;
-        if (!source.directional) {
-            distanceRatio = source.range / Math.sqrt(Math.pow(source.position.y - this.mesh.position.y, 2) + Math.pow(source.position.x - this.mesh.position.x, 2));
-            this.material.uniforms.lightDir = [source.position.x - this.mesh.position.x, source.position.y - this.mesh.position.y];
-        } else {
-            this.material.uniforms.lightDir = source.rotation;
-            distanceRatio = 1;
-        }
+        let light = LightEffect.getUniformData(new Vector(this.mesh.position.x, this.mesh.position.y));
 
-        let light = LightEffect.closest(new Vector(this.mesh.position.x, this.mesh.position.y));
-
-        this.material.uniforms.effectDir = [light.relativePosition.x, light.relativePosition.y];
-        this.material.uniforms.effectColor = light.effect.color;
-        this.material.uniforms.effectPower = light.usePower;
+        this.material.uniforms.lightDirs = light.lightDirs;
+        this.material.uniforms.lightTints = light.lightTints;
+        this.material.uniforms.lightPowers = light.lightPowers;
 
         this.mesh.rotation = this.parent.rotation;
         this.material.uniforms.rotation = this.mesh.rotation;
@@ -295,8 +279,9 @@ function LightEffect(position, color, power, duration) {
     this.position = position;
     this.color = color;
     this.power = power;
-    this.duration = duration ||-1;
-    this.time = duration ||-1;
+    this.duration = duration || -1;
+    this.time = duration || -1;
+    this.permanent = false;
     this.id = LightEffect.nextId();
     LightEffect.list.set(this.id, this);
 
@@ -304,17 +289,22 @@ function LightEffect(position, color, power, duration) {
         if (this.duration == -1) return;
 
         this.time -= dt;
-        if (this.time < 0) {
-            LightEffect.list.delete(this.id);
+        if (this.time < 0 ) {
+            this.time = 0;
+            if (!this.permanent) {
+                LightEffect.list.delete(this.id);
+            }
         }
     }
 }
+
 LightEffect.id = 0;
 LightEffect.nextId = function () {
     LightEffect.id++;
     return LightEffect.id;
 };
 LightEffect.list = new Map();
+LightEffect.mainlight = new LightEffect(new Vector(200001, 200000), [1, 1, 1, 1], 1);
 
 LightEffect.none = {
     position: new Vector(0, 0),
@@ -323,25 +313,34 @@ LightEffect.none = {
     duration: 0,
 };
 
-LightEffect.closest = function (position) {
-    let distance = 5000;
-    let closest;
-    let closestRelative = new Vector(0, 0);
+LightEffect.getUniformData = function (position) {
+    let lightDirs = [];
+    let lightTints = [];
+    let lightPowers = [];
     LightEffect.list.forEach(l => {
-        let relative = l.position.result().sub(position);
-        let dist = relative.length();
-        if (dist/l.power < distance) {
-            distance = dist;
-            closest = l;
-            closestRelative = relative;
+        if (l == LightEffect.mainlight) {
+            lightPowers.push(l.power);
+            lightTints = lightTints.concat(l.color);
+            lightDirs = lightDirs.concat([l.position.x - position.x, l.position.y - position.y]);
+        } else {
+            let relative = l.position.result().sub(position);
+            let dist = relative.length();
+            if (dist / l.power < 5000) {
+                lightPowers.push((1 - (dist/l.power / 5000))*(l.time/l.duration));
+                lightTints = lightTints.concat(l.color);
+                lightDirs = lightDirs.concat([l.position.x - position.x, l.position.y - position.y]);
+            }
         }
     });
-    if (closest) {
-        return { effect: closest, relativePosition: closestRelative, usePower: (closest.time/closest.duration) * closest.power*(1-distance/(5000*closest.power))}
-    } else {
-        return { effect: LightEffect.none, relativePosition: closestRelative, usePower: 0 }
+
+    for (let i = lightPowers.length; i < 10; i++) {
+        lightPowers.push(0);
+        lightDirs = lightDirs.concat([0, 0]);
+        lightTints = lightTints.concat([0, 0, 0, 0]);
     }
 
+
+    return { lightDirs: lightDirs, lightTints: lightTints, lightPowers: lightPowers };
 }
 
 function Enterance(id, position) {
@@ -395,8 +394,11 @@ function Ship(type, player) {
     this.rotationSpeed = 0;
     this.control = new Vector(0, 0);
     this.afterBurnerActive = 0;
+    this.afterBurnerUsed = 0;
     this.afterBurnerFuel = 0;
     this.trails = [];
+    this.light = new LightEffect(this.position, [0,0,0,0], 0.5);
+    this.light.permanent = true;
     for (let i = 0; i < this.stats.trails.length; i++) {
         this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x, this.stats.trails[i].y), this.stats.trails[i].useTrail));
 
@@ -430,8 +432,16 @@ function Ship(type, player) {
 
         this.sprite.hidden = (this.level != localPlayer.ship.level);
 
-        this.sprite.update(lightObject);
+        this.sprite.update();
 
+        this.light.position = this.position;
+        if(this.afterBurnerUsed > 0){
+            this.light.color = [255/255,85/255,153/255,0];
+            this.light.power = 0.5 * this.trails[0].heatRatioNormalised;
+        }else{
+            this.light.color = [95/255,46/255,255/255,0];
+            this.light.power = 0.3 * this.trails[0].heatRatioNormalised;
+        }
     };
 }
 
@@ -1117,7 +1127,7 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.position.x = this.position.x;
     this.mesh.position.y = this.position.y;
     this.mesh.rotation = this.rotation;
-    this.mesh.tint = 0xff0000;
+    this.mesh.tint = 0xff8800;
 
     projectileContainer.addChild(this.mesh);
     this.mesh.scale.x = 10;
@@ -1135,7 +1145,7 @@ function Projectile(id, position, level, rotation, type) {
         Projectile.list.delete(this.id);
     }
 
-    this.lightId = new LightEffect(this.position, [1, 0, 0, 1], 0.3).id;
+    this.lightId = new LightEffect(this.position, [1, 0.5, 0, 1], 0.3).id;
 
     Projectile.list.set(this.id, this);
 }
