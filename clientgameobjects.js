@@ -434,7 +434,7 @@ function Ship(type, player) {
 
         this.sprite.update();
 
-        this.light.position = this.position;
+        this.light.position = this.trails[0].lastEmitPos;
         if(this.afterBurnerUsed > 0){
             this.light.color = [255/255,85/255,153/255,0];
             this.light.power = 0.5 * this.trails[0].heatRatioNormalised;
