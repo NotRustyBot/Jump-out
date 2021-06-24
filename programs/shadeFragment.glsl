@@ -50,17 +50,14 @@ void main(void){
             light = max(0.,min(1.,light));
             vec4 colorHere = light*lightTints[i]*lightPowers[i];
             total += colorHere;
-            outlineColor.r = max(outlineColor.r, pow(colorHere.r*0.9,3.));
-            outlineColor.g = max(outlineColor.g, pow(colorHere.g*0.9,3.));
-            outlineColor.b = max(outlineColor.b, pow(colorHere.b*0.9,3.));
-            outlineColor.a = max(outlineColor.a, pow(colorHere.a*0.9,3.));
+            outlineColor.r = max(outlineColor.r, pow(colorHere.r,3.));
+            outlineColor.g = max(outlineColor.g, pow(colorHere.g,3.));
+            outlineColor.b = max(outlineColor.b, pow(colorHere.b,3.));
+            outlineColor.a = max(outlineColor.a, pow(colorHere.a,3.));
         }
     }
     
-    outline *= outlineColor;
-
-    outline = colorCap(total*outline);
-    
+    outline *= outlineColor;    
 
     dark*=1.-total.a;
     base*=total;
