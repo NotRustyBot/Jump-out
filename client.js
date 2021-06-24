@@ -956,14 +956,14 @@ function parseCollision(view) {
             scale: new Ramp(3, 0),
             alpha: new Ramp(1, 0),
             velocity: new Ramp(400 + 500, 0),
-            color: new ColorRamp(0xffaa00, 0xcc0000),
+            color: new ColorRamp(0x22ff66, 0x11aa33),
             lifetime: new Ramp(0.1, 0.5 + 0.5),
             rotationSpeed: new Ramp(0, 0),
         });
         p.setEmitter(temp.position, new Vector(0, 0), 0);
         //Player.players.get(temp.shipId).ship.rotation
         p.emitter.oldPosition = p.emitter.position;
-        new LightEffect(temp.position, [2, 1, 0, 2], 1, .5)
+        new LightEffect(temp.position, [0.1, 1, 0.3, 1], 1, .5)
         console.log(temp);
     }
 

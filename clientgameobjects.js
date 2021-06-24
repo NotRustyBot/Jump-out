@@ -1127,7 +1127,7 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.position.x = this.position.x;
     this.mesh.position.y = this.position.y;
     this.mesh.rotation = this.rotation;
-    this.mesh.tint = 0xff8800;
+    this.mesh.tint = 0x22ff66;
 
     projectileContainer.addChild(this.mesh);
     this.mesh.scale.x = 10;
@@ -1145,7 +1145,7 @@ function Projectile(id, position, level, rotation, type) {
         Projectile.list.delete(this.id);
     }
 
-    this.lightId = new LightEffect(this.position, [1, 0.5, 0, 1], 0.3).id;
+    this.lightId = new LightEffect(this.position, [0.1, 1, 0.3, 1], 0.3).id;
 
     Projectile.list.set(this.id, this);
 }

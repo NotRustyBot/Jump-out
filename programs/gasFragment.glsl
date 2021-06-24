@@ -140,12 +140,18 @@ float cnoise(vec3 P) {
     return 2.2 * n_xyz;
 }
 
+float noiseRatio(float x){
+    return (1.-(1./(10.*x+1.)));
+}
+
 void main(void) {
     vec2 pos = rectangle.xy + rectangle.zw * vTextureCoord;
     float rnd = random(pos);
     float value = texture(uSampler, pos).a;
-    float gas = (value * 2.55 + rnd * 0.005);
-    vec4 base = vec4(gas* (cnoise(vec3(pos.xy * 500.0, time * 0.3)) * 0.1 + 0.9));
+    float gas = (value * 2.55 + rnd*0.01);
+    float noisePower = noiseRatio(gas)*0.1;
+    float total = gas + cnoise(vec3(pos.xy * 150.0, time * 0.3)) * noisePower +  cnoise(vec3(pos.xy * 300.0, time * 0.3))* noisePower * 0.5 +  cnoise(vec3(pos.xy * 600.0, time * 0.3))* noisePower * 0.3;
+    vec4 base = vec4(total);
     base.a = gas*0.5;
     fragColor = base * uColor * texture(uMapSampler, vec2(value, 0.5));
 }

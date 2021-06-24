@@ -46,7 +46,7 @@ void main(void){
         float power = lightPowers[i];
         if(power != 0.) {
             vec2 normLight=normalize(lightDirs[i]);
-            float light = dot(pos, rot*normLight)*1.5+0.5;
+            float light = dot(pos, rot*normLight)+0.5;
             light = max(0.,min(1.,light));
             vec4 colorHere = light*lightTints[i]*lightPowers[i];
             total += colorHere;
@@ -60,8 +60,11 @@ void main(void){
     outline *= outlineColor;
 
     outline = colorCap(total*outline);
+    
+
     dark*=1.-total.a;
     base*=total;
+
 
     vec4 result = vec4(0);
     result.r = max(base.r, outline.r);
@@ -69,10 +72,11 @@ void main(void){
     result.b = max(base.b, outline.b);
     result.a = max(base.a, outline.a);
 
-    result = colorCap(result);
+
+    result = colorCap(result + dark);
 
     //fragColor=base+dark+outline;
-    fragColor = result + dark;
+    fragColor = result;
 }
 
 `;
