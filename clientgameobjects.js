@@ -938,12 +938,14 @@ function Trail(emitter, offset, useTrail) {
     this.heatRatioMap = new Ramp(0.8, 0);
     this.heatRatio = this.heatRatioMap.min;
     this.heatRatioNormalised = 0;
+    this.lastEmitPos = Vector.zero();
     this.update = function (deltaTime) {
 
         //console.log(this.points);
         let point = this.firstPoint;
         let previousPoint = this.firstPoint;
         let emitPos = this.offset.result().rotate(this.emitter.rotation).add((this.emitter.position));
+        this.lastEmitPos = emitPos;
         //let enginePos = this.offset.result().rotate(this.emitter.rotation).add((this.emitter.position));
         //let emitPos = this.offset.result().mult(1+this.heatRatioNormalised*2).rotate(this.emitter.rotation).add((this.emitter.position));
         this.engineFlame.position.set(emitPos.x, emitPos.y);
