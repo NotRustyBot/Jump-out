@@ -59,6 +59,7 @@ function worldToScreenPos(position) {
 //CONTAINER INIT
 var gameContainer = new PIXI.Container();
 var bgContainer = new PIXI.Container();
+var roomContainer = new PIXI.Container();
 var entityContainer = new PIXI.Container();
 var playerContainer = new PIXI.Container();
 var playerEffectsContainer = new PIXI.Container();
@@ -83,6 +84,7 @@ var gasContainer = new PIXI.Container(10000, {
 gasContainer.filters = [new PIXI.filters.AlphaFilter(0.5)];
 
 gameContainer.addChild(bgContainer);
+gameContainer.addChild(roomContainer);
 gameContainer.addChild(projectileContainer);
 gameContainer.addChild(entityContainer);
 gameContainer.addChild(playerContainer);
@@ -366,7 +368,7 @@ function graphicsUpdate(deltaTimeFactor) {
         averageFPS.shift();
         minFPS.shift();
         performanceData.start();
-        LightEffect.list.forEach(l => {l.update(deltaTime);});
+        LightEffect.list.forEach(l => { l.update(deltaTime); });
         updatePlayers(deltaTime);
         updateParticles(deltaTime);
         updateTrails(deltaTime);
@@ -391,9 +393,9 @@ function graphicsUpdate(deltaTimeFactor) {
             entity.update(deltaTime);
         });
 
-        DroppedItem.list.forEach((item) => {
-            item.update(deltaTime);
-        });
+        DroppedItem.list.forEach(i => { i.update(deltaTime) });
+
+        Room.list.forEach(r => { r.update(deltaTime) });
 
         performanceData.logAndNext();
 
@@ -419,7 +421,7 @@ function updatePlayers(deltaTime) {
     });
 
     promptText.position.x = screen.center.x;
-    promptText.position.y = screen.center.y  + 180;
+    promptText.position.y = screen.center.y + 180;
     promptText.text = "";
     Enterance.list.forEach(e => {
         e.update();
@@ -758,6 +760,9 @@ function parseMessage(message) {
                 case serverHeaders.setupEnterance:
                     parseSetupEnterance(view);
                     break;
+                case serverHeaders.setupRoom:
+                    parseSetupRoom(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -963,8 +968,7 @@ function parseCollision(view) {
         p.setEmitter(temp.position, new Vector(0, 0), 0);
         //Player.players.get(temp.shipId).ship.rotation
         p.emitter.oldPosition = p.emitter.position;
-        new LightEffect(temp.position, [0.2, 2, 0.6, 2], 1, .5)
-        console.log(temp);
+        new LightEffect(temp.position, temp.level, [0.2, 2, 0.6, 2], 1, .5)
     }
 
 }
@@ -1102,7 +1106,13 @@ function parseSetupEnterance(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.SetupEnterance);
     new Enterance(temp.id, temp.position);
-    console.log("yy");
+}
+
+function parseSetupRoom(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.SetupRoom);
+    Room.list.push(new Room(temp.position, temp.rotation, temp.level, temp.type));
+    console.log(temp);
 }
 
 let upBytes = 0;
@@ -1177,7 +1187,7 @@ function handleInput() {
     if (disconnectCamera && keyDown.arrowleft) camera.x -= 20 / camera.zoom;
     if (disconnectCamera && keyDown.arrowdown) camera.y += 20 / camera.zoom;
     if (disconnectCamera && keyDown.arrowup) camera.y -= 20 / camera.zoom;
-
+    
     if (keyDown.f) {
         actionIDs.push(0);
         keyDown.f = false;
@@ -1203,6 +1213,9 @@ function handleInput() {
         window.open("debug/index.html?data=" + performanceData.string());
         performanceData.data = [];
         keyDown.k = false;
+    } else if (keyDown.h) {
+        HotReload();
+        keyDown.h = false;
     } else if (keyDown.l) {
         performanceData.streaming = !performanceData.streaming;
         keyDown.l = false;
@@ -1441,4 +1454,40 @@ function gasShader(gasFrag) {
 
 function initLocalPlayer() {
     localPlayer.nick = playerSettings.nick;
+}
+
+
+function HotReload() {
+    const rqClientgameobjects = new XMLHttpRequest();
+    rqClientgameobjects.onload = function () {
+        let save = {
+            Universe: Universe,
+            Entity_list: Entity.list,
+            DroppedItem_list: DroppedItem.list,
+            LightEffect_list: LightEffect.list,
+            LightEffect_mainlight: LightEffect.LightEffect_mainlight,
+            Enterance_list: Enterance.list,
+            Player_players: Player.players,
+            ParticleSystem_particleSystems: ParticleSystem.particleSystems,
+            Trail_trails: Trail.trails,
+            Marker_list: Marker.list,
+            Projectile_list: Projectile.list,
+            Room_list: Room.list
+        };
+        eval.call(Window,this.responseText);
+        Universe = save.Universe;
+        Entity.list = save.Entity_list;
+        DroppedItem.list = save.DroppedItem_list;
+        LightEffect.list = save.LightEffect_list;
+        LightEffect.LightEffect_mainlight = save.LightEffect_mainlight;
+        Enterance.list = save.Enterance_list;
+        Player.players = save.Player_players;
+        ParticleSystem.particleSystems = save.ParticleSystem_particleSystems;
+        Trail.trails = save.Trail_trails;
+        Marker.list = save.Marker_list;
+        Projectile.list = save.Projectile_list;
+        Room.list = save.Room_list;
+    }
+    rqClientgameobjects.open("GET", "clientgameobjects.js", true);
+    rqClientgameobjects.send();
 }

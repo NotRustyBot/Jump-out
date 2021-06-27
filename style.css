@@ -10,7 +10,7 @@
 }
 
 :root {
-    --ui-scale: 1;
+    --ui-scale: 0.7;
     font-size: calc(var(--ui-scale) * 1em);
 }
 

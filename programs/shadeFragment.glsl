@@ -1,4 +1,4 @@
-const shadeFragCode=`
+let shadeFragCode=`
 #version 300 es
 
 precision mediump float;
@@ -18,13 +18,13 @@ uniform sampler2D uDarkSampler;
 out vec4 fragColor;
 
 vec4 colorCap(vec4 color){
-    float add = max(color.r-1.,0.);
-    add += max(color.g-1.,0.);
-    add += max(color.b-1.,0.);
-    add *= 0.5;
-    color.r = min(color.r + add,1.);
-    color.g = min(color.g + add,1.);
-    color.b = min(color.b + add,1.);
+    //float add = max(color.r-1.,0.);
+    //add += max(color.g-1.,0.);
+    //add += max(color.b-1.,0.);
+    //add *= 0.5;
+    color.r = min(color.r,1.);
+    color.g = min(color.g,1.);
+    color.b = min(color.b,1.);
     color.a = min(color.a,1.);
     return color;
 }
@@ -56,7 +56,7 @@ void main(void){
     
     outline *= outlineColor;    
 
-    dark*=1.-total.a;
+    dark*=max(1.-total.a,0.);
     base*=total;
 
 

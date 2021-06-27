@@ -1,4 +1,4 @@
-const gasFragCode =`
+let gasFragCode =`
 #version 300 es
 
 precision mediump float;

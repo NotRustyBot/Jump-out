@@ -98,5 +98,10 @@ loader
     .add("item_base", "images/item_base.png")
     .add("item_dark", "images/item_dark.png")
     .add("item_outline", "images/item_outline.png")
+    .add("room-0i", "images/rooms/room-0i.png")
+    .add("room-0u", "images/rooms/room-0u.png")
+    .add("room-0t", "images/rooms/room-0t.png")
+    .add("room-0x", "images/rooms/room-0x.png")
+    .add("room-0main", "images/rooms/room-0main.png")
     ;
 //#endregion

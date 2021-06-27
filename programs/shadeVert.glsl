@@ -1,4 +1,4 @@
-const shadeVertCode=`
+let shadeVertCode=`
 #version 300 es
 
 precision mediump float;

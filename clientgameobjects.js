@@ -69,7 +69,7 @@ function Vector(x, y) {
     };
     this.inbound = function (bound) {
         return this.x < bound && this.x > -bound && this.y < bound && this.y > -bound
-    }
+    };
 }
 Vector.zero = function () {
     return new Vector(0, 0);
@@ -81,7 +81,7 @@ Vector.fromAngle = function (r) {
 
 
 
-var Universe = {};
+let Universe = {};
 Universe.gasMap = [];
 
 let objectDictionary = [];
@@ -90,6 +90,7 @@ objectDictionary[2] = { name: "asteroid2", size: 3 };
 objectDictionary[3] = { name: "asteroid3", size: 3 };
 objectDictionary[4] = { name: "asteroid4", size: 3 };
 objectDictionary[5] = { name: "shipwreck", size: 0, upscale: 3 };
+objectDictionary[20] = { name: "hacker", size: 3 };
 objectDictionary[101] = { name: "r300", size: 3 };
 objectDictionary[102] = { name: "r300", size: 3 };
 
@@ -245,10 +246,10 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
 
             this.mesh.position.set(this.parent.position.x, this.parent.position.y);
 
-            if (!disableShadow) {
+            if (!disableShadow && this.parent.level == 0) {
                 this.shadow.visible = true;
                 this.shadow.position.set(this.parent.position.x, this.parent.position.y);
-                this.shadow.rotation = new Vector(this.parent.position.x - LightEffect.mainlight.position.x, this.parent.position.y - LightEffect.mainlight.position.y).toAngle() - Math.PI/2;
+                this.shadow.rotation = new Vector(this.parent.position.x - LightEffect.mainlight.position.x, this.parent.position.y - LightEffect.mainlight.position.y).toAngle() - Math.PI / 2;
             }
 
             if (!this.mesh.visible) return;
@@ -275,8 +276,9 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     }
 }
 
-function LightEffect(position, color, power, duration) {
+function LightEffect(position, level, color, power, duration) {
     this.position = position;
+    this.level = level;
     this.color = color;
     this.power = power;
     this.duration = duration || -1;
@@ -289,7 +291,7 @@ function LightEffect(position, color, power, duration) {
         if (this.duration == -1) return;
 
         this.time -= dt;
-        if (this.time < 0 ) {
+        if (this.time < 0) {
             this.time = 0;
             if (!this.permanent) {
                 LightEffect.list.delete(this.id);
@@ -304,7 +306,7 @@ LightEffect.nextId = function () {
     return LightEffect.id;
 };
 LightEffect.list = new Map();
-LightEffect.mainlight = new LightEffect(new Vector(200001, 200000), [1, 1, 1, 1], 1);
+LightEffect.mainlight = new LightEffect(new Vector(200001, 200000), 0, [1, 1, 1, 1], 1);
 
 LightEffect.none = {
     position: new Vector(0, 0),
@@ -318,17 +320,19 @@ LightEffect.getUniformData = function (position) {
     let lightTints = [];
     let lightPowers = [];
     LightEffect.list.forEach(l => {
-        if (l == LightEffect.mainlight) {
-            lightPowers.push(l.power);
-            lightTints = lightTints.concat(l.color);
-            lightDirs = lightDirs.concat([l.position.x - position.x, l.position.y - position.y]);
-        } else {
-            let relative = l.position.result().sub(position);
-            let dist = relative.length();
-            if (dist / l.power < 5000) {
-                lightPowers.push((1 - (dist/l.power / 5000))*(l.time/l.duration));
+        if (l.level == localPlayer.ship.level) {
+            if (l == LightEffect.mainlight) {
+                lightPowers.push(l.power);
                 lightTints = lightTints.concat(l.color);
                 lightDirs = lightDirs.concat([l.position.x - position.x, l.position.y - position.y]);
+            } else {
+                let relative = l.position.result().sub(position);
+                let dist = relative.length();
+                if (dist / l.power < 5000) {
+                    lightPowers.push((1 - (dist / l.power / 5000)) * (l.time / l.duration));
+                    lightTints = lightTints.concat(l.color);
+                    lightDirs = lightDirs.concat([l.position.x - position.x, l.position.y - position.y]);
+                }
             }
         }
     });
@@ -397,7 +401,7 @@ function Ship(type, player) {
     this.afterBurnerUsed = 0;
     this.afterBurnerFuel = 0;
     this.trails = [];
-    this.light = new LightEffect(this.position, [0,0,0,0], 0.5);
+    this.light = new LightEffect(this.position,0 ,[0, 0, 0, 0], 0.5);
     this.light.permanent = true;
     for (let i = 0; i < this.stats.trails.length; i++) {
         this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x, this.stats.trails[i].y), this.stats.trails[i].useTrail));
@@ -435,11 +439,12 @@ function Ship(type, player) {
         this.sprite.update();
 
         this.light.position = this.trails[0].lastEmitPos;
-        if(this.afterBurnerUsed > 0){
-            this.light.color = [255/255,85/255,153/255,0];
+        this.light.level = this.level;
+        if (this.afterBurnerUsed > 0) {
+            this.light.color = [255 / 255, 85 / 255, 153 / 255, 0];
             this.light.power = 0.5 * this.trails[0].heatRatioNormalised;
-        }else{
-            this.light.color = [95/255,46/255,255/255,0];
+        } else {
+            this.light.color = [95 / 255, 46 / 255, 255 / 255, 0];
             this.light.power = 0.3 * this.trails[0].heatRatioNormalised;
         }
     };
@@ -1135,6 +1140,7 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.scale.x = 10;
 
     this.update = function (dt) {
+        this.mesh.visible = localPlayer.ship.level == this.level;
         this.mesh.position.x = this.position.x;
         this.mesh.position.y = this.position.y;
         this.mesh.rotation = this.rotation;
@@ -1147,7 +1153,7 @@ function Projectile(id, position, level, rotation, type) {
         Projectile.list.delete(this.id);
     }
 
-    this.lightId = new LightEffect(this.position, [0.1, 1, 0.3, 1], 0.3).id;
+    this.lightId = new LightEffect(this.position, this.level ,[0.1, 1, 0.3, 1], 0.3).id;
 
     Projectile.list.set(this.id, this);
 }
@@ -1160,5 +1166,39 @@ Projectile.stats = [
  * @type {Map<number,Projectile>}
  */
 Projectile.list = new Map();
+
+
+function Room(position, rotation, level, type) {
+    this.position = position;
+    this.rotation = rotation;
+    this.level = level;
+    this.type = type;
+
+    this.sprite = new PIXI.Sprite(loader.resources[Room.stats[type].name].texture);
+    this.sprite.position.x = this.position.x;
+    this.sprite.position.y = this.position.y;
+
+    this.sprite.anchor.set(0.5);
+    this.sprite.rotation = this.rotation;
+
+    roomContainer.addChild(this.sprite);
+    this.update = function(dt) {
+        if (localPlayer.ship.level == this.level) {
+            this.sprite.visible = true;
+        }else{
+            this.sprite.visible = false;
+        }
+    }
+};
+
+Room.list = [];
+Room.stats = [
+    {name: "room-0u"},
+    {name: "room-0i"},
+    {name: "room-0t"},
+    {name: "room-0x"},
+    {name: "room-0main"},
+];
+
 
 //#endregion

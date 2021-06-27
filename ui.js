@@ -36,7 +36,7 @@ const gaugeNumberInventory = document.getElementById("gaugeNumberInventory");
 
 const itemElements = document.getElementsByClassName("item");
 
-let uiScale = 1;
+let uiScale = 0.7;
 
 var mousePosition = Vector.zero();
 document.onmousemove = function (e) {
