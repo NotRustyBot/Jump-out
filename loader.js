@@ -94,6 +94,7 @@ loader
     .add("outlineMask", "images/mask_outline.png")
     .add("shadow", "images/shadow2.png")
     .add("smooth", "images/smooth.png")
+    .add("lightSource", "images/light.png")
     .add("flame", "images/flame.png")
     .add("item_base", "images/item_base.png")
     .add("item_dark", "images/item_dark.png")

@@ -945,7 +945,7 @@ function parseCollision(view) {
         p.emitter.oldPosition = p.emitter.position;
     } else if (temp.type == 1) {
         //projectile hit
-        //console.log(speed);
+        
         let stats = Projectile.list.get(temp.firstId).stats;
         let p = new ParticleSystem({
             container: collisionContainer,
@@ -988,7 +988,6 @@ function parseActionReply(view) {
 function parseItemCreate(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.ItemCreate);
-    console.log(temp);
     let newItem = new DroppedItem(
         temp.item,
         temp.id,
@@ -1009,7 +1008,6 @@ function parseItemRemove(view) {
 function parseInventoryChange(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.InventoryChange);
-    console.log(temp);
     if (temp.stack < 0)
         Player.players
             .get(temp.shipId)
@@ -1117,7 +1115,6 @@ function parseSetupRoom(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.SetupRoom);
     Room.list.push(new Room(temp.position, temp.rotation, temp.level, temp.type));
-    console.log(temp);
 }
 
 let upBytes = 0;
@@ -1472,7 +1469,7 @@ function initLocalPlayer() {
 function HotReload() {
     const rqGasLight = new XMLHttpRequest();
     rqGasLight.onload = function () {
-        eval.call(Window,this.responseText);
+        gasLightFragCode = this.responseText.replace("let gasLightFragCode =`","").replace("`","");
     }
     rqGasLight.open("GET", "programs/gasLightFragment.glsl", true);
     rqGasLight.send();

@@ -287,13 +287,14 @@ function LightEffect(position, level, color, power, duration) {
     this.time = duration || -1;
     this.permanent = false;
     this.id = LightEffect.nextId();
-    LightEffect.list.set(this.id, this);
+    LightEffect.list.set(this.id, this);    
 
     this.gasLight = function (tint) {
+        if (this.level != 0) return;
         this.uniforms = {
             position: [this.position.x,this.position.y]
         };
-        let baseTexture = loader.resources["smooth"].texture;
+        let baseTexture = loader.resources["lightSource"].texture;
         this.material = new PIXI.MeshMaterial(baseTexture, {
             program: gasLightProg,
             uniforms: this.uniforms
@@ -312,14 +313,14 @@ function LightEffect(position, level, color, power, duration) {
         this.mesh.position.x = this.position.x;
         this.mesh.position.y = this.position.y;
         this.mesh.tint = tint;
-        this.mesh.alpha = 0.1;
+        this.mesh.alpha = 0.5;
 
         projectileContainer.addChild(this.mesh);
 
     }
 
     this.update = function (dt) {
-        if (this.mesh) {
+        if (this.mesh && this.level == 0) {
             this.mesh.position.x = this.position.x;
             this.mesh.position.y = this.position.y;
             let scale = 18 * this.power * this.time/this.duration;
@@ -1165,6 +1166,7 @@ function Projectile(id, position, level, rotation, type) {
     this.rotation = rotation;
     this.stats = Projectile.stats[type];
     this.velocity = Vector.fromAngle(rotation).normalize(this.stats.speed);
+    this.toRemove = false;
 
     this.uniforms = {};
     let baseTexture = loader.resources[this.stats.name].texture;
@@ -1193,6 +1195,12 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.scale.x = 10;
 
     this.update = function (dt) {
+        if (this.toRemove) {
+            this.mesh.destroy();
+            LightEffect.list.get(this.lightId).remove();
+            Projectile.list.delete(this.id);
+            return
+        }
         this.mesh.visible = localPlayer.ship.level == this.level;
         this.mesh.position.x = this.position.x;
         this.mesh.position.y = this.position.y;
@@ -1201,12 +1209,11 @@ function Projectile(id, position, level, rotation, type) {
     }
 
     this.remove = function () {
-        this.mesh.destroy();
-        LightEffect.list.get(this.lightId).remove();
-        Projectile.list.delete(this.id);
+        this.toRemove = true;
     }
 
     let light = new LightEffect(this.position, this.level, this.stats.light.color, this.stats.light.power);
+
     this.lightId = light.id;
     light.gasLight(this.stats.tint);
 

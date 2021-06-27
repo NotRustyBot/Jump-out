@@ -148,7 +148,7 @@ float noiseRatio(float x){
 
 void main(void) {
     float value = texture(uSampler, vTextureCoord).a;
-    float total = value * (cnoise(vec3(position.xy * 0.001 + (vTextureCoord.xy-vec2(.5)) * 1. * scale, 1.)));
+    float total = value*0.5 + value* (cnoise(vec3(position.xy * 0.001 + (vTextureCoord.xy-vec2(.5)) * .3 * scale, 1.))) * 0.5;
     fragColor = total * uColor;
 }
 `
