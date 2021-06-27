@@ -64,6 +64,7 @@ var entityContainer = new PIXI.Container();
 var playerContainer = new PIXI.Container();
 var playerEffectsContainer = new PIXI.Container();
 var projectileContainer = new PIXI.Container();
+var lightContainer = new PIXI.Container();
 var shadowContainer = new PIXI.Container();
 var effectsContainer = new PIXI.Container();
 var guiContainer = new PIXI.Container();
@@ -89,6 +90,7 @@ gameContainer.addChild(projectileContainer);
 gameContainer.addChild(entityContainer);
 gameContainer.addChild(playerContainer);
 gameContainer.addChild(playerEffectsContainer);
+gameContainer.addChild(lightContainer);
 gameContainer.addChild(gasContainer);
 gameContainer.addChild(shadowContainer);
 gameContainer.addChild(effectsContainer);
@@ -944,6 +946,7 @@ function parseCollision(view) {
     } else if (temp.type == 1) {
         //projectile hit
         //console.log(speed);
+        let stats = Projectile.list.get(temp.firstId).stats;
         let p = new ParticleSystem({
             container: collisionContainer,
             infinite: false,
@@ -961,14 +964,16 @@ function parseCollision(view) {
             scale: new Ramp(3, 0),
             alpha: new Ramp(1, 0),
             velocity: new Ramp(400 + 500, 0),
-            color: new ColorRamp(0x22ff66, 0x11aa33),
+            color: new ColorRamp(stats.tint, 0x333333),
             lifetime: new Ramp(0.1, 0.5 + 0.5),
             rotationSpeed: new Ramp(0, 0),
         });
         p.setEmitter(temp.position, new Vector(0, 0), 0);
         //Player.players.get(temp.shipId).ship.rotation
         p.emitter.oldPosition = p.emitter.position;
-        new LightEffect(temp.position, temp.level, [0.2, 2, 0.6, 2], 1, .5)
+        
+        let light = new LightEffect(temp.position, temp.level, stats.impact.color, stats.impact.power, .5)
+        light.gasLight(stats.tint);
     }
 
 }
@@ -1358,13 +1363,17 @@ let gasTime = 0;
 function gasUpdate(dt) {
     if (gasLoaded) {
         gasTime += dt;
-
+//0x1C2327
         if (localPlayer.ship.level == 0) {
             gasSprite.visible = true;
+            app.renderer.backgroundColor = Math.floor(0x1C * LightEffect.mainlight.power)*0x010000 + Math.floor(0x0023 * LightEffect.mainlight.power)*0x000100 + Math.floor(0x000027 * LightEffect.mainlight.power);
         } else {
             gasSprite.visible = false;
+            app.renderer.backgroundColor = 0;
             return;
         }
+
+        gasSprite.tint = Math.floor(0xff * LightEffect.mainlight.power)*0x010000 + Math.floor(0x00ff * LightEffect.mainlight.power)*0x000100 + Math.floor(0x0000ff * LightEffect.mainlight.power)
 
         gasSprite.scale.x = screen.width;
         gasSprite.scale.y = screen.height;
@@ -1443,6 +1452,9 @@ function generateGas() {
     gasLoaded = true;
 }
 
+let Universe = {};
+Universe.gasMap = [];
+
 function gasShader(gasFrag) {
     gasSprite.material = new PIXI.MeshMaterial(PIXI.Texture.EMPTY, {
         uniforms: gasSprite.material,
@@ -1458,10 +1470,16 @@ function initLocalPlayer() {
 
 
 function HotReload() {
+    const rqGasLight = new XMLHttpRequest();
+    rqGasLight.onload = function () {
+        eval.call(Window,this.responseText);
+    }
+    rqGasLight.open("GET", "programs/gasLightFragment.glsl", true);
+    rqGasLight.send();
+
     const rqClientgameobjects = new XMLHttpRequest();
     rqClientgameobjects.onload = function () {
         let save = {
-            Universe: Universe,
             Entity_list: Entity.list,
             DroppedItem_list: DroppedItem.list,
             LightEffect_list: LightEffect.list,
@@ -1475,7 +1493,6 @@ function HotReload() {
             Room_list: Room.list
         };
         eval.call(Window,this.responseText);
-        Universe = save.Universe;
         Entity.list = save.Entity_list;
         DroppedItem.list = save.DroppedItem_list;
         LightEffect.list = save.LightEffect_list;

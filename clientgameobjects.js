@@ -81,8 +81,7 @@ Vector.fromAngle = function (r) {
 
 
 
-let Universe = {};
-Universe.gasMap = [];
+
 
 let objectDictionary = [];
 objectDictionary[1] = { name: "asteroid1", size: 3 };
@@ -248,6 +247,7 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
 
             if (!disableShadow && this.parent.level == 0) {
                 this.shadow.visible = true;
+                this.shadow.alpha = LightEffect.mainlight.power * 0.2;
                 this.shadow.position.set(this.parent.position.x, this.parent.position.y);
                 this.shadow.rotation = new Vector(this.parent.position.x - LightEffect.mainlight.position.x, this.parent.position.y - LightEffect.mainlight.position.y).toAngle() - Math.PI / 2;
             }
@@ -276,6 +276,8 @@ function ShadedSprite(parent, prefix, sizeObject, isPlayer, disableShadow) {
     }
 }
 
+
+let gasLightProg = new PIXI.Program.from(shadeVertCode, gasLightFragCode);
 function LightEffect(position, level, color, power, duration) {
     this.position = position;
     this.level = level;
@@ -287,16 +289,66 @@ function LightEffect(position, level, color, power, duration) {
     this.id = LightEffect.nextId();
     LightEffect.list.set(this.id, this);
 
+    this.gasLight = function (tint) {
+        this.uniforms = {
+            position: [this.position.x,this.position.y]
+        };
+        let baseTexture = loader.resources["smooth"].texture;
+        this.material = new PIXI.MeshMaterial(baseTexture, {
+            program: gasLightProg,
+            uniforms: this.uniforms
+        });
+
+        this.geometry = new PIXI.Geometry();
+
+        let width = baseTexture.width / 2;
+        let height = baseTexture.height / 2;
+
+        this.geometry.addAttribute('aVertexPosition', [-width, -height, width, -height, width, height, -width, height], 2);
+        this.geometry.addAttribute('aTextureCoord', [0, 0, 1, 0, 1, 1, 0, 1], 2);
+        this.geometry.addIndex([0, 1, 2, 2, 3, 0]);
+
+        this.mesh = new PIXI.Mesh(this.geometry, this.material);
+        this.mesh.position.x = this.position.x;
+        this.mesh.position.y = this.position.y;
+        this.mesh.tint = tint;
+        this.mesh.alpha = 0.1;
+
+        projectileContainer.addChild(this.mesh);
+
+    }
+
     this.update = function (dt) {
+        if (this.mesh) {
+            this.mesh.position.x = this.position.x;
+            this.mesh.position.y = this.position.y;
+            let scale = 18 * this.power * this.time/this.duration;
+            this.mesh.scale.set(scale);
+            let gx = Math.floor(this.position.x / gasParticleSpacing);
+            let gy = Math.floor(this.position.y / gasParticleSpacing);
+            this.mesh.alpha = Universe.gasMap[gx][gy] / 100;
+            this.mesh.material.uniforms.position = [this.position.x,this.position.y];
+            this.mesh.material.uniforms.scale = scale;
+        }
         if (this.duration == -1) return;
 
         this.time -= dt;
         if (this.time < 0) {
             this.time = 0;
             if (!this.permanent) {
+                if (this.mesh) {
+                    this.mesh.destroy();
+                }
                 LightEffect.list.delete(this.id);
             }
         }
+    }
+
+    this.remove = function () {
+        if (this.mesh) {
+            this.mesh.destroy();
+        }
+        LightEffect.list.delete(this.id);
     }
 }
 
@@ -401,7 +453,7 @@ function Ship(type, player) {
     this.afterBurnerUsed = 0;
     this.afterBurnerFuel = 0;
     this.trails = [];
-    this.light = new LightEffect(this.position,0 ,[0, 0, 0, 0], 0.5);
+    this.light = new LightEffect(this.position, 0, [0, 0, 0, 0], 0.5);
     this.light.permanent = true;
     for (let i = 0; i < this.stats.trails.length; i++) {
         this.trails.push(new Trail(this, new Vector(this.stats.trails[i].x, this.stats.trails[i].y), this.stats.trails[i].useTrail));
@@ -1134,9 +1186,10 @@ function Projectile(id, position, level, rotation, type) {
     this.mesh.position.x = this.position.x;
     this.mesh.position.y = this.position.y;
     this.mesh.rotation = this.rotation;
-    this.mesh.tint = 0x22ff66;
+    this.mesh.tint = this.stats.tint;
 
     projectileContainer.addChild(this.mesh);
+
     this.mesh.scale.x = 10;
 
     this.update = function (dt) {
@@ -1149,17 +1202,20 @@ function Projectile(id, position, level, rotation, type) {
 
     this.remove = function () {
         this.mesh.destroy();
-        LightEffect.list.delete(this.lightId);
+        LightEffect.list.get(this.lightId).remove();
         Projectile.list.delete(this.id);
     }
 
-    this.lightId = new LightEffect(this.position, this.level ,[0.1, 1, 0.3, 1], 0.3).id;
+    let light = new LightEffect(this.position, this.level, this.stats.light.color, this.stats.light.power);
+    this.lightId = light.id;
+    light.gasLight(this.stats.tint);
 
     Projectile.list.set(this.id, this);
 }
 
 Projectile.stats = [
-    { speed: 9000, name: "marker_arrow" }
+    { speed: 9000, name: "marker_arrow", light: { color: [0.1, 1, 0.3, 1], power: 0.3 }, tint: 0x22ff66, impact: { color: [0.1, 1, 0.3, 1], power: 0.6 } },
+    { speed: 4000, name: "marker_arrow", light: { color: [1, 0.5, 0.3, 1], power: 0.3 }, tint: 0xff9966, impact: { color: [1, 0.5, 0.3, 1], power: 1 } },
 ];
 
 /**
@@ -1182,10 +1238,10 @@ function Room(position, rotation, level, type) {
     this.sprite.rotation = this.rotation;
 
     roomContainer.addChild(this.sprite);
-    this.update = function(dt) {
+    this.update = function (dt) {
         if (localPlayer.ship.level == this.level) {
             this.sprite.visible = true;
-        }else{
+        } else {
             this.sprite.visible = false;
         }
     }
@@ -1193,11 +1249,11 @@ function Room(position, rotation, level, type) {
 
 Room.list = [];
 Room.stats = [
-    {name: "room-0u"},
-    {name: "room-0i"},
-    {name: "room-0t"},
-    {name: "room-0x"},
-    {name: "room-0main"},
+    { name: "room-0u" },
+    { name: "room-0i" },
+    { name: "room-0t" },
+    { name: "room-0x" },
+    { name: "room-0main" },
 ];
 
 
