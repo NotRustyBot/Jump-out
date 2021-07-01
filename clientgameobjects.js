@@ -79,10 +79,6 @@ Vector.fromAngle = function (r) {
 };
 
 
-
-
-
-
 let objectDictionary = [];
 objectDictionary[1] = { name: "asteroid1", size: 3 };
 objectDictionary[2] = { name: "asteroid2", size: 3 };
@@ -1154,18 +1150,19 @@ Marker.list = new Map();
  * @param {Vector} position
  * @param {number} level
  * @param {number} rotation
+ * @param {Vector} velocity
  * @param {number} type
  */
 
 let projectileProg = new PIXI.Program.from(shadeVertCode, projectileFragCode);
-function Projectile(id, position, level, rotation, type) {
+function Projectile(id, position, level, rotation, velocity, type) {
     this.id = id;
     this.position = position;
     this.level = level;
     this.type = type;
     this.rotation = rotation;
     this.stats = Projectile.stats[type];
-    this.velocity = Vector.fromAngle(rotation).normalize(this.stats.speed);
+    this.velocity = velocity;
     this.toRemove = false;
 
     this.uniforms = {};

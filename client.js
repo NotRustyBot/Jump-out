@@ -1096,7 +1096,7 @@ function parseMarkerRemove(view) {
 function parseCreateProjectile(view) {
     let temp = {};
     view.deserealize(temp, Datagrams.CreateProjectile);
-    new Projectile(temp.id, temp.position, temp.level, temp.rotation, temp.type);
+    new Projectile(temp.id, temp.position, temp.level, temp.rotation, temp.velocity, temp.type);
 }
 
 function parseRemoveProjectile(view) {
