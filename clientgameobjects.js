@@ -85,6 +85,7 @@ objectDictionary[2] = { name: "asteroid2", size: 3 };
 objectDictionary[3] = { name: "asteroid3", size: 3 };
 objectDictionary[4] = { name: "asteroid4", size: 3 };
 objectDictionary[5] = { name: "shipwreck", size: 0, upscale: 3 };
+objectDictionary[6] = { name: "door", size: 0};
 objectDictionary[20] = { name: "hacker", size: 3 };
 objectDictionary[101] = { name: "r300", size: 3 };
 objectDictionary[102] = { name: "r300", size: 3 };
@@ -449,6 +450,7 @@ function Ship(type, player) {
     this.afterBurnerActive = 0;
     this.afterBurnerUsed = 0;
     this.afterBurnerFuel = 0;
+    this.hull = 100;
     this.trails = [];
     this.light = new LightEffect(this.position, 0, [0, 0, 0, 0], 0.5);
     this.light.permanent = true;
@@ -538,6 +540,12 @@ Actions.LevelMove = function (view) {
     view.setUint8(clientHeaders.smartAction);
     view.serialize({ handle: 1, actionId: ActionId.LevelMove }, Datagrams.SmartAction);
     view.serialize({}, SmartActionData[ActionId.LevelMove]);
+}
+
+Actions.Interact = function (view) {
+    view.setUint8(clientHeaders.smartAction);
+    view.serialize({ handle: 1, actionId: ActionId.Interact }, Datagrams.SmartAction);
+    view.serialize({id: Interactable.nearby, option: 0}, SmartActionData[ActionId.Interact]);
 }
 
 ShipType = defineShips(Actions);
@@ -1259,6 +1267,29 @@ Room.stats = [
     { name: "room-0x" },
     { name: "room-0main" },
 ];
+
+function Interactable(id, position, level, bounds) {
+    this.id = id;
+    this.position = position;
+    this.level = level;
+    this.bounds = bounds;
+
+    this.update = function() {
+        if (this.level == localPlayer.ship.level) {
+            let diff = this.position.result().sub(localPlayer.ship.position);
+            if (diff.inbound(this.bounds)) {
+                promptText.text = "Press [G] to interact";
+                if (keyDown.g) {
+                    Interactable.nearby = this.id;
+                    actionIDs.push(7);
+                    keyDown.g = false;
+                }
+            }
+        }
+    }
+}
+Interactable.nearby = 0;
+Interactable.list = [];
 
 
 //#endregion

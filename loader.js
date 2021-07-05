@@ -104,5 +104,6 @@ loader
     .add("room-0t", "images/rooms/room-0t.png")
     .add("room-0x", "images/rooms/room-0x.png")
     .add("room-0main", "images/rooms/room-0main.png")
+    .add("door", "images/rooms/door.png")
     ;
 //#endregion

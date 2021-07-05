@@ -399,6 +399,8 @@ function graphicsUpdate(deltaTimeFactor) {
 
         Room.list.forEach(r => { r.update(deltaTime) });
 
+        Interactable.list.forEach(i => { i.update() });
+
         performanceData.logAndNext();
 
         //gasParticleContainers[5][5].visible = true;
@@ -555,7 +557,7 @@ function updateProjectiles(deltaTime) {
 
 function updateGui(deltaTime) {
     let shieldRatio = 75;
-    let hullRatio = 75;
+    let hullRatio = localPlayer.ship.hull;
     let fuelRatio = localPlayer.ship.afterBurnerFuel / 6;
     let cargoRatio =
         (localPlayer.ship.inventory.used / localPlayer.ship.inventory.capacity) *
@@ -765,6 +767,9 @@ function parseMessage(message) {
                 case serverHeaders.setupRoom:
                     parseSetupRoom(view);
                     break;
+                case serverHeaders.setupInteractable:
+                    parseSetupInteractable(view);
+                    break;
             }
         }
         else if (messageType == serverHeaders.initResponse) {
@@ -945,7 +950,7 @@ function parseCollision(view) {
         p.emitter.oldPosition = p.emitter.position;
     } else if (temp.type == 1) {
         //projectile hit
-        
+
         let stats = Projectile.list.get(temp.firstId).stats;
         let p = new ParticleSystem({
             container: collisionContainer,
@@ -971,7 +976,7 @@ function parseCollision(view) {
         p.setEmitter(temp.position, new Vector(0, 0), 0);
         //Player.players.get(temp.shipId).ship.rotation
         p.emitter.oldPosition = p.emitter.position;
-        
+
         let light = new LightEffect(temp.position, temp.level, stats.impact.color, stats.impact.power, .5)
         light.gasLight(stats.tint);
     }
@@ -1117,6 +1122,12 @@ function parseSetupRoom(view) {
     Room.list.push(new Room(temp.position, temp.rotation, temp.level, temp.type));
 }
 
+function parseSetupInteractable(view) {
+    let temp = {};
+    view.deserealize(temp, Datagrams.SetupInteractable);
+    Interactable.list.push(new Interactable(Interactable.list.length, temp.position, temp.level, temp.bounds));
+}
+
 let upBytes = 0;
 let packetNumber = 0;
 let pingTime = [];
@@ -1189,7 +1200,7 @@ function handleInput() {
     if (disconnectCamera && keyDown.arrowleft) camera.x -= 20 / camera.zoom;
     if (disconnectCamera && keyDown.arrowdown) camera.y += 20 / camera.zoom;
     if (disconnectCamera && keyDown.arrowup) camera.y -= 20 / camera.zoom;
-    
+
     if (keyDown.f) {
         actionIDs.push(0);
         keyDown.f = false;
@@ -1360,17 +1371,17 @@ let gasTime = 0;
 function gasUpdate(dt) {
     if (gasLoaded) {
         gasTime += dt;
-//0x1C2327
+        //0x1C2327
         if (localPlayer.ship.level == 0) {
             gasSprite.visible = true;
-            app.renderer.backgroundColor = Math.floor(0x1C * LightEffect.mainlight.power)*0x010000 + Math.floor(0x0023 * LightEffect.mainlight.power)*0x000100 + Math.floor(0x000027 * LightEffect.mainlight.power);
+            app.renderer.backgroundColor = Math.floor(0x1C * LightEffect.mainlight.power) * 0x010000 + Math.floor(0x0023 * LightEffect.mainlight.power) * 0x000100 + Math.floor(0x000027 * LightEffect.mainlight.power);
         } else {
             gasSprite.visible = false;
             app.renderer.backgroundColor = 0;
             return;
         }
 
-        gasSprite.tint = Math.floor(0xff * LightEffect.mainlight.power)*0x010000 + Math.floor(0x00ff * LightEffect.mainlight.power)*0x000100 + Math.floor(0x0000ff * LightEffect.mainlight.power)
+        gasSprite.tint = Math.floor(0xff * LightEffect.mainlight.power) * 0x010000 + Math.floor(0x00ff * LightEffect.mainlight.power) * 0x000100 + Math.floor(0x0000ff * LightEffect.mainlight.power)
 
         gasSprite.scale.x = screen.width;
         gasSprite.scale.y = screen.height;
@@ -1469,7 +1480,7 @@ function initLocalPlayer() {
 function HotReload() {
     const rqGasLight = new XMLHttpRequest();
     rqGasLight.onload = function () {
-        gasLightFragCode = this.responseText.replace("let gasLightFragCode =`","").replace("`","");
+        gasLightFragCode = this.responseText.replace("let gasLightFragCode =`", "").replace("`", "");
     }
     rqGasLight.open("GET", "programs/gasLightFragment.glsl", true);
     rqGasLight.send();
@@ -1489,7 +1500,7 @@ function HotReload() {
             Projectile_list: Projectile.list,
             Room_list: Room.list
         };
-        eval.call(Window,this.responseText);
+        eval.call(Window, this.responseText);
         Entity.list = save.Entity_list;
         DroppedItem.list = save.DroppedItem_list;
         LightEffect.list = save.LightEffect_list;
