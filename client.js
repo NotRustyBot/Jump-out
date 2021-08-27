@@ -330,6 +330,7 @@ function graphicsUpdate(deltaTimeFactor) {
         averageFPS.push(app.ticker.FPS);
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
+        deltaTime *= 0.1;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
         netTimer += deltaTime;
         fpsText.text =
@@ -635,7 +636,7 @@ networker.onmessage = function (e) {
             break;
         default:
             break;
-    }
+    } 
 };
 
 function connect() {
@@ -644,8 +645,8 @@ function connect() {
         "Attempt " + connectionAttempts + "/" + maxReconnectAttempts;
     document.getElementById("loadingBar").style.width =
         (100 * connectionAttempts) / maxReconnectAttempts + "%";
-    if (window.location.hostname == "10.200.140.14") {
-        networker.postMessage({ type: 1, address: "ws://10.200.140.14:20003/" });
+    if (window.location.hostname == "127.0.0.1") {
+        networker.postMessage({ type: 1, address: "ws://127.0.0.1:20003/" });
         console.log("Connecting to local...");
     } else {
         networker.postMessage({ type: 1, address: "wss://jumpout.ws.coal.games/" });
