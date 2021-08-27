@@ -330,7 +330,7 @@ function graphicsUpdate(deltaTimeFactor) {
         averageFPS.push(app.ticker.FPS);
         minFPS.push(app.ticker.FPS);
         let deltaTime = app.ticker.deltaMS / 1000;
-        deltaTime *= 3;
+        deltaTime *= 1;
         let fuel = localPlayer.ship.afterBurnerFuel || 0;
         netTimer += deltaTime;
         fpsText.text =
